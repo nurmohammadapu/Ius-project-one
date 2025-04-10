@@ -59,12 +59,6 @@
 
 ---
 
-## 📸 Screenshot
-
-![Demo Image](https://raw.githubusercontent.com/nurmohammadapu/StudyNotion-Hosting/main/public/demo.png)
-
----
-
 ## 🧑‍💻 Installation
 
 1. **Clone the repository**
