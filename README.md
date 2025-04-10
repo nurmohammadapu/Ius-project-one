@@ -14,6 +14,12 @@ Absolutely! Here's your **complete `README.md`** – formatted and ready to copy
 
 ---
 
+### 🎥 Demo Image
+![Demo Image](/demo.png)
+
+---
+
+
 ### 🔑 Test Credentials
 
 #### 👩‍🏫 Instructor / Teacher
@@ -23,6 +29,8 @@ Absolutely! Here's your **complete `README.md`** – formatted and ready to copy
 #### 👩‍🎓 Student
 - **Email:** `argentina.group2016@gmail.com`  
 - **Password:** `1234`
+
+
 
 ## 🚀 Features
 
