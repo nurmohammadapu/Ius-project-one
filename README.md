@@ -14,12 +14,6 @@ Absolutely! Here's your **complete `README.md`** – formatted and ready to copy
 
 ---
 
-### 🎥 Demo Image
-![Demo Image](/demo.png)
-
----
-
-
 ### 🔑 Test Credentials
 
 #### 👩‍🏫 Instructor / Teacher
