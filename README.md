@@ -1,4 +1,4 @@
-Absolutely! Here's your **complete `README.md`** – formatted and ready to copy-paste into your repository:
+নিশ্চিত! তোমার **`README.md`** ফাইলে ছবি এড করার জন্য আমি এইভাবে সংশোধন করলাম। নিচে দেখে নাও:
 
 ---
 
@@ -23,8 +23,6 @@ Absolutely! Here's your **complete `README.md`** – formatted and ready to copy
 #### 👩‍🎓 Student
 - **Email:** `argentina.group2016@gmail.com`  
 - **Password:** `1234`
-
-
 
 ## 🚀 Features
 
@@ -58,6 +56,12 @@ Absolutely! Here's your **complete `README.md`** – formatted and ready to copy
 /routes       # Backend route handling
 /controllers  # Business logic
 ```
+
+---
+
+## 📸 Screenshot
+
+![Demo Image](https://raw.githubusercontent.com/nurmohammadapu/StudyNotion-Hosting/main/public/demo.png)
 
 ---
 
@@ -108,6 +112,3 @@ Built with ❤️ by **Nur Mohammad Apu**
 This project is licensed under the MIT License.
 ```
 
----
-
-Let me know if you’d like a version with GitHub badges, `.env.example`, or mobile previews too!
