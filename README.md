@@ -28,7 +28,7 @@ Absolutely! Here's your **complete `README.md`** – formatted and ready to copy
 
 ### 📸 Demo Screenshot
 
-![StudyNotion Demo](./src/assets/images/demo.png)
+![StudyNotion Demo](./public/images/demo.png)
 
 ---
 
