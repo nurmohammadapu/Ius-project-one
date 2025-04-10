@@ -24,20 +24,12 @@ Absolutely! Here's your **complete `README.md`** – formatted and ready to copy
 - **Email:** `argentina.group2016@gmail.com`  
 - **Password:** `1234`
 
----
-
-### 📸 Demo Screenshot
-
-![StudyNotion Demo](./src/assets/Images/loginBoy.jpg)
-
----
-
 ## 🚀 Features
 
 - 👨‍🏫 Teachers can create, manage, and sell their own courses  
 - 👩‍🎓 Students can browse, enroll, and track learning progress  
 - 🔐 Secure authentication and role-based access (admin/instructor/student)  
-- 💳 Payment integration for seamless transactions (e.g., Stripe)  
+- 💳 Payment integration for seamless transactions (e.g., razorpay)  
 - 🛠️ Scalable course management system  
 - ⚡ Fast and responsive UI using Tailwind CSS  
 - 🌐 RESTful API built with Express and Node.js  
