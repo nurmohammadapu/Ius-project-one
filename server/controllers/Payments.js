@@ -181,3 +181,133 @@ const enrollStudents = async (courses, userId, res) => {
     }
   }
 };
+
+const { stripeInstance } = require("../config/stripe");
+
+// Capture the payment and initiate the Stripe checkout session
+exports.createStripeCheckoutSession = async (req, res) => {
+  const { courses } = req.body;
+  const userId = req.user.id;
+
+  if (!courses || courses.length === 0) {
+    return res.json({ success: false, message: "Please Provide Course ID" });
+  }
+
+  let total_amount = 0;
+  const lineItems = [];
+
+  for (const course_id of courses) {
+    try {
+      const course = await prisma.course.findUnique({
+        where: { id: course_id },
+        include: { studentsEnroled: true },
+      });
+
+      if (!course) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Could not find the Course" });
+      }
+
+      const isEnrolled = course.studentsEnroled.some((s) => s.id === userId);
+      if (isEnrolled) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Student is already Enrolled" });
+      }
+
+      total_amount += course.price || 0;
+
+      lineItems.push({
+        price_data: {
+          currency: "inr",
+          product_data: {
+            name: course.courseName,
+            description: course.courseDescription || "",
+            images: course.thumbnail ? [course.thumbnail] : [],
+          },
+          unit_amount: Math.round((course.price || 0) * 100),
+        },
+        quantity: 1,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+  try {
+    const session = await stripeInstance.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: lineItems,
+      mode: "payment",
+      success_url: `http://localhost:5173/dashboard/enrolled-courses?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `http://localhost:5173/dashboard/cart`,
+      metadata: {
+        userId: userId,
+        courses: JSON.stringify(courses),
+      },
+    });
+
+    res.json({
+      success: true,
+      data: {
+        sessionUrl: session.url,
+        sessionId: session.id,
+      },
+    });
+  } catch (error) {
+    console.error("STRIPE SESSION CREATE ERROR:", error);
+    res.status(500).json({ success: false, message: "Could not initiate Stripe session." });
+  }
+};
+
+// Verify Stripe Payment
+exports.verifyStripePayment = async (req, res) => {
+  const { sessionId } = req.body;
+  const userId = req.user.id;
+
+  if (!sessionId) {
+    return res.status(400).json({ success: false, message: "Session ID is required" });
+  }
+
+  try {
+    const session = await stripeInstance.checkout.sessions.retrieve(sessionId);
+
+    if (session.payment_status === "paid") {
+      const metadata = session.metadata;
+      if (metadata.userId !== userId) {
+        return res.status(403).json({ success: false, message: "Unauthorized user for this payment session" });
+      }
+
+      const courses = JSON.parse(metadata.courses);
+
+      const enrolledCourses = [];
+      for (const courseId of courses) {
+        const course = await prisma.course.findUnique({
+          where: { id: courseId },
+          include: { studentsEnroled: true },
+        });
+
+        if (course) {
+          const isEnrolled = course.studentsEnroled.some((s) => s.id === userId);
+          if (!isEnrolled) {
+            enrolledCourses.push(courseId);
+          }
+        }
+      }
+
+      if (enrolledCourses.length > 0) {
+        await enrollStudents(enrolledCourses, userId, res);
+      } else {
+        // Already enrolled, just send success
+        return res.status(200).json({ success: true, message: "Payment Verified" });
+      }
+    } else {
+      return res.status(400).json({ success: false, message: "Payment not completed" });
+    }
+  } catch (error) {
+    console.error("STRIPE VERIFY ERROR:", error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};

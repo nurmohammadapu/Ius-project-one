@@ -22,6 +22,8 @@ export const endpoints = {
     COURSE_PAYMENT_API: BASE_URL + "/payment/capturePayment",
     COURSE_VERIFY_API: BASE_URL + "/payment/verifyPayment",
     SEND_PAYMENT_SUCCESS_EMAIL_API: BASE_URL + "/payment/sendPaymentSuccessEmail",
+    CREATE_STRIPE_SESSION_API: BASE_URL + "/payment/createStripeCheckoutSession",
+    VERIFY_STRIPE_PAYMENT_API: BASE_URL + "/payment/verifyStripePayment",
   }
 
     // STUDENTS ENDPOINTS

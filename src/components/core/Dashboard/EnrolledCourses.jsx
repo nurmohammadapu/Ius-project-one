@@ -106,18 +106,31 @@
 import { useEffect, useState } from "react"
 import ProgressBar from "@ramonak/react-progress-bar"
 import { BiDotsVerticalRounded } from "react-icons/bi"
-import { useSelector } from "react-redux"
+import { useSelector, useDispatch } from "react-redux"
 import { useNavigate } from "react-router-dom"
 
 import { getUserEnrolledCourses } from "../../../services/operations/profileAPI"
+import { verifyStripePayment } from "../../../services/operations/studentFeaturesAPI"
 
 export default function EnrolledCourses() {
   const { token } = useSelector((state) => state.auth)
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   const [enrolledCourses, setEnrolledCourses] = useState(null)
 
   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const sessionId = urlParams.get("session_id")
+
+    if (sessionId) {
+      ;(async () => {
+        navigate(window.location.pathname, { replace: true })
+        await verifyStripePayment(token, sessionId, navigate, dispatch)
+      })()
+      return
+    }
+
     ;(async () => {
       try {
         const res = await getUserEnrolledCourses(token) // Getting all the published and the drafted courses

@@ -10,6 +10,8 @@ const {
   COURSE_PAYMENT_API,
   COURSE_VERIFY_API,
   SEND_PAYMENT_SUCCESS_EMAIL_API,
+  CREATE_STRIPE_SESSION_API,
+  VERIFY_STRIPE_PAYMENT_API,
 } = studentEndpoints
 
 // Load the Razorpay SDK from the CDN
@@ -143,4 +145,63 @@ async function sendPaymentSuccessEmail(response, amount, token) {
   } catch (error) {
     console.log("PAYMENT SUCCESS EMAIL ERROR............", error)
   }
+}
+
+// Buy Course with Stripe (Redirect flow)
+export async function buyCourseWithStripe(token, courses, dispatch) {
+  const toastId = toast.loading("Connecting to Stripe...")
+  dispatch(setPaymentLoading(true))
+  try {
+    const response = await apiConnector(
+      "POST",
+      CREATE_STRIPE_SESSION_API,
+      { courses },
+      {
+        Authorization: `Bearer ${token}`,
+      }
+    )
+
+    if (!response.data.success) {
+      throw new Error(response.data.message)
+    }
+
+    const { sessionUrl } = response.data.data
+    window.location.href = sessionUrl
+  } catch (error) {
+    console.log("STRIPE CHECKOUT ERROR............", error)
+    const errorMessage = error.response?.data?.message || error.message || "Could Not Initiate Stripe Payment."
+    toast.error(errorMessage)
+  }
+  toast.dismiss(toastId)
+  dispatch(setPaymentLoading(false))
+}
+
+// Verify Stripe Payment
+export async function verifyStripePayment(token, sessionId, navigate, dispatch) {
+  const toastId = toast.loading("Verifying Stripe Payment...")
+  dispatch(setPaymentLoading(true))
+  try {
+    const response = await apiConnector(
+      "POST",
+      VERIFY_STRIPE_PAYMENT_API,
+      { sessionId },
+      {
+        Authorization: `Bearer ${token}`,
+      }
+    )
+
+    if (!response.data.success) {
+      throw new Error(response.data.message)
+    }
+
+    toast.success("Payment Successful! You are enrolled in the course.")
+    dispatch(resetCart())
+    navigate("/dashboard/enrolled-courses")
+  } catch (error) {
+    console.log("STRIPE VERIFY ERROR............", error)
+    toast.error("Could Not Verify Stripe Payment.")
+    navigate("/dashboard/cart")
+  }
+  toast.dismiss(toastId)
+  dispatch(setPaymentLoading(false))
 }

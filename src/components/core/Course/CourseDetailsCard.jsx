@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom"
 
 import { addToCart } from "../../../redux/Slices/cartSlice"
+import { buyCourseWithStripe } from "../../../services/operations/studentFeaturesAPI"
 import { ACCOUNT_TYPE } from "../../../utils/constants"
 
 // const CourseIncludes = [
@@ -25,8 +26,8 @@ function CourseDetailsCard({ course, setConfirmationModal, handleBuyCourse }) {
   const {
     thumbnail: ThumbnailImage,
     price: CurrentPrice,
-    _id: courseId,
   } = course
+  const courseId = course?.id || course?._id
 
   const handleShare = () => {
     copy(window.location.href)
@@ -52,7 +53,28 @@ function CourseDetailsCard({ course, setConfirmationModal, handleBuyCourse }) {
     })
   }
 
-  // console.log("Student already enrolled ", course?.studentsEnroled, user?._id)
+  const handleBuyCourseStripe = () => {
+    if (user && user?.accountType === ACCOUNT_TYPE.INSTRUCTOR) {
+      toast.error("You are an Instructor. You can't buy a course.")
+      return
+    }
+    if (token) {
+      buyCourseWithStripe(token, [courseId], dispatch)
+      return
+    }
+    setConfirmationModal({
+      text1: "You are not logged in!",
+      text2: "Please login to Purchase Course.",
+      btn1Text: "Login",
+      btn2Text: "Cancel",
+      btn1Handler: () => navigate("/login"),
+      btn2Handler: () => setConfirmationModal(null),
+    })
+  }
+
+  const isEnrolled = user && course?.studentsEnroled?.some(
+    (student) => (student.id || student._id || student) === (user?.id || user?._id)
+  )
 
   return (
     <>
@@ -74,16 +96,22 @@ function CourseDetailsCard({ course, setConfirmationModal, handleBuyCourse }) {
             <button
               className="yellowButton"
               onClick={
-                user && course?.studentsEnroled.includes(user?._id)
+                isEnrolled
                   ? () => navigate("/dashboard/enrolled-courses")
                   : handleBuyCourse
               }
             >
-              {user && course?.studentsEnroled.includes(user?._id)
-                ? "Go To Course"
-                : "Buy Now"}
+              {isEnrolled ? "Go To Course" : "Buy Now"}
             </button>
-            {(!user || !course?.studentsEnroled.includes(user?._id)) && (
+            {!isEnrolled && (
+              <button
+                className="yellowButton bg-yellow-100 text-richblack-900"
+                onClick={handleBuyCourseStripe}
+              >
+                Pay with Card (Stripe)
+              </button>
+            )}
+            {!isEnrolled && (
               <button onClick={handleAddToCart} className="blackButton">
                 Add to Cart
               </button>

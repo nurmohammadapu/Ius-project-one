@@ -15,7 +15,7 @@ import CourseAccordionBar from "../components/core/Course/CourseAccordionBar"
 import CourseDetailsCard from "../components/core/Course/CourseDetailsCard"
 import { formatDate } from "../services/formatDate"
 import { fetchCourseDetails } from "../services/operations/courseDetailsAPI"
-import { BuyCourse } from "../services/operations/studentFeaturesAPI"
+import { BuyCourse, buyCourseWithStripe } from "../services/operations/studentFeaturesAPI"
 import GetAvgRating from "../utils/avgRating"
 import Error from "./Error"
 
@@ -127,6 +127,22 @@ function CourseDetails() {
     })
   }
 
+  const handleBuyCourseStripe = () => {
+    if (token) {
+      buyCourseWithStripe(token, [courseId], dispatch)
+      return
+    }
+
+    setConfirmationModal({
+      text1: "You are not logged in!",
+      text2: "Please login to Purchase Course.",
+      btn1Text: "Login",
+      btn2Text: "Cancel",
+      btn1Handler: () => navigate("/login"),
+      btn2Handler: () => setConfirmationModal(null),
+    })
+  }
+
   if (paymentLoading) {
     // console.log("payment loading")
     return (
@@ -135,6 +151,10 @@ function CourseDetails() {
       </div>
     )
   }
+
+  const isEnrolled = user && studentsEnroled.some(
+    (student) => (student.id || student._id || student) === (user?.id || user?._id)
+  )
 
   return (
     <>
@@ -185,10 +205,25 @@ function CourseDetails() {
               <p className="space-x-3 pb-4 text-3xl font-semibold text-richblack-5">
                 Rs. {price}
               </p>
-              <button className="yellowButton" onClick={handleBuyCourse}>
-                Buy Now
+              <button
+                className="yellowButton"
+                onClick={
+                  isEnrolled
+                    ? () => navigate("/dashboard/enrolled-courses")
+                    : handleBuyCourse
+                }
+              >
+                {isEnrolled ? "Go To Course" : "Buy Now"}
               </button>
-              <button className="blackButton">Add to Cart</button>
+              {!isEnrolled && (
+                <button
+                  className="yellowButton bg-yellow-100 text-richblack-900"
+                  onClick={handleBuyCourseStripe}
+                >
+                  Pay with Card (Stripe)
+                </button>
+              )}
+              {!isEnrolled && <button className="blackButton">Add to Cart</button>}
             </div>
           </div>
           {/* Courses Card */}

@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom"
 
-import { BuyCourse } from "../../../../services/operations/studentFeaturesAPI"
+import { BuyCourse, buyCourseWithStripe } from "../../../../services/operations/studentFeaturesAPI"
 import IconBtn from "../../../Common/IconBtn"
 
 export default function RenderTotalAmount() {
@@ -16,6 +16,11 @@ export default function RenderTotalAmount() {
     BuyCourse(token, courses, user, navigate, dispatch)
   }
 
+  const handleBuyCourseStripe = () => {
+    const courses = cart.map((course) => course?.id || course?._id)
+    buyCourseWithStripe(token, courses, dispatch)
+  }
+
   return (
     <div className="min-w-[280px] rounded-md border-[1px] border-richblack-700 bg-richblack-800 p-6">
       <p className="mb-1 text-sm font-medium text-richblack-300">Total:</p>
@@ -25,6 +30,12 @@ export default function RenderTotalAmount() {
         onclick={handleBuyCourse}
         customClasses="w-full justify-center"
       />
+      <button
+        onClick={handleBuyCourseStripe}
+        className="w-full justify-center rounded-md bg-yellow-50 px-[20px] py-[8px] font-semibold text-richblack-900 mt-2"
+      >
+        Pay with Card (Stripe)
+      </button>
     </div>
   )
 }
