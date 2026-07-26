@@ -28,7 +28,9 @@ export function sendOtp(email, navigate) {
       }
 
       toast.success("OTP Sent Successfully");
-      navigate("/verify-email");
+      if (typeof navigate === "function") {
+        navigate("/verify-email");
+      }
     } catch (error) {
       console.error("SENDOTP API ERROR:", error);
       const errorMessage = error.response?.data?.message || error.message || "Could Not Send OTP";
@@ -68,12 +70,16 @@ export function signUp(
       }
 
       toast.success("Signup Successful");
-      navigate("/login");
+      if (typeof navigate === "function") {
+        navigate("/login");
+      }
     } catch (error) {
       console.error("SIGNUP API ERROR:", error);
       const errorMessage = error.response?.data?.message || error.message || "Signup Failed";
       toast.error(errorMessage);
-      navigate("/signup");
+      if (typeof navigate === "function") {
+        navigate("/signup");
+      }
     }
     dispatch(setLoading(false));
     toast.dismiss(toastId);
@@ -102,7 +108,9 @@ export function login(email, password, navigate) {
       dispatch(setUser({ ...response.data.user, image: userImage }));
       localStorage.setItem("token", JSON.stringify(response.data.token));
       localStorage.setItem("user", JSON.stringify(response.data.user));
-      navigate("/dashboard/my-profile");
+      if (typeof navigate === "function") {
+        navigate("/dashboard/my-profile");
+      }
     } catch (error) {
       console.error("LOGIN API ERROR:", error);
       const errorMessage = error.response?.data?.message || error.message || "Login Failed";
@@ -152,7 +160,9 @@ export function resetPassword(password, confirmPassword, token, navigate) {
       }
 
       toast.success("Password Reset Successfully");
-      navigate("/login");
+      if (typeof navigate === "function") {
+        navigate("/login");
+      }
     } catch (error) {
       console.error("RESETPASSWORD ERROR:", error);
       const errorMessage = error.response?.data?.message || error.message || "Failed To Reset Password";
@@ -171,6 +181,8 @@ export function logout(navigate) {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     toast.success("Logged Out");
-    navigate("/");
+    if (typeof navigate === "function") {
+      navigate("/");
+    }
   };
 }

@@ -201,10 +201,12 @@ exports.login = async (req, res) => {
 exports.sendotp = async (req, res) => {
   try {
     const { email } = req.body;
+    console.log("📩 [SEND_OTP] Request received for email:", email);
 
     const checkUserPresent = await prisma.user.findUnique({ where: { email } });
 
     if (checkUserPresent) {
+      console.log("⚠️ [SEND_OTP] User is already registered:", email);
       return res.status(401).json({
         success: false,
         message: `User is Already Registered`,
@@ -226,18 +228,21 @@ exports.sendotp = async (req, res) => {
       });
       result = await prisma.oTP.findFirst({ where: { otp } });
     }
+    console.log("🔑 [SEND_OTP] Generated unique OTP:", otp);
 
     const otpBody = await prisma.oTP.create({
       data: { email, otp },
     });
+    console.log("💾 [SEND_OTP] OTP saved to Database successfully:", otpBody.id);
 
     // Send Mail
     const mailSenderUtil = require("../utils/mailSender");
     const emailTemplate = require("../mail/templates/emailVerificationTemplate");
     try {
       await mailSenderUtil(email, "Verification Email from StudyNotion", emailTemplate(otp));
+      console.log("✉️ [SEND_OTP] Verification Email triggered successfully.");
     } catch (mailErr) {
-      console.log("Failed to send Verification Mail:", mailErr);
+      console.error("❌ [SEND_OTP MAIL ERROR] Failed to send Verification Mail:", mailErr.message);
     }
 
     res.status(200).json({
@@ -246,7 +251,7 @@ exports.sendotp = async (req, res) => {
       otp,
     });
   } catch (error) {
-    console.log(error.message);
+    console.error("❌ [SEND_OTP FATAL ERROR]:", error);
     return res.status(500).json({ success: false, error: error.message });
   }
 };

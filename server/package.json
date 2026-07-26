@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "predev": "fuser -k 9000/tcp || true",
     "dev": "nodemon",
     "start": "node index.js"
   },
