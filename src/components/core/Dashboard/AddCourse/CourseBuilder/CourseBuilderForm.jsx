@@ -43,7 +43,7 @@ export default function CourseBuilderForm() {
         {
           sectionName: data.sectionName,
           sectionId: editSectionName,
-          courseId: course._id,
+          courseId: course?.id || course?._id,
         },
         token
       )
@@ -52,7 +52,7 @@ export default function CourseBuilderForm() {
       result = await createSection(
         {
           sectionName: data.sectionName,
-          courseId: course._id,
+          courseId: course?.id || course?._id,
         },
         token
       )
@@ -81,12 +81,12 @@ export default function CourseBuilderForm() {
   }
 
   const goToNext = () => {
-    if (course.courseContent.length === 0) {
+    if (!course?.courseContent || course.courseContent.length === 0) {
       toast.error("Please add atleast one section")
       return
     }
     if (
-      course.courseContent.some((section) => section.subSection.length === 0)
+      course?.courseContent?.some((section) => !section?.subSection || section.subSection.length === 0)
     ) {
       toast.error("Please add atleast one lecture in each section")
       return

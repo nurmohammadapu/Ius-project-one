@@ -66,7 +66,7 @@ export default function SubSectionModal({
     const formData = new FormData()
     // console.log("Values After Editing form values:", currentValues)
     formData.append("sectionId", modalData.sectionId)
-    formData.append("subSectionId", modalData._id)
+    formData.append("subSectionId", modalData?.id || modalData?._id)
     if (currentValues.lectureTitle !== modalData.title) {
       formData.append("title", currentValues.lectureTitle)
     }
@@ -82,7 +82,7 @@ export default function SubSectionModal({
       // console.log("result", result)
       // update the structure of course
       const updatedCourseContent = course.courseContent.map((section) =>
-        section._id === modalData.sectionId ? result : section
+        (section?.id || section?._id) === modalData.sectionId ? result : section
       )
       const updatedCourse = { ...course, courseContent: updatedCourseContent }
       dispatch(setCourse(updatedCourse))
@@ -114,7 +114,7 @@ export default function SubSectionModal({
     if (result) {
       // update the structure of course
       const updatedCourseContent = course.courseContent.map((section) =>
-        section._id === modalData ? result : section
+        (section?.id || section?._id) === modalData ? result : section
       )
       const updatedCourse = { ...course, courseContent: updatedCourseContent }
       dispatch(setCourse(updatedCourse))

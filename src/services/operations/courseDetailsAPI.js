@@ -99,7 +99,7 @@ export const addCourseDetails = async (data, token) => {
     result = response?.data?.data
   } catch (error) {
     console.log("CREATE COURSE API ERROR............", error)
-    toast.error(error.message)
+    toast.error(error.response?.data?.message || error.message)
   }
   toast.dismiss(toastId)
   return result
@@ -122,7 +122,7 @@ export const editCourseDetails = async (data, token) => {
     result = response?.data?.data
   } catch (error) {
     console.log("EDIT COURSE API ERROR............", error)
-    toast.error(error.message)
+    toast.error(error.response?.data?.message || error.message)
   }
   toast.dismiss(toastId)
   return result
@@ -262,7 +262,6 @@ export const deleteSubSection = async (data, token) => {
 // fetching all courses under a specific instructor
 export const fetchInstructorCourses = async (token) => {
   let result = []
-  const toastId = toast.loading("Loading...")
   try {
     const response = await apiConnector(
       "GET",
@@ -281,9 +280,7 @@ export const fetchInstructorCourses = async (token) => {
     console.log("INSTRUCTOR COURSES API ERROR............", error)
     const errorMessage = error.response?.data?.message || error.message || "Could Not Get Instructor Data";
     toast.error(errorMessage);
-    
   }
-  toast.dismiss(toastId)
   return result
 }
 

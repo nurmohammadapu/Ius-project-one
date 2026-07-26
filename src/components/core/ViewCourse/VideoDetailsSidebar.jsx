@@ -23,16 +23,19 @@ export default function VideoDetailsSidebar({ setReviewModal }) {
     ;(() => {
       if (!courseSectionData.length) return
       const currentSectionIndx = courseSectionData.findIndex(
-        (data) => data._id === sectionId
+        (data) => (data?.id || data?._id) === sectionId
       )
       const currentSubSectionIndx = courseSectionData?.[
         currentSectionIndx
-      ]?.subSection.findIndex((data) => data._id === subSectionId)
+      ]?.subSection.findIndex((data) => (data?.id || data?._id) === subSectionId)
       const activeSubSectionId =
         courseSectionData[currentSectionIndx]?.subSection?.[
           currentSubSectionIndx
+        ]?.id ||
+        courseSectionData[currentSectionIndx]?.subSection?.[
+          currentSubSectionIndx
         ]?._id
-      setActiveStatus(courseSectionData?.[currentSectionIndx]?._id)
+      setActiveStatus(courseSectionData?.[currentSectionIndx]?.id || courseSectionData?.[currentSectionIndx]?._id)
       setVideoBarActive(activeSubSectionId)
       
     })()
@@ -76,7 +79,7 @@ export default function VideoDetailsSidebar({ setReviewModal }) {
             >
               {/* Section */}
               <div className="flex flex-row justify-between bg-richblack-600 px-5 py-4"
-              onClick={() => setActiveStatus(course?._id)}
+              onClick={() => setActiveStatus(course?.id || course?._id)}
               >
                 <div className="w-[70%] font-semibold">
                   {course?.sectionName}
@@ -95,26 +98,29 @@ export default function VideoDetailsSidebar({ setReviewModal }) {
               </div>
 
               {/* Sub Sections */}
-              {activeStatus === course?._id && (
+              {activeStatus === (course?.id || course?._id) && (
                 <div className="transition-[height] duration-500 ease-in-out">
                   {course.subSection.map((topic, i) => (
                     <div
                       className={`flex gap-3  px-5 py-2 ${
-                        videoBarActive === topic._id
+                        videoBarActive === (topic?.id || topic?._id)
                           ? "bg-yellow-200 font-semibold text-richblack-800"
                           : "hover:bg-richblack-900"
                       } `}
                       key={i}
                       onClick={() => {
+                        const courseId = courseEntireData?.id || courseEntireData?._id
+                        const secId = course?.id || course?._id
+                        const subSecId = topic?.id || topic?._id
                         navigate(
-                          `/view-course/${courseEntireData?._id}/section/${course?._id}/sub-section/${topic?._id}`
+                          `/view-course/${courseId}/section/${secId}/sub-section/${subSecId}`
                         )
-                        setVideoBarActive(topic._id)
+                        setVideoBarActive(subSecId)
                       }}
                     >
                       <input
                         type="checkbox"
-                        checked={completedLectures.includes(topic?._id)}
+                        checked={completedLectures.includes(topic?.id || topic?._id)}
                         onChange={() => {}}
                       />
                       {topic.title}

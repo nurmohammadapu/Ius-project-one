@@ -33,11 +33,11 @@ const VideoDetails = () => {
       } else {
         // console.log("courseSectionData", courseSectionData)
         const filteredData = courseSectionData.filter(
-          (course) => course._id === sectionId
+          (course) => (course?.id || course?._id) === sectionId
         )
         // console.log("filteredData", filteredData)
         const filteredVideoData = filteredData?.[0]?.subSection.filter(
-          (data) => data._id === subSectionId
+          (data) => (data?.id || data?._id) === subSectionId
         )
         // console.log("filteredVideoData", filteredVideoData)
         setVideoData(filteredVideoData[0])
@@ -50,12 +50,12 @@ const VideoDetails = () => {
   // check if the lecture is the first video of the course
   const isFirstVideo = () => {
     const currentSectionIndx = courseSectionData.findIndex(
-      (data) => data._id === sectionId
+      (data) => (data?.id || data?._id) === sectionId
     )
 
     const currentSubSectionIndx = courseSectionData[
       currentSectionIndx
-    ].subSection.findIndex((data) => data._id === subSectionId)
+    ].subSection.findIndex((data) => (data?.id || data?._id) === subSectionId)
 
     if (currentSectionIndx === 0 && currentSubSectionIndx === 0) {
       return true
@@ -69,7 +69,7 @@ const VideoDetails = () => {
     // console.log(courseSectionData)
 
     const currentSectionIndx = courseSectionData.findIndex(
-      (data) => data._id === sectionId
+      (data) => (data?.id || data?._id) === sectionId
     )
 
     const noOfSubsections =
@@ -77,22 +77,24 @@ const VideoDetails = () => {
 
     const currentSubSectionIndx = courseSectionData[
       currentSectionIndx
-    ].subSection.findIndex((data) => data._id === subSectionId)
+    ].subSection.findIndex((data) => (data?.id || data?._id) === subSectionId)
 
     // console.log("no of subsections", noOfSubsections)
 
     if (currentSubSectionIndx !== noOfSubsections - 1) {
-      const nextSubSectionId =
+      const nextSubSection =
         courseSectionData[currentSectionIndx].subSection[
           currentSubSectionIndx + 1
-        ]._id
+        ]
+      const nextSubSectionId = nextSubSection?.id || nextSubSection?._id
       navigate(
         `/view-course/${courseId}/section/${sectionId}/sub-section/${nextSubSectionId}`
       )
     } else {
-      const nextSectionId = courseSectionData[currentSectionIndx + 1]._id
-      const nextSubSectionId =
-        courseSectionData[currentSectionIndx + 1].subSection[0]._id
+      const nextSection = courseSectionData[currentSectionIndx + 1]
+      const nextSectionId = nextSection?.id || nextSection?._id
+      const nextSubSection = nextSection.subSection[0]
+      const nextSubSectionId = nextSubSection?.id || nextSubSection?._id
       navigate(
         `/view-course/${courseId}/section/${nextSectionId}/sub-section/${nextSubSectionId}`
       )
@@ -102,7 +104,7 @@ const VideoDetails = () => {
   // check if the lecture is the last video of the course
   const isLastVideo = () => {
     const currentSectionIndx = courseSectionData.findIndex(
-      (data) => data._id === sectionId
+      (data) => (data?.id || data?._id) === sectionId
     )
 
     const noOfSubsections =
@@ -110,7 +112,7 @@ const VideoDetails = () => {
 
     const currentSubSectionIndx = courseSectionData[
       currentSectionIndx
-    ].subSection.findIndex((data) => data._id === subSectionId)
+    ].subSection.findIndex((data) => (data?.id || data?._id) === subSectionId)
 
     if (
       currentSectionIndx === courseSectionData.length - 1 &&
@@ -127,29 +129,28 @@ const VideoDetails = () => {
     // console.log(courseSectionData)
 
     const currentSectionIndx = courseSectionData.findIndex(
-      (data) => data._id === sectionId
+      (data) => (data?.id || data?._id) === sectionId
     )
 
     const currentSubSectionIndx = courseSectionData[
       currentSectionIndx
-    ].subSection.findIndex((data) => data._id === subSectionId)
+    ].subSection.findIndex((data) => (data?.id || data?._id) === subSectionId)
 
     if (currentSubSectionIndx !== 0) {
-      const prevSubSectionId =
+      const prevSubSection =
         courseSectionData[currentSectionIndx].subSection[
           currentSubSectionIndx - 1
-        ]._id
+        ]
+      const prevSubSectionId = prevSubSection?.id || prevSubSection?._id
       navigate(
         `/view-course/${courseId}/section/${sectionId}/sub-section/${prevSubSectionId}`
       )
     } else {
-      const prevSectionId = courseSectionData[currentSectionIndx - 1]._id
-      const prevSubSectionLength =
-        courseSectionData[currentSectionIndx - 1].subSection.length
-      const prevSubSectionId =
-        courseSectionData[currentSectionIndx - 1].subSection[
-          prevSubSectionLength - 1
-        ]._id
+      const prevSection = courseSectionData[currentSectionIndx - 1]
+      const prevSectionId = prevSection?.id || prevSection?._id
+      const prevSubSectionLength = prevSection.subSection.length
+      const prevSubSection = prevSection.subSection[prevSubSectionLength - 1]
+      const prevSubSectionId = prevSubSection?.id || prevSubSection?._id
       navigate(
         `/view-course/${courseId}/section/${prevSectionId}/sub-section/${prevSubSectionId}`
       )

@@ -12,10 +12,16 @@ exports.updateProfile = async (req, res) => {
       contactNumber = "",
       gender = "",
     } = req.body;
-    const id = req.user.id;
+    const userId = req.user.id;
+    const userEmail = req.user.email;
 
-    const userDetails = await prisma.user.findUnique({
-      where: { id },
+    const userDetails = await prisma.user.findFirst({
+      where: {
+        OR: [
+          ...(userId ? [{ id: userId }] : []),
+          ...(userEmail ? [{ email: userEmail }] : []),
+        ],
+      },
       include: { additionalDetails: true },
     });
 
@@ -25,7 +31,7 @@ exports.updateProfile = async (req, res) => {
 
     if (firstName || lastName) {
       await prisma.user.update({
-        where: { id },
+        where: { id: userDetails.id },
         data: {
           ...(firstName && { firstName }),
           ...(lastName && { lastName }),
@@ -33,9 +39,24 @@ exports.updateProfile = async (req, res) => {
       });
     }
 
-    if (userDetails.profileId) {
+    let profileId = userDetails.profileId;
+    if (!profileId) {
+      const newProfile = await prisma.profile.create({
+        data: {
+          dateOfBirth,
+          about,
+          contactNumber,
+          gender,
+        },
+      });
+      profileId = newProfile.id;
+      await prisma.user.update({
+        where: { id: userDetails.id },
+        data: { profileId: newProfile.id },
+      });
+    } else {
       await prisma.profile.update({
-        where: { id: userDetails.profileId },
+        where: { id: profileId },
         data: {
           dateOfBirth,
           about,
@@ -46,7 +67,7 @@ exports.updateProfile = async (req, res) => {
     }
 
     const updatedUserDetails = await prisma.user.findUnique({
-      where: { id },
+      where: { id: userDetails.id },
       include: { additionalDetails: true },
     });
 
@@ -99,10 +120,24 @@ exports.deleteAccount = async (req, res) => {
 exports.getAllUserDetails = async (req, res) => {
   try {
     const id = req.user.id;
-    const userDetails = await prisma.user.findUnique({
-      where: { id },
+    const email = req.user.email;
+
+    const userDetails = await prisma.user.findFirst({
+      where: {
+        OR: [
+          ...(id ? [{ id }] : []),
+          ...(email ? [{ email }] : []),
+        ],
+      },
       include: { additionalDetails: true },
     });
+
+    if (!userDetails) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
 
     res.status(200).json({
       success: true,
@@ -227,13 +262,21 @@ exports.getEnrolledCourses = async (req, res) => {
 
 exports.instructorDashboard = async (req, res) => {
   try {
+    const userId = req.user.id;
+    const email = req.user.email;
+
     const courseDetails = await prisma.course.findMany({
-      where: { instructorId: req.user.id },
+      where: {
+        OR: [
+          ...(userId ? [{ instructorId: userId }] : []),
+          ...(email ? [{ instructor: { email } }] : []),
+        ],
+      },
       include: { studentsEnroled: true },
     });
 
     const courseData = courseDetails.map((course) => {
-      const totalStudentsEnrolled = course.studentsEnroled.length;
+      const totalStudentsEnrolled = course.studentsEnroled?.length || 0;
       const totalAmountGenerated = totalStudentsEnrolled * (course.price || 0);
 
       return {

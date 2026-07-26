@@ -28,7 +28,7 @@ export default function NestedView({ handleChangeEditSectionName }) {
   const handleDeleleSection = async (sectionId) => {
     const result = await deleteSection({
       sectionId,
-      courseId: course._id,
+      courseId: course?.id || course?._id,
       token,
     })
     if (result) {
@@ -42,7 +42,7 @@ export default function NestedView({ handleChangeEditSectionName }) {
     if (result) {
       // update the structure of course
       const updatedCourseContent = course.courseContent.map((section) =>
-        section._id === sectionId ? result : section
+        (section?.id || section?._id) === sectionId ? result : section
       )
       const updatedCourse = { ...course, courseContent: updatedCourseContent }
       dispatch(setCourse(updatedCourse))
@@ -58,7 +58,7 @@ export default function NestedView({ handleChangeEditSectionName }) {
       >
         {course?.courseContent?.map((section) => (
           // Section Dropdown
-          <details key={section._id} open>
+          <details key={section?.id || section?._id} open>
             {/* Section Dropdown Content */}
             <summary className="flex cursor-pointer items-center justify-between border-b-2 border-b-richblack-600 py-2">
               <div className="flex items-center gap-x-3">
@@ -71,7 +71,7 @@ export default function NestedView({ handleChangeEditSectionName }) {
                 <button
                   onClick={() =>
                     handleChangeEditSectionName(
-                      section._id,
+                      section?.id || section?._id,
                       section.sectionName
                     )
                   }
@@ -85,7 +85,7 @@ export default function NestedView({ handleChangeEditSectionName }) {
                       text2: "All the lectures in this section will be deleted",
                       btn1Text: "Delete",
                       btn2Text: "Cancel",
-                      btn1Handler: () => handleDeleleSection(section._id),
+                      btn1Handler: () => handleDeleleSection(section?.id || section?._id),
                       btn2Handler: () => setConfirmationModal(null),
                     })
                   }
@@ -100,7 +100,7 @@ export default function NestedView({ handleChangeEditSectionName }) {
               {/* Render All Sub Sections Within a Section */}
               {section.subSection.map((data) => (
                 <div
-                  key={data?._id}
+                  key={data?.id || data?._id}
                   onClick={() => setViewSubSection(data)}
                   className="flex cursor-pointer items-center justify-between gap-x-3 border-b-2 border-b-richblack-600 py-2"
                 >
@@ -116,7 +116,7 @@ export default function NestedView({ handleChangeEditSectionName }) {
                   >
                     <button
                       onClick={() =>
-                        setEditSubSection({ ...data, sectionId: section._id })
+                        setEditSubSection({ ...data, sectionId: section?.id || section?._id })
                       }
                     >
                       <MdEdit className="text-xl text-richblack-300" />
@@ -129,7 +129,7 @@ export default function NestedView({ handleChangeEditSectionName }) {
                           btn1Text: "Delete",
                           btn2Text: "Cancel",
                           btn1Handler: () =>
-                            handleDeleteSubSection(data._id, section._id),
+                            handleDeleteSubSection(data?.id || data?._id, section?.id || section?._id),
                           btn2Handler: () => setConfirmationModal(null),
                         })
                       }

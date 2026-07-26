@@ -8,8 +8,9 @@ export default function CourseAccordionBar({ course, isActive, handleActive }) {
 
   // Accordian state
   const [active, setActive] = useState(false)
+  const courseId = course?.id || course?._id
   useEffect(() => {
-    setActive(isActive?.includes(course._id))
+    setActive(isActive?.includes(courseId))
   }, [isActive])
   const [sectionHeight, setSectionHeight] = useState(0)
   useEffect(() => {
@@ -22,13 +23,13 @@ export default function CourseAccordionBar({ course, isActive, handleActive }) {
         <div
           className={`flex cursor-pointer items-start justify-between bg-opacity-20 px-7  py-6 transition-[0.3s]`}
           onClick={() => {
-            handleActive(course._id)
+            handleActive(courseId)
           }}
         >
           <div className="flex items-center gap-2">
             <i
               className={
-                isActive.includes(course._id) ? "rotate-180" : "rotate-0"
+                isActive.includes(courseId) ? "rotate-180" : "rotate-0"
               }
             >
               <AiOutlineDown />

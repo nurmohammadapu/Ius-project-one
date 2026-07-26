@@ -43,21 +43,33 @@ exports.createCourse = async (req, res) => {
       status = "Draft";
     }
 
-    const instructorDetails = await prisma.user.findUnique({
-      where: { id: userId },
+    const instructorDetails = await prisma.user.findFirst({
+      where: {
+        OR: [
+          ...(userId ? [{ id: userId }] : []),
+          ...(req.user?.email ? [{ email: req.user.email }] : []),
+        ],
+      },
     });
 
     if (!instructorDetails || instructorDetails.accountType !== "Instructor") {
+      console.log("Instructor Details Not Found. req.user:", req.user, "found:", instructorDetails);
       return res.status(404).json({
         success: false,
         message: "Instructor Details Not Found",
       });
     }
 
-    const categoryDetails = await prisma.category.findUnique({
-      where: { id: category },
+    const categoryDetails = await prisma.category.findFirst({
+      where: {
+        OR: [
+          ...(category ? [{ id: category }] : []),
+          ...(category ? [{ name: category }] : []),
+        ],
+      },
     });
     if (!categoryDetails) {
+      console.log("Category Details Not Found. category parameter:", category);
       return res.status(404).json({
         success: false,
         message: "Category Details Not Found",
@@ -81,6 +93,15 @@ exports.createCourse = async (req, res) => {
         thumbnail: thumbnailImage.secure_url,
         status: status,
         instructions,
+      },
+      include: {
+        courseContent: {
+          include: {
+            subSection: true,
+          },
+        },
+        category: true,
+        ratingAndReviews: true,
       },
     });
 
@@ -212,7 +233,8 @@ exports.editCourse = async (req, res) => {
         } else if (key === "price") {
           updateData.price = parseFloat(updates.price);
         } else if (key === "category") {
-          updateData.categoryId = updates.category;
+          const catVal = updates.category;
+          updateData.categoryId = typeof catVal === "object" ? (catVal?.id || catVal?._id) : catVal;
         } else if (["courseName", "courseDescription", "whatYouWillLearn", "status"].includes(key)) {
           updateData[key] = updates[key];
         }
@@ -321,10 +343,14 @@ exports.getFullCourseDetails = async (req, res) => {
 exports.getInstructorCourses = async (req, res) => {
   try {
     const instructorId = req.user.id;
+    const email = req.user.email;
 
     const instructorCourses = await prisma.course.findMany({
       where: {
-        instructorId: instructorId,
+        OR: [
+          ...(instructorId ? [{ instructorId }] : []),
+          ...(email ? [{ instructor: { email } }] : []),
+        ],
       },
       orderBy: { createdAt: "desc" },
     });

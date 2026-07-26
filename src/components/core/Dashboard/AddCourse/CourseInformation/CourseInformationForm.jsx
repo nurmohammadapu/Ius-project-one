@@ -50,7 +50,7 @@ export default function CourseInformationForm() {
       setValue("coursePrice", course.price)
       setValue("courseTags", course.tag)
       setValue("courseBenefits", course.whatYouWillLearn)
-      setValue("courseCategory", course.category)
+      setValue("courseCategory", course?.category?.id || course?.category?._id || course?.categoryId || course?.category)
       setValue("courseRequirements", course.instructions)
       setValue("courseImage", course.thumbnail)
     }
@@ -236,7 +236,7 @@ export default function CourseInformationForm() {
           </option>
           {!loading &&
             courseCategories?.map((category, indx) => (
-              <option key={indx} value={category?._id}>
+              <option key={indx} value={category?.id || category?._id}>
                 {category?.name}
               </option>
             ))}
