@@ -1,14 +1,12 @@
 const bcrypt = require("bcrypt");
-const User = require("../models/User");
-const OTP = require("../models/OTP");
+const { prisma } = require("../config/database");
 const jwt = require("jsonwebtoken");
 const otpGenerator = require("otp-generator");
 
 const mailSender = require("../utils/mailSender");
 const { passwordUpdated } = require("../mail/templates/passwordUpdate");
-const { instructorApprovalConfirmation, instructorDenial,userCreationConfirmation ,instructorApproval } = require("../mail/templates/instructorApprovalConfirmation");
+const { instructorApprovalConfirmation, instructorDenial, userCreationConfirmation, instructorApproval } = require("../mail/templates/instructorApprovalConfirmation");
 
-const Profile = require("../models/Profile");
 require("dotenv").config();
 
 // Signup Controller for Registering Users
@@ -46,7 +44,7 @@ exports.signup = async (req, res) => {
       });
     }
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return res.status(400).json({
         success: false,
@@ -54,7 +52,11 @@ exports.signup = async (req, res) => {
       });
     }
 
-    const response = await OTP.find({ email }).sort({ createdAt: -1 }).limit(1);
+    const response = await prisma.oTP.findMany({
+      where: { email },
+      orderBy: { createdAt: "desc" },
+      take: 1,
+    });
     if (response.length === 0 || otp !== response[0].otp) {
       return res.status(400).json({
         success: false,
@@ -69,33 +71,44 @@ exports.signup = async (req, res) => {
       approved = false;
 
       // Fetch admin email from database
-      const admin = await User.findOne({ accountType: "Admin" }).select("email");
+      const admin = await prisma.user.findFirst({
+        where: { accountType: "Admin" },
+        select: { email: true },
+      });
       const adminEmail = admin?.email;
 
-      await mailSender(
-        adminEmail,
-        "New Instructor Approval Request",
-        instructorApproval(firstName, lastName, email)
-      );
+      if (adminEmail) {
+        await mailSender(
+          adminEmail,
+          "New Instructor Approval Request",
+          instructorApproval(firstName, lastName, email)
+        );
+      }
     }
 
-    const profileDetails = await Profile.create({
-      gender: null,
-      dateOfBirth: null,
-      about: null,
-      contactNumber: null,
+    const profileDetails = await prisma.profile.create({
+      data: {
+        gender: null,
+        dateOfBirth: null,
+        about: null,
+        contactNumber: contactNumber || null,
+      },
     });
 
-    const user = await User.create({
-      firstName,
-      lastName,
-      email,
-      contactNumber,
-      password: hashedPassword,
-      accountType: accountType,
-      approved: approved,
-      additionalDetails: profileDetails._id,
-      image: `https://api.dicebear.com/5.x/initials/svg?seed=${firstName} ${lastName}`,
+    const user = await prisma.user.create({
+      data: {
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword,
+        accountType: accountType,
+        approved: approved,
+        profileId: profileDetails.id,
+        image: `https://api.dicebear.com/5.x/initials/svg?seed=${firstName} ${lastName}`,
+      },
+      include: {
+        additionalDetails: true,
+      },
     });
 
     await mailSender(
@@ -130,7 +143,10 @@ exports.login = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email }).populate("additionalDetails");
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: { additionalDetails: true },
+    });
 
     if (!user) {
       return res.status(401).json({
@@ -148,13 +164,13 @@ exports.login = async (req, res) => {
 
     if (await bcrypt.compare(password, user.password)) {
       const token = jwt.sign(
-        { email: user.email, id: user._id, role: user.role },
+        { email: user.email, id: user.id, role: user.accountType },
         process.env.JWT_SECRET,
         { expiresIn: "24h" }
       );
 
-      user.token = token;
-      user.password = undefined;
+      const userToReturn = { ...user, token };
+      delete userToReturn.password;
 
       const options = {
         expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
@@ -163,7 +179,7 @@ exports.login = async (req, res) => {
       res.cookie("token", token, options).status(200).json({
         success: true,
         token,
-        user,
+        user: userToReturn,
         message: "User Login Success",
       });
     } else {
@@ -184,80 +200,82 @@ exports.login = async (req, res) => {
 // Send OTP For Email Verification
 exports.sendotp = async (req, res) => {
   try {
-    const { email } = req.body
+    const { email } = req.body;
 
-    // Check if user is already present
-    // Find user with provided email
-    const checkUserPresent = await User.findOne({ email })
-    // to be used in case of signup
+    const checkUserPresent = await prisma.user.findUnique({ where: { email } });
 
-    // If user found with provided email
     if (checkUserPresent) {
-      // Return 401 Unauthorized status code with error message
       return res.status(401).json({
         success: false,
         message: `User is Already Registered`,
-      })
+      });
     }
 
     var otp = otpGenerator.generate(6, {
       upperCaseAlphabets: false,
       lowerCaseAlphabets: false,
       specialChars: false,
-    })
-    const result = await OTP.findOne({ otp: otp })
-    console.log("Result is Generate OTP Func")
-    console.log("OTP", otp)
-    console.log("Result", result)
+    });
+
+    let result = await prisma.oTP.findFirst({ where: { otp } });
     while (result) {
       otp = otpGenerator.generate(6, {
         upperCaseAlphabets: false,
-      })
+        lowerCaseAlphabets: false,
+        specialChars: false,
+      });
+      result = await prisma.oTP.findFirst({ where: { otp } });
     }
-    const otpPayload = { email, otp }
-    const otpBody = await OTP.create(otpPayload)
-    console.log("OTP Body", otpBody)
+
+    const otpBody = await prisma.oTP.create({
+      data: { email, otp },
+    });
+
+    // Send Mail
+    const mailSenderUtil = require("../utils/mailSender");
+    const emailTemplate = require("../mail/templates/emailVerificationTemplate");
+    try {
+      await mailSenderUtil(email, "Verification Email from StudyNotion", emailTemplate(otp));
+    } catch (mailErr) {
+      console.log("Failed to send Verification Mail:", mailErr);
+    }
+
     res.status(200).json({
       success: true,
       message: `OTP Sent Successfully`,
       otp,
-    })
+    });
   } catch (error) {
-    console.log(error.message)
-    return res.status(500).json({ success: false, error: error.message })
+    console.log(error.message);
+    return res.status(500).json({ success: false, error: error.message });
   }
-}
+};
 
 // Controller for Changing Password
 exports.changePassword = async (req, res) => {
   try {
-    // Get user data from req.user
-    const userDetails = await User.findById(req.user.id)
+    const userDetails = await prisma.user.findUnique({
+      where: { id: req.user.id },
+    });
 
-    // Get old password, new password, and confirm new password from req.body
-    const { oldPassword, newPassword } = req.body
+    const { oldPassword, newPassword } = req.body;
 
-    // Validate old password
     const isPasswordMatch = await bcrypt.compare(
       oldPassword,
       userDetails.password
-    )
+    );
     if (!isPasswordMatch) {
-      // If old password does not match, return a 401 (Unauthorized) error
       return res
         .status(401)
-        .json({ success: false, message: "The password is incorrect" })
+        .json({ success: false, message: "The password is incorrect" });
     }
 
-    // Update password
-    const encryptedPassword = await bcrypt.hash(newPassword, 10)
-    const updatedUserDetails = await User.findByIdAndUpdate(
-      req.user.id,
-      { password: encryptedPassword },
-      { new: true }
-    )
+    const encryptedPassword = await bcrypt.hash(newPassword, 10);
+    const updatedUserDetails = await prisma.user.update({
+      where: { id: req.user.id },
+      data: { password: encryptedPassword },
+    });
 
-    // Send notification email
     try {
       const emailResponse = await mailSender(
         updatedUserDetails.email,
@@ -266,61 +284,57 @@ exports.changePassword = async (req, res) => {
           updatedUserDetails.email,
           `Password updated successfully for ${updatedUserDetails.firstName} ${updatedUserDetails.lastName}`
         )
-      )
-      console.log("Email sent successfully:", emailResponse.response)
+      );
+      console.log("Email sent successfully:", emailResponse?.response);
     } catch (error) {
-      // If there's an error sending the email, log the error and return a 500 (Internal Server Error) error
-      console.error("Error occurred while sending email:", error)
+      console.error("Error occurred while sending email:", error);
       return res.status(500).json({
         success: false,
         message: "Error occurred while sending email",
         error: error.message,
-      })
+      });
     }
 
-    // Return success response
     return res
       .status(200)
-      .json({ success: true, message: "Password updated successfully" })
+      .json({ success: true, message: "Password updated successfully" });
   } catch (error) {
-    // If there's an error updating the password, log the error and return a 500 (Internal Server Error) error
-    console.error("Error occurred while updating password:", error)
+    console.error("Error occurred while updating password:", error);
     return res.status(500).json({
       success: false,
       message: "Error occurred while updating password",
       error: error.message,
-    })
+    });
   }
-}
+};
 
 // getPendingInstructors
 exports.getPendingInstructors = async (req, res) => {
   try {
-    // Fetch all users with accountType "Instructor" and approved set to false
-    const pendingInstructors = await User.find({
-      accountType: "Instructor",
-      approved: false
+    const pendingInstructors = await prisma.user.findMany({
+      where: {
+        accountType: "Instructor",
+        approved: false,
+      },
     });
 
-    // Check if there are pending instructors
     if (pendingInstructors.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "No pending instructors found."
+        message: "No pending instructors found.",
       });
     }
 
-    // Send the list of pending instructors
     res.status(200).json({
       success: true,
       message: "Pending instructors retrieved successfully.",
-      data: pendingInstructors
+      data: pendingInstructors,
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({
       success: false,
-      message: "Server error: Unable to retrieve pending instructors."
+      message: "Server error: Unable to retrieve pending instructors.",
     });
   }
 };
@@ -328,13 +342,12 @@ exports.getPendingInstructors = async (req, res) => {
 // manageInstructor
 exports.manageInstructor = async (req, res) => {
   try {
-    // Extract the instructor's user ID and action from the request body
     const { instructorId, action } = req.body;
 
-    // Find the user by ID
-    const instructor = await User.findById(instructorId);
+    const instructor = await prisma.user.findUnique({
+      where: { id: instructorId },
+    });
 
-    // Check if the user exists and is an instructor
     if (!instructor || instructor.accountType !== "Instructor") {
       return res.status(404).json({
         success: false,
@@ -342,9 +355,7 @@ exports.manageInstructor = async (req, res) => {
       });
     }
 
-    // Perform action based on the provided action type
     if (action === "approve") {
-      // Check if the instructor is already approved
       if (instructor.approved) {
         return res.status(400).json({
           success: false,
@@ -352,35 +363,33 @@ exports.manageInstructor = async (req, res) => {
         });
       }
 
-      // Approve the instructor
-      instructor.approved = true;
-      await instructor.save();
+      await prisma.user.update({
+        where: { id: instructorId },
+        data: { approved: true },
+      });
 
-      // Send a confirmation email to the instructor
       await mailSender(
         instructor.email,
         "Instructor Approval Confirmation",
         instructorApprovalConfirmation(instructor.firstName, instructor.lastName)
       );
 
-      // Respond with a success message
       return res.status(200).json({
         success: true,
         message: "Instructor approved successfully",
       });
-      
-    } else if (action === "deny") {
-      // Remove the instructor from the database
-      await User.findByIdAndDelete(instructorId);
 
-      // Send a denial email to the instructor
+    } else if (action === "deny") {
+      await prisma.user.delete({
+        where: { id: instructorId },
+      });
+
       await mailSender(
         instructor.email,
         "Instructor Approval Denied",
         instructorDenial(instructor.firstName, instructor.lastName)
       );
 
-      // Respond with a success message
       return res.status(200).json({
         success: true,
         message: "Instructor denied and removed successfully",

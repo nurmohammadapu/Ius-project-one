@@ -1,5 +1,4 @@
 const express = require("express");
-const mongoose = require("mongoose"); // Import mongoose
 const app = express();
 
 const userRoutes = require("./routes/User");
@@ -18,9 +17,6 @@ const dotenv = require("dotenv");
 dotenv.config();
 const PORT = process.env.PORT || 4000;
 
-// Set strictPopulate option
-mongoose.set('strictPopulate', false); // Set this before database connection
-
 // Database connection
 database.connect();
 
@@ -37,7 +33,6 @@ app.use(
         credentials: true, // Allow credentials (cookies, headers)
     })
 );
-
 
 app.use(
     fileUpload({
