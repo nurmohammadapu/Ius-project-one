@@ -169,7 +169,7 @@ export default function EnrolledCourses() {
                 className="flex flex-col md:flex-row w-full md:w-[45%] cursor-pointer items-center gap-4 px-5 py-3"
                 onClick={() => {
                   navigate(
-                    `/view-course/${course?._id}/section/${course.courseContent?.[0]?._id}/sub-section/${course.courseContent?.[0]?.subSection?.[0]?._id}`
+                    `/view-course/${course?.id || course?._id}/section/${course.courseContent?.[0]?.id || course.courseContent?.[0]?._id}/sub-section/${course.courseContent?.[0]?.subSection?.[0]?.id || course.courseContent?.[0]?.subSection?.[0]?._id}`
                   )
                 }}
               >

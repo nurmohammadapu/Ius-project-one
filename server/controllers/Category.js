@@ -33,7 +33,11 @@ exports.createCategory = async (req, res) => {
 
 exports.showAllCategories = async (req, res) => {
   try {
-    const allCategorys = await prisma.category.findMany();
+    const allCategorys = await prisma.category.findMany({
+      include: {
+        courses: true,
+      },
+    });
     res.status(200).json({
       success: true,
       data: allCategorys,

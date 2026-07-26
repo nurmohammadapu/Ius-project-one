@@ -69,7 +69,7 @@ export default function CoursesTable({ courses, setCourses }) {
           ) : (
             courses?.map((course) => (
               <Tr
-                key={course._id}
+                key={course.id || course._id}
                 className="flex gap-x-10 border-b border-richblack-800 px-6 py-8"
               >
                 <Td className="flex flex-1 gap-x-4">
@@ -119,7 +119,7 @@ export default function CoursesTable({ courses, setCourses }) {
                   <button
                     disabled={loading}
                     onClick={() => {
-                      navigate(`/dashboard/edit-course/${course._id}`)
+                      navigate(`/dashboard/edit-course/${course.id || course._id}`)
                     }}
                     title="Edit"
                     className="px-2 transition-all duration-200 hover:scale-110 hover:text-caribbeangreen-300"
@@ -136,7 +136,7 @@ export default function CoursesTable({ courses, setCourses }) {
                         btn1Text: !loading ? "Delete" : "Loading...  ",
                         btn2Text: "Cancel",
                         btn1Handler: !loading
-                          ? () => handleCourseDelete(course._id)
+                          ? () => handleCourseDelete(course.id || course._id)
                           : () => {},
                         btn2Handler: !loading
                           ? () => setConfirmationModal(null)

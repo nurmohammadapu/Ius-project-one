@@ -21,9 +21,10 @@ function Catalog() {
     ;(async () => {
       try {
         const res = await apiConnector("GET", categories.CATEGORIES_API)
-        const category_id = res?.data?.data?.filter(
+        const category = res?.data?.data?.filter(
           (ct) => ct.name.split(" ").join("-").toLowerCase() === catalogName
-        )[0]._id
+        )[0]
+        const category_id = category?.id || category?._id
         setCategoryId(category_id)
       } catch (error) {
         console.log("Could not fetch Categories.", error)

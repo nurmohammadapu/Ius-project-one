@@ -225,8 +225,8 @@ function Navbar() {
                         ) : subLinks.length ? (
                           <>
                             {subLinks
-                              .filter((subLink) => subLink?.courses?.length > 0)
-                              .map((subLink, i) => (
+                              ?.filter((subLink) => subLink?.courses?.length > 0)
+                              ?.map((subLink, i) => (
                                 <Link
                                   to={`/catalog/${subLink.name.split(" ").join("-").toLowerCase()}`}
                                   className="block rounded-lg bg-transparent py-2 pl-4 hover:bg-richblack-50"

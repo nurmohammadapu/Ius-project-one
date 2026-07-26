@@ -96,16 +96,16 @@ function CourseDetails() {
   }
 
   const {
-    _id: course_id,
+    id: course_id,
     courseName,
     courseDescription,
     thumbnail,
     price,
     whatYouWillLearn,
-    courseContent,
-    ratingAndReviews,
+    courseContent = [],
+    ratingAndReviews = [],
     instructor,
-    studentsEnroled,
+    studentsEnroled = [],
     createdAt,
   } = response.data?.courseDetails
 

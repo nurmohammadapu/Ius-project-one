@@ -42,7 +42,6 @@ export const getAllCourses = async () => {
 }
 
 export const fetchCourseDetails = async (courseId) => {
-  const toastId = toast.loading("Loading...")
   //   dispatch(setLoading(true));
   let result = null
   try {
@@ -60,7 +59,6 @@ export const fetchCourseDetails = async (courseId) => {
     result = error.response.data
     // toast.error(error.response.data.message);
   }
-  toast.dismiss(toastId)
   //   dispatch(setLoading(false));
   return result
 }
@@ -305,7 +303,6 @@ export const deleteCourse = async (data, token) => {
 
 // get full details of a course
 export const getFullDetailsOfCourse = async (courseId, token) => {
-  const toastId = toast.loading("Loading...")
   //   dispatch(setLoading(true));
   let result = null
   try {
@@ -330,7 +327,6 @@ export const getFullDetailsOfCourse = async (courseId, token) => {
     result = error.response.data
     // toast.error(error.response.data.message);
   }
-  toast.dismiss(toastId)
   //   dispatch(setLoading(false));
   return result
 }

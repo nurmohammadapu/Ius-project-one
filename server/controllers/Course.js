@@ -164,6 +164,7 @@ exports.getCourseDetails = async (req, res) => {
         },
         category: true,
         ratingAndReviews: true,
+        studentsEnroled: true,
         courseContent: {
           include: {
             subSection: true,
@@ -289,6 +290,7 @@ exports.getFullCourseDetails = async (req, res) => {
         },
         category: true,
         ratingAndReviews: true,
+        studentsEnroled: true,
         courseContent: {
           include: {
             subSection: true,
