@@ -119,6 +119,17 @@ export default function EnrolledCourses() {
 
   const [enrolledCourses, setEnrolledCourses] = useState(null)
 
+  const fetchEnrolledCourses = async () => {
+    try {
+      const res = await getUserEnrolledCourses(token) // Getting all the published and the drafted courses
+      // Filtering the published courses
+      const filterPublishCourse = res.filter((ele) => ele.status !== "Draft")
+      setEnrolledCourses(filterPublishCourse)
+    } catch (error) {
+      console.log("Could not fetch enrolled courses.", error)
+    }
+  }
+
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
     const sessionId = urlParams.get("session_id")
@@ -127,26 +138,12 @@ export default function EnrolledCourses() {
       ;(async () => {
         navigate(window.location.pathname, { replace: true })
         await verifyStripePayment(token, sessionId, navigate, dispatch)
+        await fetchEnrolledCourses()
       })()
       return
     }
 
-    ;(async () => {
-      try {
-        const res = await getUserEnrolledCourses(token) // Getting all the published and the drafted courses
-
-        // Filtering the published courses
-        const filterPublishCourse = res.filter((ele) => ele.status !== "Draft")
-        // console.log(
-        //   "Viewing all the courses that are Published",
-        //   filterPublishCourse
-        // )
-
-        setEnrolledCourses(filterPublishCourse)
-      } catch (error) {
-        console.log("Could not fetch enrolled courses.")
-      }
-    })()
+    fetchEnrolledCourses()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

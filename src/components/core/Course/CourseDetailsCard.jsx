@@ -90,7 +90,7 @@ function CourseDetailsCard({ course, setConfirmationModal, handleBuyCourse }) {
 
         <div className="px-4">
           <div className="space-x-3 pb-4 text-3xl font-semibold">
-            Rs. {CurrentPrice}
+            $ {CurrentPrice}
           </div>
           <div className="flex flex-col gap-4">
             <button
@@ -98,29 +98,16 @@ function CourseDetailsCard({ course, setConfirmationModal, handleBuyCourse }) {
               onClick={
                 isEnrolled
                   ? () => navigate("/dashboard/enrolled-courses")
-                  : handleBuyCourse
+                  : handleBuyCourseStripe
               }
             >
               {isEnrolled ? "Go To Course" : "Buy Now"}
             </button>
             {!isEnrolled && (
-              <button
-                className="yellowButton bg-yellow-100 text-richblack-900"
-                onClick={handleBuyCourseStripe}
-              >
-                Pay with Card (Stripe)
-              </button>
-            )}
-            {!isEnrolled && (
               <button onClick={handleAddToCart} className="blackButton">
                 Add to Cart
               </button>
             )}
-          </div>
-          <div>
-            <p className="pb-3 pt-6 text-center text-sm text-richblack-25">
-              30-Day Money-Back Guarantee
-            </p>
           </div>
 
           <div className={``}>

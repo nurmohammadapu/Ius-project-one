@@ -53,14 +53,14 @@ export default function Instructor() {
         </div>
       ) : courses.length > 0 ? (
         <div>
-          <div className="my-4 flex h-[450px] space-x-4">
+          <div className="my-4 flex flex-col gap-y-4 md:flex-row md:space-x-4 md:space-y-0 h-auto md:h-[450px]">
             {/* Render chart / graph */}
             {totalAmount > 0 || totalStudents > 0 ? (
               <InstructorChart courses={instructorData} />
             ) : (
               <div className="flex-1 rounded-md bg-richblack-800 p-6">
                 <p className="text-lg font-bold text-richblack-5">Visualize</p>
-                <p className="mt-4 text-xl font-medium text-richblack-50">
+                <p className="mt-4 text-xl font-medium text-richblack-5">
                   Not Enough Data To Visualize
                 </p>
               </div>
@@ -84,7 +84,7 @@ export default function Instructor() {
                 <div>
                   <p className="text-lg text-richblack-200">Total Income</p>
                   <p className="text-3xl font-semibold text-richblack-50">
-                    Rs. {totalAmount}
+                    $ {totalAmount}
                   </p>
                 </div>
               </div>
@@ -98,9 +98,9 @@ export default function Instructor() {
                 <p className="text-xs font-semibold text-yellow-50">View All</p>
               </Link>
             </div>
-            <div className="my-4 flex items-start space-x-6">
+            <div className="my-4 flex flex-col md:flex-row gap-6">
               {courses.slice(0, 3).map((course) => (
-                <div key={course?.id || course?._id} className="w-1/3">
+                <div key={course?.id || course?._id} className="w-full md:w-1/3">
                   <img
                     src={course.thumbnail}
                     alt={course.courseName}
@@ -118,7 +118,7 @@ export default function Instructor() {
                         |
                       </p>
                       <p className="text-xs font-medium text-richblack-300">
-                        Rs. {course.price}
+                        $ {course.price}
                       </p>
                     </div>
                   </div>

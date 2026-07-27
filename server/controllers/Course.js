@@ -354,12 +354,36 @@ exports.getInstructorCourses = async (req, res) => {
           ...(email ? [{ instructor: { email } }] : []),
         ],
       },
+      include: {
+        studentsEnroled: true,
+        courseContent: {
+          include: {
+            subSection: true,
+          },
+        },
+      },
       orderBy: { createdAt: "desc" },
+    });
+
+    const coursesWithDuration = instructorCourses.map((course) => {
+      let totalDurationInSeconds = 0;
+      course.courseContent.forEach((content) => {
+        content.subSection.forEach((subSection) => {
+          const timeDurationInSeconds = parseInt(subSection.timeDuration) || 0;
+          totalDurationInSeconds += timeDurationInSeconds;
+        });
+      });
+
+      const totalDuration = convertSecondsToDuration(totalDurationInSeconds);
+      return {
+        ...course,
+        totalDuration,
+      };
     });
 
     res.status(200).json({
       success: true,
-      data: instructorCourses,
+      data: coursesWithDuration,
     });
   } catch (error) {
     console.error(error);

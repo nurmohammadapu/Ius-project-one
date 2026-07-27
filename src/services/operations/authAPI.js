@@ -175,6 +175,7 @@ export function resetPassword(password, confirmPassword, token, navigate) {
 
 export function logout(navigate) {
   return (dispatch) => {
+    toast.dismiss();
     dispatch(setToken(null));
     dispatch(setUser(null));
     dispatch(resetCart());

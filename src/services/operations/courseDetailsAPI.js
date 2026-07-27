@@ -25,7 +25,6 @@ const {
 } = courseEndpoints
 
 export const getAllCourses = async () => {
-  const toastId = toast.loading("Loading...")
   let result = []
   try {
     const response = await apiConnector("GET", GET_ALL_COURSE_API)
@@ -37,7 +36,6 @@ export const getAllCourses = async () => {
     console.log("GET_ALL_COURSE_API API ERROR............", error)
     toast.error(error.message)
   }
-  toast.dismiss(toastId)
   return result
 }
 
