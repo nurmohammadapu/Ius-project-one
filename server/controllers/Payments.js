@@ -299,10 +299,8 @@ exports.verifyStripePayment = async (req, res) => {
 
       if (enrolledCourses.length > 0) {
         await enrollStudents(enrolledCourses, userId, res);
-      } else {
-        // Already enrolled, just send success
-        return res.status(200).json({ success: true, message: "Payment Verified" });
       }
+      return res.status(200).json({ success: true, message: "Payment Verified" });
     } else {
       return res.status(400).json({ success: false, message: "Payment not completed" });
     }

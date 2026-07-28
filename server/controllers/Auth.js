@@ -155,6 +155,13 @@ exports.login = async (req, res) => {
       });
     }
 
+    if (!user.active) {
+      return res.status(403).json({
+        success: false,
+        message: "Your account is deactivated. Please contact the administrator.",
+      });
+    }
+
     if (user.accountType === "Instructor" && !user.approved) {
       return res.status(403).json({
         success: false,

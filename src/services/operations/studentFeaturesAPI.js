@@ -176,9 +176,7 @@ export async function buyCourseWithStripe(token, courses, dispatch) {
   dispatch(setPaymentLoading(false))
 }
 
-// Verify Stripe Payment
 export async function verifyStripePayment(token, sessionId, navigate, dispatch) {
-  const toastId = toast.loading("Verifying Stripe Payment...")
   dispatch(setPaymentLoading(true))
   try {
     const response = await apiConnector(
@@ -201,7 +199,7 @@ export async function verifyStripePayment(token, sessionId, navigate, dispatch) 
     console.log("STRIPE VERIFY ERROR............", error)
     toast.error("Could Not Verify Stripe Payment.")
     navigate("/dashboard/cart")
+  } finally {
+    dispatch(setPaymentLoading(false))
   }
-  toast.dismiss(toastId)
-  dispatch(setPaymentLoading(false))
 }

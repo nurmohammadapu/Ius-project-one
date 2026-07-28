@@ -19,6 +19,7 @@ enum AccountType {
 enum CourseStatus {
   Draft
   Published
+  Hold
 }
 
 model User {

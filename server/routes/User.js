@@ -12,6 +12,16 @@ const {
   getPendingInstructors 
 } = require("../controllers/Auth")
 const {
+  getAllStudents,
+  getAllInstructors,
+  toggleUserStatus,
+  deleteUser,
+  createUser,
+  getAllCourses,
+  toggleCoursePublish,
+  getFinancialReport,
+} = require("../controllers/Admin")
+const {
   resetPasswordToken,
   resetPassword,
 } = require("../controllers/ResetPassword")
@@ -27,6 +37,15 @@ const { auth , logout, isAdmin, isStudent  } = require("../middlewares/auth")
 router.post("/manageInstructor",auth, isAdmin, manageInstructor);
 
 router.get("/pending-instructors",auth, isAdmin, getPendingInstructors);
+
+router.get("/admin/students", auth, isAdmin, getAllStudents);
+router.get("/admin/instructors", auth, isAdmin, getAllInstructors);
+router.put("/admin/toggle-user-status", auth, isAdmin, toggleUserStatus);
+router.delete("/admin/delete-user", auth, isAdmin, deleteUser);
+router.post("/admin/create-user", auth, isAdmin, createUser);
+router.get("/admin/courses", auth, isAdmin, getAllCourses);
+router.put("/admin/toggle-course-publish", auth, isAdmin, toggleCoursePublish);
+router.get("/admin/financial-report", auth, isAdmin, getFinancialReport);
 
 // Route for user login
 router.post("/login", login)

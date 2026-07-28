@@ -135,8 +135,8 @@ export default function EnrolledCourses() {
     const sessionId = urlParams.get("session_id")
 
     if (sessionId) {
+      window.history.replaceState(null, "", window.location.pathname)
       ;(async () => {
-        navigate(window.location.pathname, { replace: true })
         await verifyStripePayment(token, sessionId, navigate, dispatch)
         await fetchEnrolledCourses()
       })()

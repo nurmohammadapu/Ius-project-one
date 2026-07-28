@@ -82,3 +82,17 @@ export const endpoints = {
     DELETE_PROFILE_API: BASE_URL + "/profile/deleteProfile",
   }
   
+  // ADMIN ENDPOINTS
+  export const adminEndpoints = {
+    GET_ALL_STUDENTS_API: BASE_URL + "/auth/admin/students",
+    GET_ALL_INSTRUCTORS_API: BASE_URL + "/auth/admin/instructors",
+    TOGGLE_USER_STATUS_API: BASE_URL + "/auth/admin/toggle-user-status",
+    DELETE_USER_API: BASE_URL + "/auth/admin/delete-user",
+    CREATE_USER_API: BASE_URL + "/auth/admin/create-user",
+    GET_ALL_COURSES_API: BASE_URL + "/auth/admin/courses",
+    TOGGLE_COURSE_PUBLISH_API: BASE_URL + "/auth/admin/toggle-course-publish",
+    GET_PENDING_INSTRUCTORS_API: BASE_URL + "/auth/pending-instructors",
+    MANAGE_INSTRUCTOR_API: BASE_URL + "/auth/manageInstructor",
+    GET_FINANCIAL_REPORT_API: BASE_URL + "/auth/admin/financial-report",
+  }
+  

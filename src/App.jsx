@@ -31,6 +31,12 @@ import CourseDetails from './pages/CourseDetails';
 import ViewCourse from './pages/ViewCourse';
 import VideoDetails from './components/core/ViewCourse/VideoDetails';
 import Instructor from './components/core/Dashboard/Instructor';
+import AllStudents from './components/core/Dashboard/Admin/AllStudents';
+import AllInstructors from './components/core/Dashboard/Admin/AllInstructors';
+import AllCourses from './components/core/Dashboard/Admin/AllCourses';
+import PendingApprovals from './components/core/Dashboard/Admin/PendingApprovals';
+import FinancialReport from './components/core/Dashboard/Admin/FinancialReport';
+
 
 
 
@@ -146,6 +152,18 @@ function App() {
           <Route path="dashboard/my-courses" element={<MyCourses />} />
           <Route path="dashboard/edit-course/:courseId" element={<EditCourse />} />
           
+          </>
+        )
+      }
+
+      {
+        user?.accountType === ACCOUNT_TYPE.ADMIN && (
+          <>
+          <Route path="dashboard/all-students" element={<AllStudents />} />
+          <Route path="dashboard/all-instructors" element={<AllInstructors />} />
+          <Route path="dashboard/pending-approvals" element={<PendingApprovals />} />
+          <Route path="dashboard/all-courses" element={<AllCourses />} />
+          <Route path="dashboard/financial-report" element={<FinancialReport />} />
           </>
         )
       }
