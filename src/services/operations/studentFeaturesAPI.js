@@ -192,9 +192,8 @@ export async function verifyStripePayment(token, sessionId, navigate, dispatch) 
       throw new Error(response.data.message)
     }
 
-    toast.success("Payment Successful! You are enrolled in the course.")
     dispatch(resetCart())
-    navigate("/dashboard/enrolled-courses")
+    navigate("/dashboard/my-profile")
   } catch (error) {
     console.log("STRIPE VERIFY ERROR............", error)
     toast.error("Could Not Verify Stripe Payment.")

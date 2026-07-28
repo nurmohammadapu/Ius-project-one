@@ -165,16 +165,18 @@ const enrollStudents = async (courses, userId, res) => {
         where: { id: userId },
       });
 
-      const emailResponse = await mailSender(
+      mailSender(
         enrolledStudent.email,
         `Successfully Enrolled into ${enrolledCourse.courseName}`,
         courseEnrollmentEmail(
           enrolledCourse.courseName,
           `${enrolledStudent.firstName} ${enrolledStudent.lastName}`
         )
-      );
-
-      console.log("Email sent successfully: ", emailResponse?.response);
+      ).then((res) => {
+        console.log("Email sent successfully: ", res?.response);
+      }).catch((err) => {
+        console.error("Background enrollment email error:", err);
+      });
     } catch (error) {
       console.log(error);
       return res.status(400).json({ success: false, error: error.message });

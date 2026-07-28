@@ -112,6 +112,9 @@ import { useNavigate } from "react-router-dom"
 import { getUserEnrolledCourses } from "../../../services/operations/profileAPI"
 import { verifyStripePayment } from "../../../services/operations/studentFeaturesAPI"
 
+// Global set to track stripe verification sessions across StrictMode double mounts
+const verifiedSessions = new Set();
+
 export default function EnrolledCourses() {
   const { token } = useSelector((state) => state.auth)
   const navigate = useNavigate()
@@ -131,13 +134,20 @@ export default function EnrolledCourses() {
   }
 
   useEffect(() => {
+    if (!token) return
+
     const urlParams = new URLSearchParams(window.location.search)
     const sessionId = urlParams.get("session_id")
 
     if (sessionId) {
-      window.history.replaceState(null, "", window.location.pathname)
+      if (verifiedSessions.has(sessionId)) {
+        return
+      }
+      verifiedSessions.add(sessionId)
+      
       ;(async () => {
         await verifyStripePayment(token, sessionId, navigate, dispatch)
+        window.history.replaceState(null, "", window.location.pathname)
         await fetchEnrolledCourses()
       })()
       return
@@ -145,7 +155,7 @@ export default function EnrolledCourses() {
 
     fetchEnrolledCourses()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [token])
 
   return (
     <>
