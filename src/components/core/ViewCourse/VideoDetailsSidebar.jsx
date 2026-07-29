@@ -12,12 +12,17 @@ export default function VideoDetailsSidebar({ setReviewModal }) {
   const navigate = useNavigate()
   const location = useLocation()
   const { sectionId, subSectionId } = useParams()
+  const { user } = useSelector((state) => state.profile)
   const {
     courseSectionData,
     courseEntireData,
     totalNoOfLectures,
     completedLectures,
   } = useSelector((state) => state.viewCourse)
+
+  const alreadyReviewed = courseEntireData?.ratingAndReviews?.some(
+    (review) => review.userId === user?.id || review.userId === user?._id
+  )
 
   useEffect(() => {
     ;(() => {
@@ -56,11 +61,23 @@ export default function VideoDetailsSidebar({ setReviewModal }) {
             >
               <IoIosArrowBack size={30} />
             </div>
-            <IconBtn
-              text="Add Review"
-              customClasses="ml-auto"
-              onclick={() => setReviewModal(true)}
-            />
+            {!alreadyReviewed && (
+              <IconBtn
+                text="Add Review"
+                customClasses={`ml-auto ${
+                  completedLectures?.length < totalNoOfLectures
+                    ? "opacity-40 cursor-not-allowed bg-richblack-700 text-richblack-400"
+                    : ""
+                }`}
+                disabled={completedLectures?.length < totalNoOfLectures}
+                onclick={() => setReviewModal(true)}
+                title={
+                  completedLectures?.length < totalNoOfLectures
+                    ? "Complete all lectures to add a review"
+                    : "Add a review"
+                }
+              />
+            )}
           </div>
           <div className="flex flex-col">
             <p>{courseEntireData?.courseName}</p>
@@ -74,12 +91,15 @@ export default function VideoDetailsSidebar({ setReviewModal }) {
           {courseSectionData.map((course, index) => (
             <div
               className="mt-2 cursor-pointer text-sm text-richblack-5"
-              onClick={() => setActiveStatus(course?._id)}
               key={index}
             >
               {/* Section */}
-              <div className="flex flex-row justify-between bg-richblack-600 px-5 py-4"
-              onClick={() => setActiveStatus(course?.id || course?._id)}
+              <div
+                className="flex flex-row justify-between bg-richblack-600 px-5 py-4"
+                onClick={() => {
+                  const currentId = course?.id || course?._id;
+                  setActiveStatus(activeStatus === currentId ? "" : currentId);
+                }}
               >
                 <div className="w-[70%] font-semibold">
                   {course?.sectionName}
@@ -87,7 +107,7 @@ export default function VideoDetailsSidebar({ setReviewModal }) {
                 <div className="flex items-center gap-3">
                   <span
                     className={`${
-                      activeStatus === course?.sectionName
+                      activeStatus === (course?.id || course?._id)
                         ? "rotate-180"
                         : "rotate-0"
                     } transition-all duration-500`}

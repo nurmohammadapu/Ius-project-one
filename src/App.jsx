@@ -28,6 +28,7 @@ import EditCourse from './components/core/Dashboard/EditCourse/index';
 import Error from './pages/Error';
 import Catalog from './pages/Catalog';
 import CourseDetails from './pages/CourseDetails';
+import PaymentSuccess from './pages/PaymentSuccess';
 import ViewCourse from './pages/ViewCourse';
 import VideoDetails from './components/core/ViewCourse/VideoDetails';
 import Instructor from './components/core/Dashboard/Instructor';
@@ -103,8 +104,17 @@ function App() {
           path="verify-email"
           element={
             <OpenRoute>
-              <VerifyEmail />
+               <VerifyEmail />
             </OpenRoute>
+          }
+        />
+
+        <Route
+          path="payment-success"
+          element={
+            <PrivateRoute>
+              <PaymentSuccess />
+            </PrivateRoute>
           }
         />
 

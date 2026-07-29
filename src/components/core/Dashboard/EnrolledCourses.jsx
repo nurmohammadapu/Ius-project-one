@@ -135,24 +135,6 @@ export default function EnrolledCourses() {
 
   useEffect(() => {
     if (!token) return
-
-    const urlParams = new URLSearchParams(window.location.search)
-    const sessionId = urlParams.get("session_id")
-
-    if (sessionId) {
-      if (verifiedSessions.has(sessionId)) {
-        return
-      }
-      verifiedSessions.add(sessionId)
-      
-      ;(async () => {
-        await verifyStripePayment(token, sessionId, navigate, dispatch)
-        window.history.replaceState(null, "", window.location.pathname)
-        await fetchEnrolledCourses()
-      })()
-      return
-    }
-
     fetchEnrolledCourses()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token])
