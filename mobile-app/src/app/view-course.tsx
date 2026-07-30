@@ -78,24 +78,6 @@ export default function ViewCourseScreen() {
     loadCourseContent();
   }, [courseId, token]);
 
-  const handleMarkComplete = async () => {
-    if (completedLectures.includes(currentSubSectionId)) return;
-
-    try {
-      const res = await markLectureAsComplete({
-        courseId,
-        subSectionId: currentSubSectionId,
-      }, token);
-
-      if (res) {
-        setCompletedLectures([...completedLectures, currentSubSectionId]);
-        Alert.alert("Success", "Lecture marked as completed.");
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   const handleSubmitReview = async () => {
     if (!reviewText.trim()) {
       Alert.alert("Error", "Please write a review message.");
@@ -155,6 +137,26 @@ export default function ViewCourseScreen() {
   const currentIndex = allSubSections.findIndex((sub) => (sub.id || sub._id) === currentSubSectionId);
   const activeSubSection = allSubSections[currentIndex] || allSubSections[0];
 
+  const handleMarkComplete = async () => {
+    const subId = activeSubSection?.id || activeSubSection?._id || currentSubSectionId;
+    if (!subId || completedLectures.includes(subId)) return;
+
+    try {
+      const res = await markLectureAsComplete({
+        courseId,
+        subSectionId: subId,
+      }, token);
+
+      if (res) {
+        const newCompleted = Array.from(new Set([...completedLectures, subId]));
+        setCompletedLectures(newCompleted);
+        Alert.alert("Success 🎉", "Lecture marked as completed.");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleNextLecture = () => {
     if (currentIndex < allSubSections.length - 1) {
       const nextSub = allSubSections[currentIndex + 1];
@@ -171,12 +173,16 @@ export default function ViewCourseScreen() {
     }
   };
 
-  const isCourseCompleted = allSubSections.length > 0 && completedLectures.length >= allSubSections.length;
-  const hasAlreadyReviewed = courseDetails?.ratingAndReviews?.some(
-    (rev: any) =>
-      (rev.user?.id || rev.user?._id || rev.user) === user?.id ||
-      (rev.user?.id || rev.user?._id || rev.user) === user?._id
-  );
+  const uniqueCompletedCount = new Set(completedLectures).size;
+  const totalLecturesCount = allSubSections.length;
+  const isCourseCompleted = totalLecturesCount > 0 && uniqueCompletedCount >= totalLecturesCount;
+
+  const hasAlreadyReviewed = courseDetails?.ratingAndReviews?.some((rev: any) => {
+    if (!rev || !user) return false;
+    const revUserId = typeof rev.user === "object" ? (rev.user?.id || rev.user?._id) : (rev.user || rev.userId);
+    const currentUserId = user?.id || user?._id;
+    return revUserId && currentUserId && String(revUserId) === String(currentUserId);
+  });
 
   const formatDuration = (val: any) => {
     if (!val) return "5m";

@@ -24,6 +24,23 @@ export default function CourseDetailsScreen() {
   const { token } = useSelector((state: any) => state.auth);
   const { user } = useSelector((state: any) => state.profile);
 
+  const handleCardNumberChange = (text: string) => {
+    const cleaned = text.replace(/\D/g, "").slice(0, 16);
+    const formatted = cleaned.match(/.{1,4}/g)?.join(" ") || cleaned;
+    setCardNumber(formatted);
+  };
+
+  const handleExpiryChange = (text: string) => {
+    const cleaned = text.replace(/\D/g, "").slice(0, 4);
+    if (cleaned.length >= 3) {
+      setExpiry(`${cleaned.slice(0, 2)}/${cleaned.slice(2)}`);
+    } else if (cleaned.length === 2 && text.length > expiry.length) {
+      setExpiry(`${cleaned}/`);
+    } else {
+      setExpiry(cleaned);
+    }
+  };
+
   useEffect(() => {
     if (!courseId) {
       setLoading(false);
@@ -262,11 +279,12 @@ export default function CourseDetailsScreen() {
               </View>
 
               <View className="mb-2">
-                <Text className="text-xxs text-richblack-300 mb-1">Card Number</Text>
+                <Text className="text-xxs text-richblack-300 mb-1">Card Number (Max 16 digits)</Text>
                 <TextInput
                   value={cardNumber}
-                  onChangeText={setCardNumber}
+                  onChangeText={handleCardNumberChange}
                   keyboardType="numeric"
+                  maxLength={19}
                   className="bg-richblack-900 text-richblack-5 px-4 py-3 rounded-xl border border-richblack-700 font-mono text-sm"
                   placeholder="4242 4242 4242 4242"
                   placeholderTextColor="#6E727F"
@@ -275,12 +293,14 @@ export default function CourseDetailsScreen() {
 
               <View className="flex-row space-x-3 mt-1">
                 <View className="flex-1 mr-2">
-                  <Text className="text-xxs text-richblack-300 mb-1">Expiry Date</Text>
+                  <Text className="text-xxs text-richblack-300 mb-1">Expiry Date (MM/YY)</Text>
                   <TextInput
                     value={expiry}
-                    onChangeText={setExpiry}
+                    onChangeText={handleExpiryChange}
+                    keyboardType="numeric"
+                    maxLength={5}
                     className="bg-richblack-900 text-richblack-5 px-4 py-3 rounded-xl border border-richblack-700 font-mono text-sm"
-                    placeholder="MM/YY"
+                    placeholder="11/27"
                     placeholderTextColor="#6E727F"
                   />
                 </View>
