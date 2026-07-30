@@ -112,7 +112,7 @@ export default function CourseDetailsScreen() {
           <View className="mt-5 p-4 bg-richblack-800 rounded-xl border border-richblack-700">
             <View className="flex-row justify-between items-center">
               <Text className="text-base text-richblack-100">Course Price</Text>
-              <Text className="text-2xl font-bold text-yellow-50">BDT {price}</Text>
+              <Text className="text-2xl font-bold text-yellow-50">${price}</Text>
             </View>
             <TouchableOpacity
               onPress={handleBuyCourse}

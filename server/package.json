@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "predev": "npx -y kill-port 9000",
     "dev": "nodemon",
     "start": "node index.js"
   },

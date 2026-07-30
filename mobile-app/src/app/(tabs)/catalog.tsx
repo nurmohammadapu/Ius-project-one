@@ -75,11 +75,11 @@ export default function CatalogScreen() {
       {/* Horizontal Category Selector */}
       <View className="py-3 px-4 border-b border-richblack-800">
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row">
-          {categories.map((cat) => {
+          {categories.map((cat, idx) => {
             const isSelected = cat._id === selectedCategoryId;
             return (
               <TouchableOpacity
-                key={cat._id}
+                key={cat._id || cat.id || `cat-${idx}`}
                 onPress={() => setSelectedCategoryId(cat._id)}
                 className={`px-4 py-2.5 rounded-full mr-2 border ${
                   isSelected ? "bg-yellow-50 border-yellow-50" : "bg-richblack-800 border-richblack-700"
@@ -122,9 +122,9 @@ export default function CatalogScreen() {
                   categoryPageData.selectedCategory?.courses.length === 0) ? (
                   <Text className="text-richblack-400 text-sm italic py-4">No courses available in this category yet.</Text>
                 ) : (
-                  categoryPageData.selectedCategory?.courses.map((course: any) => (
+                  categoryPageData.selectedCategory?.courses.map((course: any, idx: number) => (
                     <TouchableOpacity
-                      key={course._id}
+                      key={course._id || course.id || `scourse-${idx}`}
                       onPress={() => router.push({ pathname: "/course-details", params: { courseId: course._id } })}
                       className="bg-richblack-800 rounded-xl overflow-hidden border border-richblack-700 mb-4 flex-row"
                     >
@@ -146,7 +146,7 @@ export default function CatalogScreen() {
                           <Text className="text-xs font-semibold text-richblack-200">
                             By {course.instructor?.firstName}
                           </Text>
-                          <Text className="text-sm font-bold text-yellow-50">BDT {course.price}</Text>
+                          <Text className="text-sm font-bold text-yellow-50">${course.price}</Text>
                         </View>
                       </View>
                     </TouchableOpacity>
@@ -158,9 +158,9 @@ export default function CatalogScreen() {
               {categoryPageData.differentCategory?.courses?.length > 0 && (
                 <View className="mt-6 mb-8">
                   <Text className="text-base font-bold text-richblack-5 mb-3">Other Courses You Might Like</Text>
-                  {categoryPageData.differentCategory.courses.slice(0, 3).map((course: any) => (
+                  {categoryPageData.differentCategory.courses.slice(0, 3).map((course: any, idx: number) => (
                     <TouchableOpacity
-                      key={course._id}
+                      key={course._id || course.id || `dcourse-${idx}`}
                       onPress={() => router.push({ pathname: "/course-details", params: { courseId: course._id } })}
                       className="bg-richblack-800 rounded-xl overflow-hidden border border-richblack-700 mb-3 flex-row"
                     >
@@ -175,7 +175,7 @@ export default function CatalogScreen() {
                         </Text>
                         <View className="flex-row justify-between items-center">
                           <Text className="text-xxs text-richblack-300">By {course.instructor?.firstName}</Text>
-                          <Text className="text-xs font-bold text-yellow-50">BDT {course.price}</Text>
+                          <Text className="text-xs font-bold text-yellow-50">${course.price}</Text>
                         </View>
                       </View>
                     </TouchableOpacity>

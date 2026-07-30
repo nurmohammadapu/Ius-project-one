@@ -21,8 +21,8 @@ export function sendOtp(email, router) {
         checkUserPresent: true,
       });
 
-      if (!response.data.success) {
-        throw new Error(response.data.message);
+      if (!response?.data?.success) {
+        throw new Error(response?.data?.message || "Could not send OTP");
       }
 
       Alert.alert("Success", "OTP Sent Successfully");
@@ -30,9 +30,12 @@ export function sendOtp(email, router) {
         router.push("/(auth)/verify-email");
       }
     } catch (error) {
-      console.error("SENDOTP API ERROR:", error);
-      const errorMessage = error.response?.data?.message || error.message || "Could Not Send OTP";
-      Alert.alert("Error", errorMessage);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Could Not Send OTP. Please check network connection.";
+      console.log("SENDOTP API ERROR:", errorMessage);
+      Alert.alert("OTP Error", errorMessage);
     }
     dispatch(setLoading(false));
   };
@@ -61,8 +64,8 @@ export function signUp(
         otp,
       });
 
-      if (!response.data.success) {
-        throw new Error(response.data.message);
+      if (!response?.data?.success) {
+        throw new Error(response?.data?.message || "Signup failed");
       }
 
       Alert.alert("Success", "Signup Successful. Please Login.");
@@ -70,9 +73,12 @@ export function signUp(
         router.replace("/(auth)/login");
       }
     } catch (error) {
-      console.error("SIGNUP API ERROR:", error);
-      const errorMessage = error.response?.data?.message || error.message || "Signup Failed";
-      Alert.alert("Error", errorMessage);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Signup Failed. Please try again.";
+      console.log("SIGNUP API ERROR:", errorMessage);
+      Alert.alert("Registration Error", errorMessage);
     }
     dispatch(setLoading(false));
   };
@@ -87,15 +93,15 @@ export function login(email, password, router) {
         password,
       });
 
-      if (!response.data.success) {
-        throw new Error(response.data.message);
+      if (!response?.data?.success) {
+        throw new Error(response?.data?.message || "Login failed");
       }
 
       const token = response.data.token;
       const user = response.data.user;
-      const userImage = user.image
+      const userImage = user?.image
         ? user.image
-        : `https://api.dicebear.com/5.x/initials/svg?seed=${user.firstName} ${user.lastName}`;
+        : `https://api.dicebear.com/5.x/initials/svg?seed=${user?.firstName || "User"} ${user?.lastName || ""}`;
       
       const fullUser = { ...user, image: userImage };
 
@@ -111,9 +117,13 @@ export function login(email, password, router) {
         router.replace("/(tabs)");
       }
     } catch (error) {
-      console.error("LOGIN API ERROR:", error);
-      const errorMessage = error.response?.data?.message || error.message || "Login Failed";
-      Alert.alert("Error", errorMessage);
+      const errorMessage =
+        error.response?.data?.message ||
+        (error.response?.status === 401
+          ? "Invalid email or password"
+          : error.message || "Login Failed");
+      console.log("LOGIN API ERROR:", errorMessage);
+      Alert.alert("Login Failed", errorMessage);
     }
     dispatch(setLoading(false));
   };

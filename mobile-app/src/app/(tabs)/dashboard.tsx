@@ -71,12 +71,12 @@ export default function DashboardScreen() {
             </View>
           ) : (
             <View className="space-y-4">
-              {enrolledCourses.map((course) => {
+              {enrolledCourses.map((course, idx) => {
                 // Calculate progress
                 const progressPercentage = course.progressPercentage || 0;
                 return (
                   <TouchableOpacity
-                    key={course._id}
+                    key={course._id || course.id || `ecourse-${idx}`}
                     onPress={() => {
                       // Navigate to course viewer
                       // If the course contains content, we direct to the first lecture

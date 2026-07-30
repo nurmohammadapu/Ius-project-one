@@ -15,7 +15,7 @@ const fileUpload = require("express-fileupload");
 const dotenv = require("dotenv");
 
 dotenv.config();
-const PORT = process.env.PORT || 9000;
+const PORT = process.env.PORT;
 
 // Database connection
 database.connect();
@@ -26,8 +26,10 @@ app.use(cookieParser());
 app.use(
     cors({
         origin: [
-            'http://localhost:5173', // Local development
-            'http://localhost:3000', // Local development
+            'http://localhost:5173', // Local web development
+            'http://localhost:3000', // Local web development
+            'http://localhost:8081', // Expo web
+            'http://192.168.1.167:8081', // Expo mobile IP
             'https://study-notion-hosting-rouge.vercel.app' // Vercel deployment
         ],
         credentials: true, // Allow credentials (cookies, headers)

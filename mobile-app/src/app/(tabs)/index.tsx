@@ -70,9 +70,9 @@ export default function HomeScreen() {
         <View className="mt-8">
           <Text className="text-lg font-bold text-richblack-5 mb-4">Browse Categories</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} className="space-x-3 flex-row">
-            {categories.map((item) => (
+            {categories.map((item, idx) => (
               <TouchableOpacity
-                key={item._id}
+                key={item._id || item.id || `cat-${idx}`}
                 onPress={() => router.push({ pathname: "/(tabs)/catalog", params: { categoryId: item._id } })}
                 className="bg-richblack-800 border border-richblack-700 px-4 py-2.5 rounded-full mr-2"
               >
@@ -89,9 +89,9 @@ export default function HomeScreen() {
             <Text className="text-richblack-300 text-sm italic">No courses found.</Text>
           ) : (
             <View className="space-y-4">
-              {courses.map((item) => (
+              {courses.map((item, idx) => (
                 <TouchableOpacity
-                  key={item._id}
+                  key={item._id || item.id || `course-${idx}`}
                   onPress={() => router.push({ pathname: "/course-details", params: { courseId: item._id } })}
                   className="bg-richblack-800 rounded-xl overflow-hidden border border-richblack-700 mb-4"
                 >
@@ -109,7 +109,7 @@ export default function HomeScreen() {
                       <Text className="text-sm font-semibold text-richblack-100">
                         By {item.instructor?.firstName} {item.instructor?.lastName}
                       </Text>
-                      <Text className="text-base font-bold text-yellow-50">BDT {item.price}</Text>
+                      <Text className="text-base font-bold text-yellow-50">${item.price}</Text>
                     </View>
                   </View>
                 </TouchableOpacity>

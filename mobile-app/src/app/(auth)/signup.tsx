@@ -49,7 +49,7 @@ export default function SignupScreen() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
       >
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="px-6 py-4 justify-center">
+        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }} className="px-6 py-4">
           <View className="mb-6 mt-4">
             <Text className="text-3xl font-bold text-richblack-5 mb-2">Join the Future</Text>
             <Text className="text-base text-richblack-100">
