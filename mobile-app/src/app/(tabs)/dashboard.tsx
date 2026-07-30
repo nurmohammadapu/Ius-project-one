@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useSelector } from "react-redux";
 import { getUserEnrolledCourses } from "../../services/operations/profileAPI";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function DashboardScreen() {
@@ -13,20 +13,26 @@ export default function DashboardScreen() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    async function loadEnrolled() {
-      if (!token) return;
-      try {
-        const list = await getUserEnrolledCourses(token);
-        setEnrolledCourses(list || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+  const fetchEnrolledCourses = useCallback(async () => {
+    if (!token) {
+      setLoading(false);
+      return;
     }
-    loadEnrolled();
+    try {
+      const list = await getUserEnrolledCourses(token);
+      setEnrolledCourses(list || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   }, [token]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchEnrolledCourses();
+    }, [fetchEnrolledCourses])
+  );
 
   if (loading) {
     return (
@@ -78,22 +84,10 @@ export default function DashboardScreen() {
                   <TouchableOpacity
                     key={course._id || course.id || `ecourse-${idx}`}
                     onPress={() => {
-                      // Navigate to course viewer
-                      // If the course contains content, we direct to the first lecture
-                      if (course.courseContent && course.courseContent.length > 0 && course.courseContent[0].subSection.length > 0) {
-                        const sectionId = course.courseContent[0]._id;
-                        const subSectionId = course.courseContent[0].subSection[0]._id;
-                        router.push({
-                          pathname: "/view-course",
-                          params: {
-                            courseId: course._id,
-                            sectionId,
-                            subSectionId,
-                          },
-                        });
-                      } else {
-                        alert("No course content uploaded yet.");
-                      }
+                      router.push({
+                        pathname: "/view-course",
+                        params: { courseId: course._id || course.id },
+                      });
                     }}
                     className="bg-richblack-800 rounded-xl overflow-hidden border border-richblack-700 mb-4"
                   >

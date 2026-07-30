@@ -84,13 +84,14 @@ export const markLectureAsComplete = async (data, token) => {
     const response = await apiConnector("POST", LECTURE_COMPLETION_API, data, {
       Authorization: `Bearer ${token}`,
     });
-    if (!response.data.message) {
-      throw new Error(response.data.error || "Could not mark lecture as complete");
+    if (!response?.data?.message && response?.data?.success === false) {
+      throw new Error(response?.data?.error || "Could not mark lecture as complete");
     }
     result = true;
   } catch (error) {
     console.log("MARK_LECTURE_AS_COMPLETE_API API ERROR............", error);
-    Alert.alert("Error", error.message);
+    const msg = error?.response?.data?.error || error?.message || "Could not update lecture progress";
+    Alert.alert("Notice", msg);
   }
   return result;
 };

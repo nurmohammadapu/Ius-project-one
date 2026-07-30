@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
+import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator, Alert, Modal, TextInput } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { fetchCourseDetails } from "../services/operations/courseDetailsAPI";
-import { BuyCourse } from "../services/operations/studentFeaturesAPI";
+import { BuyCourse, executeDirectMobilePayment } from "../services/operations/studentFeaturesAPI";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,13 +11,24 @@ export default function CourseDetailsScreen() {
   const { courseId } = useLocalSearchParams();
   const [courseData, setCourseData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("card");
+  const [cardName, setCardName] = useState("");
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiry, setExpiry] = useState("");
+  const [cvc, setCvc] = useState("");
+  const [paying, setPaying] = useState(false);
+
   const router = useRouter();
   const dispatch = useDispatch();
   const { token } = useSelector((state: any) => state.auth);
   const { user } = useSelector((state: any) => state.profile);
 
   useEffect(() => {
-    if (!courseId) return;
+    if (!courseId) {
+      setLoading(false);
+      return;
+    }
 
     async function loadDetails() {
       try {
@@ -44,7 +55,7 @@ export default function CourseDetailsScreen() {
       ]);
       return;
     }
-    BuyCourse(token, [courseId], user, router, dispatch);
+    setShowPaymentModal(true);
   };
 
   if (loading) {
@@ -66,6 +77,7 @@ export default function CourseDetailsScreen() {
     );
   }
 
+  const details = courseData?.courseDetails || courseData || {};
   const {
     courseName,
     courseDescription,
@@ -74,7 +86,13 @@ export default function CourseDetailsScreen() {
     thumbnail,
     courseContent,
     ratingAndReviews,
-  } = courseData.courseDetails;
+  } = details;
+
+  const isEnrolled = details.studentsEnroled?.some(
+    (student: any) =>
+      (student.id || student._id || student) === user?.id ||
+      (student.id || student._id || student) === user?._id
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-richblack-900">
@@ -114,12 +132,22 @@ export default function CourseDetailsScreen() {
               <Text className="text-base text-richblack-100">Course Price</Text>
               <Text className="text-2xl font-bold text-yellow-50">${price}</Text>
             </View>
-            <TouchableOpacity
-              onPress={handleBuyCourse}
-              className="bg-yellow-50 py-3 rounded-lg mt-4 flex-row justify-center items-center"
-            >
-              <Text className="text-richblack-900 font-bold text-base">Buy Now</Text>
-            </TouchableOpacity>
+            {isEnrolled ? (
+              <TouchableOpacity
+                onPress={() => router.push({ pathname: "/view-course", params: { courseId: courseId as string } })}
+                className="bg-yellow-50 py-3 rounded-lg mt-4 flex-row justify-center items-center"
+              >
+                <Text className="text-richblack-900 font-bold text-base">Go to Course</Text>
+                <Ionicons name="arrow-forward" size={18} color="#000" style={{ marginLeft: 6 }} />
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                onPress={handleBuyCourse}
+                className="bg-yellow-50 py-3 rounded-lg mt-4 flex-row justify-center items-center"
+              >
+                <Text className="text-richblack-900 font-bold text-base">Buy Now</Text>
+              </TouchableOpacity>
+            )}
           </View>
 
           {/* Curriculum Section */}
@@ -152,8 +180,157 @@ export default function CourseDetailsScreen() {
               </View>
             )}
           </View>
+
+          {/* Student Reviews Section */}
+          <View className="mt-6 mb-8 border-t border-richblack-800 pt-6">
+            <Text className="text-lg font-bold text-richblack-5 mb-4">Student Reviews</Text>
+            {!ratingAndReviews || ratingAndReviews.length === 0 ? (
+              <Text className="text-sm italic text-richblack-400">No reviews for this course yet.</Text>
+            ) : (
+              <View className="space-y-3">
+                {ratingAndReviews.map((item: any, rIdx: number) => (
+                  <View key={item._id || rIdx} className="bg-richblack-800 p-4 rounded-xl border border-richblack-700 mb-3">
+                    <View className="flex-row justify-between items-center mb-2">
+                      <Text className="text-sm font-bold text-richblack-5">
+                        {item.user?.firstName} {item.user?.lastName}
+                      </Text>
+                      <View className="flex-row items-center space-x-1">
+                        <Ionicons name="star" size={14} color="#FFD60A" />
+                        <Text className="text-xs font-bold text-yellow-50">{item.rating}/5</Text>
+                      </View>
+                    </View>
+                    <Text className="text-xs text-richblack-200 leading-relaxed">{item.review}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
         </View>
       </ScrollView>
+
+      {/* Native In-App Payment Gateway Modal */}
+      <Modal visible={showPaymentModal} transparent animationType="slide">
+        <View className="flex-1 bg-black/80 justify-end">
+          <View className="bg-richblack-800 p-6 rounded-t-3xl border-t border-richblack-700">
+            <View className="flex-row justify-between items-center mb-4">
+              <View className="flex-row items-center space-x-2">
+                <Ionicons name="shield-checkmark" size={24} color="#06D6A0" />
+                <Text className="text-lg font-bold text-richblack-5 ml-2">In-App Payment Gateway</Text>
+              </View>
+              <TouchableOpacity onPress={() => setShowPaymentModal(false)}>
+                <Ionicons name="close" size={24} color="#AFB2BF" />
+              </TouchableOpacity>
+            </View>
+
+            <Text className="text-xs text-richblack-300 mb-4">
+              Complete your payment for <Text className="font-bold text-richblack-5">{courseName}</Text>
+            </Text>
+
+            {/* Price Badge */}
+            <View className="bg-richblack-900 p-4 rounded-xl border border-richblack-700 flex-row justify-between items-center mb-5">
+              <Text className="text-sm text-richblack-200">Total Payable</Text>
+              <Text className="text-2xl font-bold text-yellow-50">${price}</Text>
+            </View>
+
+            {/* Payment Method Selector */}
+            <Text className="text-xs font-bold text-richblack-200 mb-2">Payment Method</Text>
+            <View className="flex-row space-x-3 mb-5">
+              <TouchableOpacity
+                onPress={() => setPaymentMethod("card")}
+                className={`flex-1 py-3 rounded-xl border flex-row justify-center items-center ${
+                  paymentMethod === "card" ? "bg-yellow-50/10 border-yellow-50" : "bg-richblack-900 border-richblack-700"
+                }`}
+              >
+                <Ionicons name="card" size={18} color={paymentMethod === "card" ? "#FFD60A" : "#838894"} />
+                <Text className={`text-xs font-bold ml-2 ${paymentMethod === "card" ? "text-yellow-50" : "text-richblack-300"}`}>
+                  Credit / Debit Card
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Card Inputs */}
+            <View className="space-y-3 mb-6">
+              <View className="mb-2">
+                <Text className="text-xxs text-richblack-300 mb-1">Cardholder Name</Text>
+                <TextInput
+                  value={cardName}
+                  onChangeText={setCardName}
+                  className="bg-richblack-900 text-richblack-5 px-4 py-3 rounded-xl border border-richblack-700 text-sm"
+                  placeholder="e.g. John Doe"
+                  placeholderTextColor="#6E727F"
+                />
+              </View>
+
+              <View className="mb-2">
+                <Text className="text-xxs text-richblack-300 mb-1">Card Number</Text>
+                <TextInput
+                  value={cardNumber}
+                  onChangeText={setCardNumber}
+                  keyboardType="numeric"
+                  className="bg-richblack-900 text-richblack-5 px-4 py-3 rounded-xl border border-richblack-700 font-mono text-sm"
+                  placeholder="4242 4242 4242 4242"
+                  placeholderTextColor="#6E727F"
+                />
+              </View>
+
+              <View className="flex-row space-x-3 mt-1">
+                <View className="flex-1 mr-2">
+                  <Text className="text-xxs text-richblack-300 mb-1">Expiry Date</Text>
+                  <TextInput
+                    value={expiry}
+                    onChangeText={setExpiry}
+                    className="bg-richblack-900 text-richblack-5 px-4 py-3 rounded-xl border border-richblack-700 font-mono text-sm"
+                    placeholder="MM/YY"
+                    placeholderTextColor="#6E727F"
+                  />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-xxs text-richblack-300 mb-1">CVC Code</Text>
+                  <TextInput
+                    value={cvc}
+                    onChangeText={setCvc}
+                    keyboardType="numeric"
+                    secureTextEntry
+                    maxLength={4}
+                    className="bg-richblack-900 text-richblack-5 px-4 py-3 rounded-xl border border-richblack-700 font-mono text-sm"
+                    placeholder="123"
+                    placeholderTextColor="#6E727F"
+                  />
+                </View>
+              </View>
+            </View>
+
+            {/* Pay Button */}
+            <TouchableOpacity
+              onPress={async () => {
+                if (!cardName.trim() || !cardNumber.trim() || !expiry.trim() || !cvc.trim()) {
+                  Alert.alert("Card Information Required", "Please enter your cardholder name, card number, expiry date, and CVC code.");
+                  return;
+                }
+                setPaying(true);
+                const success = await executeDirectMobilePayment(token, [courseId], router, dispatch);
+                setPaying(false);
+                if (success) {
+                  setShowPaymentModal(false);
+                }
+              }}
+              disabled={paying}
+              className="bg-yellow-50 py-4 rounded-xl justify-center items-center flex-row shadow-lg"
+            >
+              {paying ? (
+                <ActivityIndicator size="small" color="#000" />
+              ) : (
+                <>
+                  <Ionicons name="lock-closed" size={18} color="#000" />
+                  <Text className="text-richblack-900 font-bold text-base ml-2">
+                    Confirm & Pay ${price}
+                  </Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

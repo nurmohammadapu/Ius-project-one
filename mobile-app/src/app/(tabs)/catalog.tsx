@@ -76,11 +76,12 @@ export default function CatalogScreen() {
       <View className="py-3 px-4 border-b border-richblack-800">
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row">
           {categories.map((cat, idx) => {
-            const isSelected = cat._id === selectedCategoryId;
+            const catId = cat.id || cat._id;
+            const isSelected = catId === selectedCategoryId;
             return (
               <TouchableOpacity
-                key={cat._id || cat.id || `cat-${idx}`}
-                onPress={() => setSelectedCategoryId(cat._id)}
+                key={catId || `cat-${idx}`}
+                onPress={() => setSelectedCategoryId(catId)}
                 className={`px-4 py-2.5 rounded-full mr-2 border ${
                   isSelected ? "bg-yellow-50 border-yellow-50" : "bg-richblack-800 border-richblack-700"
                 }`}
@@ -124,8 +125,8 @@ export default function CatalogScreen() {
                 ) : (
                   categoryPageData.selectedCategory?.courses.map((course: any, idx: number) => (
                     <TouchableOpacity
-                      key={course._id || course.id || `scourse-${idx}`}
-                      onPress={() => router.push({ pathname: "/course-details", params: { courseId: course._id } })}
+                      key={course.id || course._id || `scourse-${idx}`}
+                      onPress={() => router.push({ pathname: "/course-details", params: { courseId: course.id || course._id } })}
                       className="bg-richblack-800 rounded-xl overflow-hidden border border-richblack-700 mb-4 flex-row"
                     >
                       <Image
@@ -160,8 +161,8 @@ export default function CatalogScreen() {
                   <Text className="text-base font-bold text-richblack-5 mb-3">Other Courses You Might Like</Text>
                   {categoryPageData.differentCategory.courses.slice(0, 3).map((course: any, idx: number) => (
                     <TouchableOpacity
-                      key={course._id || course.id || `dcourse-${idx}`}
-                      onPress={() => router.push({ pathname: "/course-details", params: { courseId: course._id } })}
+                      key={course.id || course._id || `dcourse-${idx}`}
+                      onPress={() => router.push({ pathname: "/course-details", params: { courseId: course.id || course._id } })}
                       className="bg-richblack-800 rounded-xl overflow-hidden border border-richblack-700 mb-3 flex-row"
                     >
                       <Image

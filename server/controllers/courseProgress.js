@@ -1,15 +1,20 @@
 const { prisma } = require("../config/database");
 
 exports.updateCourseProgress = async (req, res) => {
-  const { courseId, subsectionId } = req.body;
+  const { courseId, subsectionId, subSectionId } = req.body;
+  const targetSubId = subsectionId || subSectionId;
   const userId = req.user.id;
+
+  if (!courseId || !targetSubId) {
+    return res.status(400).json({ success: false, error: "Course ID and Subsection ID are required." });
+  }
 
   try {
     const subsection = await prisma.subSection.findUnique({
-      where: { id: subsectionId },
+      where: { id: targetSubId },
     });
     if (!subsection) {
-      return res.status(404).json({ error: "Invalid subsection" });
+      return res.status(404).json({ success: false, error: "Invalid subsection" });
     }
 
     let courseProgress = await prisma.courseProgress.findFirst({
@@ -23,33 +28,38 @@ exports.updateCourseProgress = async (req, res) => {
     });
 
     if (!courseProgress) {
-      return res.status(404).json({
-        success: false,
-        message: "Course progress Does Not Exist",
-      });
-    } else {
-      const isAlreadyCompleted = courseProgress.completedVideos.some(
-        (v) => v.id === subsectionId
-      );
-
-      if (isAlreadyCompleted) {
-        return res.status(400).json({ error: "Subsection already completed" });
-      }
-
-      await prisma.courseProgress.update({
-        where: { id: courseProgress.id },
+      courseProgress = await prisma.courseProgress.create({
         data: {
-          completedVideos: {
-            connect: { id: subsectionId },
-          },
+          courseID: courseId,
+          userId: userId,
+        },
+        include: {
+          completedVideos: true,
         },
       });
     }
 
-    return res.status(200).json({ message: "Course progress updated" });
+    const isAlreadyCompleted = courseProgress.completedVideos?.some(
+      (v) => v.id === targetSubId
+    );
+
+    if (isAlreadyCompleted) {
+      return res.status(200).json({ success: true, message: "Subsection already completed" });
+    }
+
+    await prisma.courseProgress.update({
+      where: { id: courseProgress.id },
+      data: {
+        completedVideos: {
+          connect: { id: targetSubId },
+        },
+      },
+    });
+
+    return res.status(200).json({ success: true, message: "Course progress updated" });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Internal server error" });
+    console.error("UPDATE COURSE PROGRESS ERROR:", error);
+    return res.status(500).json({ success: false, error: error.message || "Internal server error" });
   }
 };
 

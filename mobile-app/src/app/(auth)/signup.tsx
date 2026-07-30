@@ -5,6 +5,7 @@ import { useRouter } from "expo-router";
 import { setSignupData } from "../../redux/slices/authSlice";
 import { sendOtp } from "../../services/operations/authAPI";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function SignupScreen() {
   const [accountType, setAccountType] = useState("Student"); // "Student" | "Instructor"
@@ -13,6 +14,8 @@ export default function SignupScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { loading } = useSelector((state: any) => state.auth);
   const dispatch = useDispatch();
   const router = useRouter();
@@ -116,28 +119,52 @@ export default function SignupScreen() {
 
             <View className="mt-4">
               <Text className="text-sm font-medium text-richblack-5 mb-2">Create Password *</Text>
-              <TextInput
-                placeholder="Password"
-                placeholderTextColor="#999DAA"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                autoCapitalize="none"
-                className="w-full bg-richblack-800 text-richblack-5 px-4 py-3 rounded-lg border border-richblack-700"
-              />
+              <View className="w-full relative justify-center">
+                <TextInput
+                  placeholder="Password"
+                  placeholderTextColor="#999DAA"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                  autoCapitalize="none"
+                  className="w-full bg-richblack-800 text-richblack-5 px-4 py-3 pr-12 rounded-lg border border-richblack-700"
+                />
+                <TouchableOpacity
+                  onPress={() => setShowPassword(!showPassword)}
+                  className="absolute right-4"
+                >
+                  <Ionicons
+                    name={showPassword ? "eye-off-outline" : "eye-outline"}
+                    size={22}
+                    color="#AFB2BF"
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
 
             <View className="mt-4">
               <Text className="text-sm font-medium text-richblack-5 mb-2">Confirm Password *</Text>
-              <TextInput
-                placeholder="Confirm password"
-                placeholderTextColor="#999DAA"
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                secureTextEntry
-                autoCapitalize="none"
-                className="w-full bg-richblack-800 text-richblack-5 px-4 py-3 rounded-lg border border-richblack-700"
-              />
+              <View className="w-full relative justify-center">
+                <TextInput
+                  placeholder="Confirm password"
+                  placeholderTextColor="#999DAA"
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  secureTextEntry={!showConfirmPassword}
+                  autoCapitalize="none"
+                  className="w-full bg-richblack-800 text-richblack-5 px-4 py-3 pr-12 rounded-lg border border-richblack-700"
+                />
+                <TouchableOpacity
+                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-4"
+                >
+                  <Ionicons
+                    name={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
+                    size={22}
+                    color="#AFB2BF"
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
 
             <TouchableOpacity

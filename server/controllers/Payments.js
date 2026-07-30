@@ -238,13 +238,16 @@ exports.createStripeCheckoutSession = async (req, res) => {
     }
   }
 
+  const customSuccessUrl = req.body?.success_url;
+  const customCancelUrl = req.body?.cancel_url;
+
   try {
     const session = await stripeInstance.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: lineItems,
       mode: "payment",
-      success_url: `http://localhost:5173/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `http://localhost:5173/dashboard/cart`,
+      success_url: customSuccessUrl || `http://localhost:5173/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: customCancelUrl || `http://localhost:5173/dashboard/cart`,
       metadata: {
         userId: userId,
         courses: JSON.stringify(courses),
@@ -262,6 +265,32 @@ exports.createStripeCheckoutSession = async (req, res) => {
     console.error("STRIPE SESSION CREATE ERROR:", error);
     res.status(500).json({ success: false, message: "Could not initiate Stripe session." });
   }
+};
+
+exports.mobileSuccessPage = async (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Payment Successful</title>
+        <style>
+          body { background-color: #000814; color: #FFFFFF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-align: center; padding: 40px 20px; margin: 0; }
+          .card { background-color: #161D29; border: 1px solid #2C333F; border-radius: 16px; padding: 30px 20px; max-width: 400px; margin: 40px auto; }
+          .icon { font-size: 50px; margin-bottom: 10px; }
+          h2 { color: #06D6A0; margin-bottom: 10px; }
+          p { color: #AFB2BF; font-size: 14px; line-height: 1.5; }
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <div class="icon">🎉</div>
+          <h2>Payment Completed!</h2>
+          <p>Thank you for your purchase. Returning you to the mobile app...</p>
+        </div>
+      </body>
+    </html>
+  `);
 };
 
 // Verify Stripe Payment
@@ -308,6 +337,49 @@ exports.verifyStripePayment = async (req, res) => {
     }
   } catch (error) {
     console.error("STRIPE VERIFY ERROR:", error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Direct Mobile Payment Gateway Process
+exports.directMobilePayment = async (req, res) => {
+  try {
+    const { courses } = req.body;
+    const userId = req.user.id;
+
+    if (!courses || courses.length === 0) {
+      return res.status(400).json({ success: false, message: "Please provide course IDs." });
+    }
+
+    const enrolledCourses = [];
+    for (const courseId of courses) {
+      const course = await prisma.course.findUnique({
+        where: { id: courseId },
+        include: { studentsEnroled: true },
+      });
+
+      if (!course) {
+        return res.status(404).json({ success: false, message: "Course not found" });
+      }
+
+      const isEnrolled = course.studentsEnroled.some((s) => s.id === userId);
+      if (isEnrolled) {
+        return res.status(400).json({ success: false, message: "You are already enrolled in this course." });
+      }
+      enrolledCourses.push(courseId);
+    }
+
+    if (enrolledCourses.length > 0) {
+      await enrollStudents(enrolledCourses, userId, res);
+      return res.status(200).json({
+        success: true,
+        message: "Payment processed successfully! Course unlocked.",
+      });
+    }
+
+    return res.status(400).json({ success: false, message: "Payment failed." });
+  } catch (error) {
+    console.error("DIRECT MOBILE PAYMENT ERROR:", error);
     return res.status(500).json({ success: false, message: error.message });
   }
 };

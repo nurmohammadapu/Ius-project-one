@@ -73,7 +73,7 @@ export default function HomeScreen() {
             {categories.map((item, idx) => (
               <TouchableOpacity
                 key={item._id || item.id || `cat-${idx}`}
-                onPress={() => router.push({ pathname: "/(tabs)/catalog", params: { categoryId: item._id } })}
+                onPress={() => router.push({ pathname: "/(tabs)/catalog", params: { categoryId: item.id || item._id } })}
                 className="bg-richblack-800 border border-richblack-700 px-4 py-2.5 rounded-full mr-2"
               >
                 <Text className="text-richblack-100 font-semibold text-xs">{item.name}</Text>
@@ -92,7 +92,7 @@ export default function HomeScreen() {
               {courses.map((item, idx) => (
                 <TouchableOpacity
                   key={item._id || item.id || `course-${idx}`}
-                  onPress={() => router.push({ pathname: "/course-details", params: { courseId: item._id } })}
+                  onPress={() => router.push({ pathname: "/course-details", params: { courseId: item.id || item._id } })}
                   className="bg-richblack-800 rounded-xl overflow-hidden border border-richblack-700 mb-4"
                 >
                   <Image
