@@ -23,6 +23,12 @@ export default function EditCourse() {
       if (result?.courseDetails) {
         dispatch(setEditCourse(true))
         dispatch(setCourse(result?.courseDetails))
+      } else {
+        const fallbackResult = await fetchCourseDetails(courseId)
+        if (fallbackResult?.data?.courseDetails) {
+          dispatch(setEditCourse(true))
+          dispatch(setCourse(fallbackResult.data.courseDetails))
+        }
       }
       setLoading(false)
     })()

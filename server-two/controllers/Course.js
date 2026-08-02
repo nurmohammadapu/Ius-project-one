@@ -512,9 +512,11 @@ exports.createCourse = async (req, res) => {
       process.env.FOLDER_NAME
     );
 
-    // Insert Course with Array/JSON Parameters
-    const tagJson = JSON.stringify(tag);
-    const instructionsJson = JSON.stringify(instructions);
+    let tagArr = Array.isArray(tag) ? tag : (typeof tag === "string" ? JSON.parse(tag) : []);
+    if (!Array.isArray(tagArr)) tagArr = [tagArr];
+
+    let instructionsArr = Array.isArray(instructions) ? instructions : (typeof instructions === "string" ? JSON.parse(instructions) : []);
+    if (!Array.isArray(instructionsArr)) instructionsArr = [instructionsArr];
 
     const newCourseResult = await prisma.$queryRaw`
       INSERT INTO "Course" (
@@ -529,11 +531,11 @@ exports.createCourse = async (req, res) => {
         ${instructorDetails.id},
         ${whatYouWillLearn},
         ${parseFloat(price)},
-        ${tagJson}::jsonb,
+        ${tagArr}::text[],
         ${categoryDetails.id},
         ${thumbnailImage.secure_url},
         ${status}::"CourseStatus",
-        ${instructionsJson}::jsonb,
+        ${instructionsArr}::text[],
         NOW(),
         NOW()
       )
@@ -763,8 +765,11 @@ exports.editCourse = async (req, res) => {
       instructions = typeof updates.instructions === "string" ? JSON.parse(updates.instructions) : updates.instructions;
     }
 
-    const tagJson = JSON.stringify(tag);
-    const instructionsJson = JSON.stringify(instructions);
+    let tagArr = Array.isArray(tag) ? tag : (typeof tag === "string" ? JSON.parse(tag) : []);
+    if (!Array.isArray(tagArr)) tagArr = [tagArr];
+
+    let instructionsArr = Array.isArray(instructions) ? instructions : (typeof instructions === "string" ? JSON.parse(instructions) : []);
+    if (!Array.isArray(instructionsArr)) instructionsArr = [instructionsArr];
 
     await prisma.$executeRaw`
       UPDATE "Course"
@@ -776,8 +781,8 @@ exports.editCourse = async (req, res) => {
         status = ${status}::"CourseStatus",
         thumbnail = ${newThumbnail},
         "categoryId" = ${categoryId},
-        tag = ${tagJson}::jsonb,
-        instructions = ${instructionsJson}::jsonb,
+        tag = ${tagArr}::text[],
+        instructions = ${instructionsArr}::text[],
         "updatedAt" = NOW()
       WHERE id = ${courseId}
     `;

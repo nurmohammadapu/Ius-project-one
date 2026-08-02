@@ -61,16 +61,25 @@ export default function CourseInformationForm() {
 
   const isFormUpdated = () => {
     const currentValues = getValues()
-    // console.log("changes after editing form values:", currentValues)
+    const courseCatId = course?.category?.id || course?.category?._id || course?.categoryId || course?.category
+    const currentCatId = typeof currentValues.courseCategory === "object"
+      ? (currentValues.courseCategory?.id || currentValues.courseCategory?._id)
+      : currentValues.courseCategory
+
+    const courseTagsStr = Array.isArray(course?.tag) ? course.tag.toString() : (course?.tag || "").toString()
+    const currentTagsStr = Array.isArray(currentValues.courseTags) ? currentValues.courseTags.toString() : (currentValues.courseTags || "").toString()
+
+    const courseReqStr = Array.isArray(course?.instructions) ? course.instructions.toString() : (course?.instructions || "").toString()
+    const currentReqStr = Array.isArray(currentValues.courseRequirements) ? currentValues.courseRequirements.toString() : (currentValues.courseRequirements || "").toString()
+
     if (
       currentValues.courseTitle !== course.courseName ||
       currentValues.courseShortDesc !== course.courseDescription ||
       currentValues.coursePrice !== course.price ||
-      currentValues.courseTags.toString() !== course.tag.toString() ||
+      currentTagsStr !== courseTagsStr ||
       currentValues.courseBenefits !== course.whatYouWillLearn ||
-      currentValues.courseCategory._id !== course.category._id ||
-      currentValues.courseRequirements.toString() !==
-        course.instructions.toString() ||
+      currentCatId !== courseCatId ||
+      currentReqStr !== courseReqStr ||
       currentValues.courseImage !== course.thumbnail
     ) {
       return true
@@ -80,18 +89,11 @@ export default function CourseInformationForm() {
 
   //   handle next button click
   const onSubmit = async (data) => {
-    // console.log(data)
-
     if (editCourse) {
-      // const currentValues = getValues()
-      // console.log("changes after editing form values:", currentValues)
-      // console.log("now course:", course)
-      // console.log("Has Form Changed:", isFormUpdated())
       if (isFormUpdated()) {
         const currentValues = getValues()
         const formData = new FormData()
-        // console.log(data)
-        formData.append("courseId", course._id)
+        formData.append("courseId", course.id || course._id)
         if (currentValues.courseTitle !== course.courseName) {
           formData.append("courseName", data.courseTitle)
         }
@@ -101,19 +103,22 @@ export default function CourseInformationForm() {
         if (currentValues.coursePrice !== course.price) {
           formData.append("price", data.coursePrice)
         }
-        if (currentValues.courseTags.toString() !== course.tag.toString()) {
+        const courseTagsStr = Array.isArray(course?.tag) ? course.tag.toString() : (course?.tag || "").toString()
+        const currentTagsStr = Array.isArray(currentValues.courseTags) ? currentValues.courseTags.toString() : (currentValues.courseTags || "").toString()
+        if (currentTagsStr !== courseTagsStr) {
           formData.append("tag", JSON.stringify(data.courseTags))
         }
         if (currentValues.courseBenefits !== course.whatYouWillLearn) {
           formData.append("whatYouWillLearn", data.courseBenefits)
         }
-        if (currentValues.courseCategory._id !== course.category._id) {
+        const courseCatId = course?.category?.id || course?.category?._id || course?.categoryId || course?.category
+        const currentCatId = typeof data.courseCategory === "object" ? (data.courseCategory?.id || data.courseCategory?._id) : data.courseCategory
+        if (currentCatId !== courseCatId) {
           formData.append("category", data.courseCategory)
         }
-        if (
-          currentValues.courseRequirements.toString() !==
-          course.instructions.toString()
-        ) {
+        const courseReqStr = Array.isArray(course?.instructions) ? course.instructions.toString() : (course?.instructions || "").toString()
+        const currentReqStr = Array.isArray(currentValues.courseRequirements) ? currentValues.courseRequirements.toString() : (currentValues.courseRequirements || "").toString()
+        if (currentReqStr !== courseReqStr) {
           formData.append(
             "instructions",
             JSON.stringify(data.courseRequirements)
@@ -122,7 +127,6 @@ export default function CourseInformationForm() {
         if (currentValues.courseImage !== course.thumbnail) {
           formData.append("thumbnailImage", data.courseImage)
         }
-        // console.log("Edit Form data: ", formData)
         setLoading(true)
         const result = await editCourseDetails(formData, token)
         setLoading(false)
