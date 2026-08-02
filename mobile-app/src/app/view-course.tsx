@@ -6,6 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useSelector } from "react-redux";
 import { Video, ResizeMode } from "expo-av";
+import { useColorScheme } from "nativewind";
 
 export default function ViewCourseScreen() {
   const { courseId, sectionId: initialSectionId, subSectionId: initialSubSectionId } = useLocalSearchParams();
@@ -25,6 +26,9 @@ export default function ViewCourseScreen() {
   const router = useRouter();
   const { token } = useSelector((state: any) => state.auth);
   const { user } = useSelector((state: any) => state.profile);
+  const { colorScheme } = useColorScheme();
+
+  const isDark = colorScheme === "dark";
 
   useEffect(() => {
     if (!courseId) {
@@ -114,8 +118,8 @@ export default function ViewCourseScreen() {
 
   if (!courseData) {
     return (
-      <SafeAreaView className="flex-1 bg-richblack-900 justify-center items-center">
-        <Text className="text-richblack-5">Course content not found</Text>
+      <SafeAreaView className="flex-1 bg-pure-greys-5 dark:bg-richblack-900 justify-center items-center">
+        <Text className="text-richblack-900 dark:text-richblack-5">Course content not found</Text>
         <TouchableOpacity onPress={() => router.back()} className="mt-4 bg-yellow-50 px-4 py-2 rounded">
           <Text className="text-black font-bold">Go Back</Text>
         </TouchableOpacity>
@@ -198,14 +202,14 @@ export default function ViewCourseScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-richblack-900">
+    <SafeAreaView className="flex-1 bg-pure-greys-5 dark:bg-richblack-900">
       {/* Custom Header */}
-      <View className="flex-row items-center justify-between px-4 py-3 border-b border-richblack-800">
+      <View className="flex-row items-center justify-between px-4 py-3 border-b border-pure-greys-25 dark:border-richblack-800 bg-white dark:bg-richblack-900">
         <View className="flex-row items-center flex-1 mr-2">
           <TouchableOpacity onPress={() => router.back()} className="mr-3">
-            <Ionicons name="arrow-back" size={24} color="#F1F2FF" />
+            <Ionicons name="arrow-back" size={24} color={isDark ? "#F1F2FF" : "#000814"} />
           </TouchableOpacity>
-          <Text className="text-base font-bold text-richblack-5 flex-1" numberOfLines={1}>
+          <Text className="text-base font-bold text-richblack-900 dark:text-richblack-5 flex-1" numberOfLines={1}>
             {courseDetails?.courseName || courseData.courseDetails?.courseName}
           </Text>
         </View>
@@ -222,10 +226,10 @@ export default function ViewCourseScreen() {
           ) : (
             <TouchableOpacity
               onPress={() => Alert.alert("Course Incomplete 🔒", "Please complete all lectures before submitting a review.")}
-              className="bg-richblack-800 border border-richblack-700 px-3 py-1.5 rounded-lg flex-row items-center opacity-70"
+              className="bg-pure-greys-5 border border-pure-greys-50 dark:bg-richblack-800 dark:border-richblack-700 px-3 py-1.5 rounded-lg flex-row items-center opacity-70"
             >
-              <Ionicons name="lock-closed" size={14} color="#AFB2BF" />
-              <Text className="text-richblack-300 font-bold text-xs ml-1">Add Review</Text>
+              <Ionicons name="lock-closed" size={14} color={isDark ? "#AFB2BF" : "#000814"} />
+              <Text className="text-richblack-600 dark:text-richblack-300 font-bold text-xs ml-1">Add Review</Text>
             </TouchableOpacity>
           )
         )}
@@ -258,20 +262,22 @@ export default function ViewCourseScreen() {
       <ScrollView className="flex-1 mt-3" showsVerticalScrollIndicator={false}>
         {/* Lecture description card */}
         <View className="px-5 mb-6">
-          <Text className="text-xl font-bold text-richblack-5">{activeSubSection?.title}</Text>
-          <Text className="text-sm text-richblack-200 mt-2">{activeSubSection?.description}</Text>
+          <Text className="text-xl font-bold text-richblack-900 dark:text-richblack-5">{activeSubSection?.title}</Text>
+          <Text className="text-sm text-richblack-700 dark:text-richblack-200 mt-2">{activeSubSection?.description}</Text>
 
           {/* Controls: Prev / Next / Mark Complete */}
           <View className="flex-row mt-5 items-center justify-between">
             <TouchableOpacity
               onPress={handlePrevLecture}
               disabled={currentIndex <= 0}
-              className={`px-3 py-2 rounded-lg flex-row items-center ${
-                currentIndex <= 0 ? "bg-richblack-800 opacity-50" : "bg-richblack-800 border border-richblack-700"
+              className={`px-3 py-2 rounded-lg flex-row items-center border ${
+                currentIndex <= 0 
+                  ? "bg-pure-greys-5 border-pure-greys-25 opacity-50 dark:bg-richblack-800" 
+                  : "bg-white border-pure-greys-50 dark:bg-richblack-800 dark:border-richblack-700"
               }`}
             >
-              <Ionicons name="chevron-back" size={16} color="#F1F2FF" />
-              <Text className="text-richblack-5 text-xs font-semibold ml-1">Prev</Text>
+              <Ionicons name="chevron-back" size={16} color={isDark ? "#F1F2FF" : "#000814"} />
+              <Text className="text-richblack-900 dark:text-richblack-5 text-xs font-semibold ml-1">Prev</Text>
             </TouchableOpacity>
 
             {completedLectures.includes(currentSubSectionId) ? (
@@ -291,25 +297,27 @@ export default function ViewCourseScreen() {
             <TouchableOpacity
               onPress={handleNextLecture}
               disabled={currentIndex >= allSubSections.length - 1}
-              className={`px-3 py-2 rounded-lg flex-row items-center ${
-                currentIndex >= allSubSections.length - 1 ? "bg-richblack-800 opacity-50" : "bg-richblack-800 border border-richblack-700"
+              className={`px-3 py-2 rounded-lg flex-row items-center border ${
+                currentIndex >= allSubSections.length - 1 
+                  ? "bg-pure-greys-5 border-pure-greys-25 opacity-50 dark:bg-richblack-800" 
+                  : "bg-white border-pure-greys-50 dark:bg-richblack-800 dark:border-richblack-700"
               }`}
             >
-              <Text className="text-richblack-5 text-xs font-semibold mr-1">Next</Text>
-              <Ionicons name="chevron-forward" size={16} color="#F1F2FF" />
+              <Text className="text-richblack-900 dark:text-richblack-5 text-xs font-semibold mr-1">Next</Text>
+              <Ionicons name="chevron-forward" size={16} color={isDark ? "#F1F2FF" : "#000814"} />
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Section List Accordion */}
-        <View className="px-5 py-4 border-t border-richblack-800">
-          <Text className="text-base font-bold text-richblack-5 mb-4">Course Contents</Text>
+        <View className="px-5 py-4 border-t border-pure-greys-25 dark:border-richblack-800">
+          <Text className="text-base font-bold text-richblack-900 dark:text-richblack-5 mb-4">Course Contents</Text>
           {courseDetails?.courseContent?.map((section: any, sIdx: number) => {
             const secId = section.id || section._id;
             return (
               <View key={secId || `sec-${sIdx}`} className="mb-4">
-                <View className="bg-richblack-800 px-4 py-3 rounded-lg border border-richblack-700">
-                  <Text className="text-sm font-bold text-richblack-5">{section.sectionName}</Text>
+                <View className="bg-white dark:bg-richblack-800 px-4 py-3 rounded-lg border border-pure-greys-25 dark:border-richblack-700">
+                  <Text className="text-sm font-bold text-richblack-900 dark:text-richblack-5">{section.sectionName}</Text>
                 </View>
                 {section.subSection?.length > 0 && (
                   <View className="pl-2 mt-2 space-y-2">
@@ -324,48 +332,50 @@ export default function ViewCourseScreen() {
                             setCurrentSectionId(secId);
                             setCurrentSubSectionId(subId);
                           }}
-                        className={`flex-row items-center justify-between p-3.5 rounded-lg border mr-2 mb-1.5 ${
-                          isActive ? "bg-richblack-800 border-yellow-50" : "bg-richblack-900 border-richblack-800"
-                        }`}
-                      >
-                        <View className="flex-row items-center space-x-2 flex-1 mr-2">
-                          <Ionicons
-                            name={isDone ? "checkmark-circle" : "play-circle"}
-                            size={16}
-                            color={isDone ? "#06D6A0" : isActive ? "#FFD60A" : "#838894"}
-                          />
-                          <Text
-                            className={`text-xs ml-1 flex-1 ${isActive ? "text-yellow-50 font-bold" : "text-richblack-100"}`}
-                            numberOfLines={1}
-                          >
-                            {sub.title}
-                          </Text>
-                        </View>
-                        <Text className="text-xxs text-richblack-300">{formatDuration(sub.timeDuration)}</Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              )}
-            </View>
-          );
-        })}
+                          className={`flex-row items-center justify-between p-3.5 rounded-lg border mr-2 mb-1.5 ${
+                            isActive 
+                              ? "bg-yellow-50/10 border-yellow-50" 
+                              : "bg-white border-pure-greys-25 dark:bg-richblack-900 dark:border-richblack-800"
+                          }`}
+                        >
+                          <View className="flex-row items-center space-x-2 flex-1 mr-2">
+                            <Ionicons
+                              name={isDone ? "checkmark-circle" : "play-circle"}
+                              size={16}
+                              color={isDone ? "#06D6A0" : isActive ? "#FFD60A" : "#838894"}
+                            />
+                            <Text
+                              className={`text-xs ml-1 flex-1 ${isActive ? "text-yellow-50 font-bold" : "text-richblack-750 dark:text-richblack-100"}`}
+                              numberOfLines={1}
+                            >
+                              {sub.title}
+                            </Text>
+                          </View>
+                          <Text className="text-xxs text-richblack-500 dark:text-richblack-300">{formatDuration(sub.timeDuration)}</Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                )}
+              </View>
+            );
+          })}
         </View>
       </ScrollView>
 
       {/* Review Modal */}
       <Modal visible={showReviewModal} transparent animationType="slide">
         <View className="flex-1 bg-black/80 justify-center items-center px-5">
-          <View className="w-full bg-richblack-800 p-6 rounded-2xl border border-richblack-700">
-            <View className="flex-row justify-between items-center mb-4">
-              <Text className="text-lg font-bold text-richblack-5">Add Review</Text>
+          <View className="w-full bg-white dark:bg-richblack-800 p-6 rounded-2xl border border-pure-greys-25 dark:border-richblack-700">
+            <View className="flex-row justify-between items-center mb-4 pb-3 border-b border-pure-greys-50 dark:border-richblack-700">
+              <Text className="text-lg font-bold text-richblack-900 dark:text-richblack-5">Add Review</Text>
               <TouchableOpacity onPress={() => setShowReviewModal(false)}>
-                <Ionicons name="close" size={24} color="#F1F2FF" />
+                <Ionicons name="close" size={24} color={isDark ? "#F1F2FF" : "#000814"} />
               </TouchableOpacity>
             </View>
 
             {/* Star Rating Picker */}
-            <Text className="text-sm text-richblack-100 mb-2">Rating</Text>
+            <Text className="text-sm text-richblack-700 dark:text-richblack-100 mb-2">Rating</Text>
             <View className="flex-row space-x-2 mb-4 justify-center">
               {[1, 2, 3, 4, 5].map((star) => (
                 <TouchableOpacity key={star} onPress={() => setRating(star)} className="px-1">
@@ -379,7 +389,7 @@ export default function ViewCourseScreen() {
             </View>
 
             {/* Review Input */}
-            <Text className="text-sm text-richblack-100 mb-2">Your Feedback</Text>
+            <Text className="text-sm text-richblack-700 dark:text-richblack-100 mb-2">Your Feedback</Text>
             <TextInput
               placeholder="Write your experience with this course..."
               placeholderTextColor="#999DAA"
@@ -388,7 +398,7 @@ export default function ViewCourseScreen() {
               value={reviewText}
               onChangeText={setReviewText}
               style={{ textAlignVertical: "top" }}
-              className="w-full bg-richblack-900 text-richblack-5 p-3 rounded-lg border border-richblack-700 min-h-[100px] mb-6"
+              className="w-full bg-pure-greys-5 text-richblack-900 p-3 rounded-lg border border-pure-greys-50 dark:bg-richblack-900 dark:text-richblack-5 dark:border-richblack-700 min-h-[100px] mb-6"
             />
 
             <TouchableOpacity

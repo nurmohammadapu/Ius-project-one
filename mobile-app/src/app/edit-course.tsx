@@ -7,6 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
+import { useColorScheme } from "nativewind";
 
 export default function EditCourseScreen() {
   const dispatch = useDispatch();
@@ -14,6 +15,9 @@ export default function EditCourseScreen() {
   const { courseId } = useLocalSearchParams();
   const { token } = useSelector((state: any) => state.auth);
   const { step, course, editCourse } = useSelector((state: any) => state.course);
+  const { colorScheme } = useColorScheme();
+
+  const isDark = colorScheme === "dark";
 
   const [loading, setLoading] = useState(true);
 
@@ -53,27 +57,27 @@ export default function EditCourseScreen() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, backgroundColor: "#000814", justifyContent: "center", alignItems: "center" }}>
+      <View style={{ flex: 1, backgroundColor: isDark ? "#000814" : "#F9F9F9", justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size="large" color="#FFD60A" />
-        <Text className="text-richblack-100 text-sm font-semibold mt-4">Loading course details...</Text>
+        <Text className="text-richblack-900 dark:text-richblack-100 text-sm font-semibold mt-4">Loading course details...</Text>
       </View>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-richblack-900">
+    <SafeAreaView className="flex-1 bg-pure-greys-5 dark:bg-richblack-900">
       {/* Header */}
-      <View className="px-4 py-3 border-b border-richblack-800 flex-row items-center">
+      <View className="px-4 py-3 border-b border-pure-greys-25 dark:border-richblack-800 flex-row items-center bg-white dark:bg-richblack-900">
         <TouchableOpacity onPress={() => router.back()} className="mr-3">
-          <Ionicons name="arrow-back" size={24} color="#F1F2FF" />
+          <Ionicons name="arrow-back" size={24} color={isDark ? "#F1F2FF" : "#000814"} />
         </TouchableOpacity>
-        <Text className="text-xl font-bold text-richblack-5">
+        <Text className="text-xl font-bold text-richblack-900 dark:text-richblack-5">
           Edit Course
         </Text>
       </View>
 
       {/* Steps Indicator */}
-      <View className="flex-row justify-between items-center px-8 py-5 border-b border-richblack-800 bg-richblack-900">
+      <View className="flex-row justify-between items-center px-8 py-5 border-b border-pure-greys-25 dark:border-richblack-800 bg-white dark:bg-richblack-900">
         {[
           { id: 1, label: "Info" },
           { id: 2, label: "Builder" },
@@ -87,7 +91,7 @@ export default function EditCourseScreen() {
                     ? "bg-yellow-900 border border-yellow-50"
                     : step > s.id
                     ? "bg-yellow-50"
-                    : "bg-richblack-800 border border-richblack-700"
+                    : "bg-pure-greys-5 border border-pure-greys-50 dark:bg-richblack-800 dark:border-richblack-700"
                 }`}
               >
                 {step > s.id ? (
@@ -95,7 +99,7 @@ export default function EditCourseScreen() {
                 ) : (
                   <Text
                     className={`text-xs font-bold ${
-                      step === s.id ? "text-yellow-50" : "text-richblack-300"
+                      step === s.id ? "text-yellow-50" : "text-richblack-700 dark:text-richblack-300"
                     }`}
                   >
                     {s.id}

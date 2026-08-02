@@ -23,22 +23,22 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-richblack-900">
+    <SafeAreaView className="flex-1 bg-pure-greys-5 dark:bg-richblack-900">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
       >
         <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }} className="px-6">
           <View className="mb-8">
-            <Text className="text-3xl font-bold text-richblack-5 mb-2">Welcome Back</Text>
-            <Text className="text-base text-richblack-100">
+            <Text className="text-3xl font-bold text-richblack-900 dark:text-richblack-5 mb-2">Welcome Back</Text>
+            <Text className="text-base text-richblack-700 dark:text-richblack-100">
               Discover your passion, <Text className="italic text-blue-200">Be unstoppable</Text>
             </Text>
           </View>
 
           <View className="space-y-4">
             <View>
-              <Text className="text-sm font-medium text-richblack-5 mb-2">Email Address *</Text>
+              <Text className="text-sm font-medium text-richblack-900 dark:text-richblack-5 mb-2">Email Address *</Text>
               <TextInput
                 placeholder="Enter email address"
                 placeholderTextColor="#999DAA"
@@ -46,12 +46,12 @@ export default function LoginScreen() {
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
-                className="w-full bg-richblack-800 text-richblack-5 px-4 py-3 rounded-lg border border-richblack-700"
+                className="w-full bg-white text-richblack-900 border border-pure-greys-50 dark:bg-richblack-800 dark:text-richblack-5 dark:border-richblack-700 px-4 py-3 rounded-lg"
               />
             </View>
 
             <View className="mt-4">
-              <Text className="text-sm font-medium text-richblack-5 mb-2">Password *</Text>
+              <Text className="text-sm font-medium text-richblack-900 dark:text-richblack-5 mb-2">Password *</Text>
               <View className="w-full relative justify-center">
                 <TextInput
                   placeholder="Enter Password"
@@ -60,7 +60,7 @@ export default function LoginScreen() {
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
-                  className="w-full bg-richblack-800 text-richblack-5 px-4 py-3 pr-12 rounded-lg border border-richblack-700"
+                  className="w-full bg-white text-richblack-900 border border-pure-greys-50 dark:bg-richblack-800 dark:text-richblack-5 dark:border-richblack-700 px-4 py-3 pr-12 rounded-lg"
                 />
                 <TouchableOpacity
                   onPress={() => setShowPassword(!showPassword)}
@@ -96,7 +96,7 @@ export default function LoginScreen() {
           </View>
 
           <View className="flex-row justify-center items-center mt-8">
-            <Text className="text-richblack-100 text-sm">Don't have an account? </Text>
+            <Text className="text-richblack-700 dark:text-richblack-100 text-sm">Don't have an account? </Text>
             <TouchableOpacity onPress={() => router.push("/(auth)/signup")}>
               <Text className="text-yellow-50 text-sm font-bold">Create Account</Text>
             </TouchableOpacity>

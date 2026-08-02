@@ -46,15 +46,15 @@ export default function VerifyEmailScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-richblack-900">
+    <SafeAreaView className="flex-1 bg-pure-greys-5 dark:bg-richblack-900">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
       >
         <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }} className="px-6">
           <View className="mb-8">
-            <Text className="text-3xl font-bold text-richblack-5 mb-2">Verify Email</Text>
-            <Text className="text-base text-richblack-100 mb-2">
+            <Text className="text-3xl font-bold text-richblack-900 dark:text-richblack-5 mb-2">Verify Email</Text>
+            <Text className="text-base text-richblack-700 dark:text-richblack-100 mb-2">
               A verification code has been sent to your email.
             </Text>
             {signupData?.email && (
@@ -64,7 +64,7 @@ export default function VerifyEmailScreen() {
 
           <View className="space-y-4">
             <View>
-              <Text className="text-sm font-medium text-richblack-5 mb-2">Verification Code (OTP) *</Text>
+              <Text className="text-sm font-medium text-richblack-900 dark:text-richblack-5 mb-2">Verification Code (OTP) *</Text>
               <TextInput
                 placeholder="Enter 6-digit OTP"
                 placeholderTextColor="#999DAA"
@@ -72,7 +72,7 @@ export default function VerifyEmailScreen() {
                 onChangeText={setOtp}
                 keyboardType="number-pad"
                 maxLength={6}
-                className="w-full bg-richblack-800 text-richblack-5 px-4 py-3 rounded-lg border border-richblack-700 text-center font-bold tracking-widest text-lg"
+                className="w-full bg-white text-richblack-900 border border-pure-greys-50 dark:bg-richblack-800 dark:text-richblack-5 dark:border-richblack-700 px-4 py-3 rounded-lg text-center font-bold tracking-widest text-lg"
               />
             </View>
 

@@ -7,11 +7,14 @@ import { setToken } from "../redux/slices/authSlice";
 import { setUser } from "../redux/slices/profileSlice";
 import { getUserDetails } from "../services/operations/profileAPI";
 import { View, ActivityIndicator } from "react-native";
+import { useColorScheme } from "nativewind";
+import { StatusBar } from "expo-status-bar";
 
 function AppContent() {
   const dispatch = useDispatch();
   const router = useRouter();
   const segments = useSegments();
+  const { colorScheme } = useColorScheme();
   const { token } = useSelector((state: any) => state.auth);
   const { user } = useSelector((state: any) => state.profile);
   const [isBootstrapped, setIsBootstrapped] = useState(false);
@@ -71,20 +74,23 @@ function AppContent() {
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(auth)" />
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="course-details" />
-      <Stack.Screen name="view-course" />
-      <Stack.Screen name="my-courses" />
-      <Stack.Screen name="add-course" />
-      <Stack.Screen name="edit-course" />
-      <Stack.Screen name="admin/all-students" />
-      <Stack.Screen name="admin/all-instructors" />
-      <Stack.Screen name="admin/pending-approvals" />
-      <Stack.Screen name="admin/all-courses" />
-      <Stack.Screen name="admin/financial-report" />
-    </Stack>
+    <>
+      <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="course-details" />
+        <Stack.Screen name="view-course" />
+        <Stack.Screen name="my-courses" />
+        <Stack.Screen name="add-course" />
+        <Stack.Screen name="edit-course" />
+        <Stack.Screen name="admin/all-students" />
+        <Stack.Screen name="admin/all-instructors" />
+        <Stack.Screen name="admin/pending-approvals" />
+        <Stack.Screen name="admin/all-courses" />
+        <Stack.Screen name="admin/financial-report" />
+      </Stack>
+    </>
   );
 }
 

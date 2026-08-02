@@ -7,12 +7,16 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
+import { useColorScheme } from "nativewind";
 
 export default function AddCourseScreen() {
   const dispatch = useDispatch();
   const router = useRouter();
   const { token } = useSelector((state: any) => state.auth);
   const { step, course, editCourse } = useSelector((state: any) => state.course);
+  const { colorScheme } = useColorScheme();
+
+  const isDark = colorScheme === "dark";
 
   const [loading, setLoading] = useState(false);
 
@@ -22,19 +26,19 @@ export default function AddCourseScreen() {
   }, []);
 
   return (
-    <SafeAreaView className="flex-1 bg-richblack-900">
+    <SafeAreaView className="flex-1 bg-pure-greys-5 dark:bg-richblack-900">
       {/* Header */}
-      <View className="px-4 py-3 border-b border-richblack-800 flex-row items-center">
+      <View className="px-4 py-3 border-b border-pure-greys-25 dark:border-richblack-800 flex-row items-center bg-white dark:bg-richblack-900">
         <TouchableOpacity onPress={() => router.back()} className="mr-3">
-          <Ionicons name="arrow-back" size={24} color="#F1F2FF" />
+          <Ionicons name="arrow-back" size={24} color={isDark ? "#F1F2FF" : "#000814"} />
         </TouchableOpacity>
-        <Text className="text-xl font-bold text-richblack-5">
+        <Text className="text-xl font-bold text-richblack-900 dark:text-richblack-5">
           {editCourse ? "Edit Course" : "Add Course"}
         </Text>
       </View>
 
       {/* Steps Indicator */}
-      <View className="flex-row justify-between items-center px-8 py-5 border-b border-richblack-800 bg-richblack-900">
+      <View className="flex-row justify-between items-center px-8 py-5 border-b border-pure-greys-25 dark:border-richblack-800 bg-white dark:bg-richblack-900">
         {[
           { id: 1, label: "Info" },
           { id: 2, label: "Builder" },
@@ -48,7 +52,7 @@ export default function AddCourseScreen() {
                     ? "bg-yellow-900 border border-yellow-50"
                     : step > s.id
                     ? "bg-yellow-50"
-                    : "bg-richblack-800 border border-richblack-700"
+                    : "bg-pure-greys-5 border border-pure-greys-50 dark:bg-richblack-800 dark:border-richblack-700"
                 }`}
               >
                 {step > s.id ? (
@@ -56,7 +60,7 @@ export default function AddCourseScreen() {
                 ) : (
                   <Text
                     className={`text-xs font-bold ${
-                      step === s.id ? "text-yellow-50" : "text-richblack-300"
+                      step === s.id ? "text-yellow-50" : "text-richblack-700 dark:text-richblack-300"
                     }`}
                   >
                     {s.id}
@@ -65,7 +69,7 @@ export default function AddCourseScreen() {
               </View>
               <Text
                 className={`text-xxs mt-1 font-semibold ${
-                  step >= s.id ? "text-richblack-5" : "text-richblack-400"
+                  step >= s.id ? "text-richblack-900 dark:text-richblack-5" : "text-richblack-600 dark:text-richblack-400"
                 }`}
               >
                 {s.label}
@@ -74,7 +78,7 @@ export default function AddCourseScreen() {
             {idx < 2 && (
               <View
                 className={`flex-1 h-0.5 mx-2 ${
-                  step > s.id ? "bg-yellow-50" : "bg-richblack-700"
+                  step > s.id ? "bg-yellow-50" : "bg-pure-greys-50 dark:bg-richblack-700"
                 }`}
               />
             )}

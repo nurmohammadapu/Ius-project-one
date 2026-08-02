@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator, Alert, Modal, TextInput } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { fetchCourseDetails } from "../services/operations/courseDetailsAPI";
-import { BuyCourse, executeDirectMobilePayment } from "../services/operations/studentFeaturesAPI";
+import { executeDirectMobilePayment } from "../services/operations/studentFeaturesAPI";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
+import { useColorScheme } from "nativewind";
 
 export default function CourseDetailsScreen() {
   const { courseId } = useLocalSearchParams();
@@ -23,6 +24,9 @@ export default function CourseDetailsScreen() {
   const dispatch = useDispatch();
   const { token } = useSelector((state: any) => state.auth);
   const { user } = useSelector((state: any) => state.profile);
+  const { colorScheme } = useColorScheme();
+
+  const isDark = colorScheme === "dark";
 
   const handleCardNumberChange = (text: string) => {
     const cleaned = text.replace(/\D/g, "").slice(0, 16);
@@ -85,8 +89,8 @@ export default function CourseDetailsScreen() {
 
   if (!courseData) {
     return (
-      <SafeAreaView className="flex-1 bg-richblack-900 justify-center items-center">
-        <Text className="text-richblack-5">Course not found</Text>
+      <SafeAreaView className="flex-1 bg-pure-greys-5 dark:bg-richblack-900 justify-center items-center">
+        <Text className="text-richblack-900 dark:text-richblack-5">Course not found</Text>
         <TouchableOpacity onPress={() => router.back()} className="mt-4 bg-yellow-50 px-4 py-2 rounded">
           <Text className="text-black font-bold">Go Back</Text>
         </TouchableOpacity>
@@ -112,13 +116,13 @@ export default function CourseDetailsScreen() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-richblack-900">
+    <SafeAreaView className="flex-1 bg-pure-greys-5 dark:bg-richblack-900">
       {/* Custom Header */}
-      <View className="flex-row items-center px-4 py-3 border-b border-richblack-800">
+      <View className="flex-row items-center px-4 py-3 border-b border-pure-greys-25 dark:border-richblack-800 bg-white dark:bg-richblack-900">
         <TouchableOpacity onPress={() => router.back()} className="mr-3">
-          <Ionicons name="arrow-back" size={24} color="#F1F2FF" />
+          <Ionicons name="arrow-back" size={24} color={isDark ? "#F1F2FF" : "#000814"} />
         </TouchableOpacity>
-        <Text className="text-lg font-bold text-richblack-5" numberOfLines={1}>
+        <Text className="text-lg font-bold text-richblack-900 dark:text-richblack-5" numberOfLines={1}>
           Course Details
         </Text>
       </View>
@@ -131,22 +135,22 @@ export default function CourseDetailsScreen() {
         />
 
         <View className="p-5">
-          <Text className="text-2xl font-bold text-richblack-5">{courseName}</Text>
-          <Text className="text-sm text-richblack-100 mt-2 leading-relaxed">{courseDescription}</Text>
+          <Text className="text-2xl font-bold text-richblack-900 dark:text-richblack-5">{courseName}</Text>
+          <Text className="text-sm text-richblack-700 dark:text-richblack-100 mt-2 leading-relaxed">{courseDescription}</Text>
 
           <View className="flex-row items-center mt-3 space-x-2">
             <Ionicons name="star" size={16} color="#FFD60A" />
             <Text className="text-sm font-semibold text-yellow-50">
               {ratingAndReviews?.length || 0} reviews
             </Text>
-            <Text className="text-sm text-richblack-300 ml-2">
+            <Text className="text-sm text-richblack-600 dark:text-richblack-300 ml-2">
               Instructor: {instructor?.firstName} {instructor?.lastName}
             </Text>
           </View>
 
-          <View className="mt-5 p-4 bg-richblack-800 rounded-xl border border-richblack-700">
+          <View className="mt-5 p-4 bg-white dark:bg-richblack-800 rounded-xl border border-pure-greys-25 dark:border-richblack-700">
             <View className="flex-row justify-between items-center">
-              <Text className="text-base text-richblack-100">Course Price</Text>
+              <Text className="text-base text-richblack-600 dark:text-richblack-100">Course Price</Text>
               <Text className="text-2xl font-bold text-yellow-50">${price}</Text>
             </View>
             {isEnrolled ? (
@@ -169,25 +173,25 @@ export default function CourseDetailsScreen() {
 
           {/* Curriculum Section */}
           <View className="mt-8 mb-6">
-            <Text className="text-lg font-bold text-richblack-5 mb-4">Course Curriculum</Text>
+            <Text className="text-lg font-bold text-richblack-900 dark:text-richblack-5 mb-4">Course Curriculum</Text>
             {courseContent?.length === 0 ? (
-              <Text className="text-sm italic text-richblack-400">No content uploaded yet.</Text>
+              <Text className="text-sm italic text-richblack-500 dark:text-richblack-400">No content uploaded yet.</Text>
             ) : (
               <View className="space-y-4">
                 {courseContent.map((section: any, idx: number) => (
-                  <View key={section._id || idx} className="bg-richblack-800 rounded-xl border border-richblack-700 p-4 mb-3">
+                  <View key={section._id || idx} className="bg-white dark:bg-richblack-800 rounded-xl border border-pure-greys-25 dark:border-richblack-700 p-4 mb-3">
                     <View className="flex-row justify-between items-center">
-                      <Text className="text-sm font-bold text-richblack-5">{section.sectionName}</Text>
+                      <Text className="text-sm font-bold text-richblack-900 dark:text-richblack-5">{section.sectionName}</Text>
                       <Text className="text-xs text-yellow-50 font-medium">
                         {section.subSection?.length || 0} Lectures
                       </Text>
                     </View>
                     {section.subSection?.length > 0 && (
-                      <View className="mt-3 space-y-2.5 border-t border-richblack-700 pt-3">
+                      <View className="mt-3 space-y-2.5 border-t border-pure-greys-50 dark:border-richblack-700 pt-3">
                         {section.subSection.map((sub: any, sIdx: number) => (
                           <View key={sub._id || sIdx} className="flex-row items-center space-x-2 mr-2 mb-1">
                             <Ionicons name="play-circle-outline" size={16} color="#FFD60A" />
-                            <Text className="text-xs text-richblack-100 ml-1">{sub.title}</Text>
+                            <Text className="text-xs text-richblack-700 dark:text-richblack-100 ml-1">{sub.title}</Text>
                           </View>
                         ))}
                       </View>
@@ -199,16 +203,16 @@ export default function CourseDetailsScreen() {
           </View>
 
           {/* Student Reviews Section */}
-          <View className="mt-6 mb-8 border-t border-richblack-800 pt-6">
-            <Text className="text-lg font-bold text-richblack-5 mb-4">Student Reviews</Text>
+          <View className="mt-6 mb-8 border-t border-pure-greys-25 dark:border-richblack-800 pt-6">
+            <Text className="text-lg font-bold text-richblack-900 dark:text-richblack-5 mb-4">Student Reviews</Text>
             {!ratingAndReviews || ratingAndReviews.length === 0 ? (
-              <Text className="text-sm italic text-richblack-400">No reviews for this course yet.</Text>
+              <Text className="text-sm italic text-richblack-500 dark:text-richblack-400">No reviews for this course yet.</Text>
             ) : (
               <View className="space-y-3">
                 {ratingAndReviews.map((item: any, rIdx: number) => (
-                  <View key={item._id || rIdx} className="bg-richblack-800 p-4 rounded-xl border border-richblack-700 mb-3">
+                  <View key={item._id || rIdx} className="bg-white dark:bg-richblack-800 p-4 rounded-xl border border-pure-greys-25 dark:border-richblack-700 mb-3">
                     <View className="flex-row justify-between items-center mb-2">
-                      <Text className="text-sm font-bold text-richblack-5">
+                      <Text className="text-sm font-bold text-richblack-900 dark:text-richblack-5">
                         {item.user?.firstName} {item.user?.lastName}
                       </Text>
                       <View className="flex-row items-center space-x-1">
@@ -216,7 +220,7 @@ export default function CourseDetailsScreen() {
                         <Text className="text-xs font-bold text-yellow-50">{item.rating}/5</Text>
                       </View>
                     </View>
-                    <Text className="text-xs text-richblack-200 leading-relaxed">{item.review}</Text>
+                    <Text className="text-xs text-richblack-700 dark:text-richblack-200 leading-relaxed">{item.review}</Text>
                   </View>
                 ))}
               </View>
@@ -228,38 +232,38 @@ export default function CourseDetailsScreen() {
       {/* Native In-App Payment Gateway Modal */}
       <Modal visible={showPaymentModal} transparent animationType="slide">
         <View className="flex-1 bg-black/80 justify-end">
-          <View className="bg-richblack-800 p-6 rounded-t-3xl border-t border-richblack-700">
+          <View className="bg-white dark:bg-richblack-800 p-6 rounded-t-3xl border-t border-pure-greys-25 dark:border-t dark:border-richblack-700">
             <View className="flex-row justify-between items-center mb-4">
               <View className="flex-row items-center space-x-2">
                 <Ionicons name="shield-checkmark" size={24} color="#06D6A0" />
-                <Text className="text-lg font-bold text-richblack-5 ml-2">In-App Payment Gateway</Text>
+                <Text className="text-lg font-bold text-richblack-900 dark:text-richblack-5 ml-2">In-App Payment Gateway</Text>
               </View>
               <TouchableOpacity onPress={() => setShowPaymentModal(false)}>
                 <Ionicons name="close" size={24} color="#AFB2BF" />
               </TouchableOpacity>
             </View>
 
-            <Text className="text-xs text-richblack-300 mb-4">
-              Complete your payment for <Text className="font-bold text-richblack-5">{courseName}</Text>
+            <Text className="text-xs text-richblack-600 dark:text-richblack-300 mb-4">
+              Complete your payment for <Text className="font-bold text-richblack-900 dark:text-richblack-5">{courseName}</Text>
             </Text>
 
             {/* Price Badge */}
-            <View className="bg-richblack-900 p-4 rounded-xl border border-richblack-700 flex-row justify-between items-center mb-5">
-              <Text className="text-sm text-richblack-200">Total Payable</Text>
+            <View className="bg-pure-greys-5 dark:bg-richblack-900 p-4 rounded-xl border border-pure-greys-50 dark:border-richblack-700 flex-row justify-between items-center mb-5">
+              <Text className="text-sm text-richblack-700 dark:text-richblack-200">Total Payable</Text>
               <Text className="text-2xl font-bold text-yellow-50">${price}</Text>
             </View>
 
             {/* Payment Method Selector */}
-            <Text className="text-xs font-bold text-richblack-200 mb-2">Payment Method</Text>
+            <Text className="text-xs font-bold text-richblack-700 dark:text-richblack-200 mb-2">Payment Method</Text>
             <View className="flex-row space-x-3 mb-5">
               <TouchableOpacity
                 onPress={() => setPaymentMethod("card")}
                 className={`flex-1 py-3 rounded-xl border flex-row justify-center items-center ${
-                  paymentMethod === "card" ? "bg-yellow-50/10 border-yellow-50" : "bg-richblack-900 border-richblack-700"
+                  paymentMethod === "card" ? "bg-yellow-50/10 border-yellow-50" : "bg-pure-greys-5 border border-pure-greys-50 dark:bg-richblack-900 dark:border-richblack-700"
                 }`}
               >
                 <Ionicons name="card" size={18} color={paymentMethod === "card" ? "#FFD60A" : "#838894"} />
-                <Text className={`text-xs font-bold ml-2 ${paymentMethod === "card" ? "text-yellow-50" : "text-richblack-300"}`}>
+                <Text className={`text-xs font-bold ml-2 ${paymentMethod === "card" ? "text-yellow-50" : "text-richblack-700 dark:text-richblack-300"}`}>
                   Credit / Debit Card
                 </Text>
               </TouchableOpacity>
@@ -268,24 +272,24 @@ export default function CourseDetailsScreen() {
             {/* Card Inputs */}
             <View className="space-y-3 mb-6">
               <View className="mb-2">
-                <Text className="text-xxs text-richblack-300 mb-1">Cardholder Name</Text>
+                <Text className="text-xxs text-richblack-600 dark:text-richblack-300 mb-1">Cardholder Name</Text>
                 <TextInput
                   value={cardName}
                   onChangeText={setCardName}
-                  className="bg-richblack-900 text-richblack-5 px-4 py-3 rounded-xl border border-richblack-700 text-sm"
+                  className="bg-pure-greys-5 text-richblack-900 dark:bg-richblack-900 dark:text-richblack-5 px-4 py-3 rounded-xl border border-pure-greys-50 dark:border-richblack-700 text-sm"
                   placeholder="e.g. John Doe"
                   placeholderTextColor="#6E727F"
                 />
               </View>
 
               <View className="mb-2">
-                <Text className="text-xxs text-richblack-300 mb-1">Card Number (Max 16 digits)</Text>
+                <Text className="text-xxs text-richblack-600 dark:text-richblack-300 mb-1">Card Number (Max 16 digits)</Text>
                 <TextInput
                   value={cardNumber}
                   onChangeText={handleCardNumberChange}
                   keyboardType="numeric"
                   maxLength={19}
-                  className="bg-richblack-900 text-richblack-5 px-4 py-3 rounded-xl border border-richblack-700 font-mono text-sm"
+                  className="bg-pure-greys-5 text-richblack-900 dark:bg-richblack-900 dark:text-richblack-5 px-4 py-3 rounded-xl border border-pure-greys-50 dark:border-richblack-700 font-mono text-sm"
                   placeholder="4242 4242 4242 4242"
                   placeholderTextColor="#6E727F"
                 />
@@ -293,26 +297,26 @@ export default function CourseDetailsScreen() {
 
               <View className="flex-row space-x-3 mt-1">
                 <View className="flex-1 mr-2">
-                  <Text className="text-xxs text-richblack-300 mb-1">Expiry Date (MM/YY)</Text>
+                  <Text className="text-xxs text-richblack-600 dark:text-richblack-300 mb-1">Expiry Date (MM/YY)</Text>
                   <TextInput
                     value={expiry}
                     onChangeText={handleExpiryChange}
                     keyboardType="numeric"
                     maxLength={5}
-                    className="bg-richblack-900 text-richblack-5 px-4 py-3 rounded-xl border border-richblack-700 font-mono text-sm"
+                    className="bg-pure-greys-5 text-richblack-900 dark:bg-richblack-900 dark:text-richblack-5 px-4 py-3 rounded-xl border border-pure-greys-50 dark:border-richblack-700 font-mono text-sm"
                     placeholder="11/27"
                     placeholderTextColor="#6E727F"
                   />
                 </View>
                 <View className="flex-1">
-                  <Text className="text-xxs text-richblack-300 mb-1">CVC Code</Text>
+                  <Text className="text-xxs text-richblack-600 dark:text-richblack-300 mb-1">CVC Code</Text>
                   <TextInput
                     value={cvc}
                     onChangeText={setCvc}
                     keyboardType="numeric"
                     secureTextEntry
                     maxLength={4}
-                    className="bg-richblack-900 text-richblack-5 px-4 py-3 rounded-xl border border-richblack-700 font-mono text-sm"
+                    className="bg-pure-greys-5 text-richblack-900 dark:bg-richblack-900 dark:text-richblack-5 px-4 py-3 rounded-xl border border-pure-greys-50 dark:border-richblack-700 font-mono text-sm"
                     placeholder="123"
                     placeholderTextColor="#6E727F"
                   />

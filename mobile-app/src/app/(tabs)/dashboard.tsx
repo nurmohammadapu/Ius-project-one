@@ -7,11 +7,15 @@ import { getFinancialReport } from "../../services/operations/adminAPI";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useColorScheme } from "nativewind";
 
 export default function DashboardScreen() {
   const { user } = useSelector((state: any) => state.profile);
   const { token } = useSelector((state: any) => state.auth);
+  const { colorScheme } = useColorScheme();
   const router = useRouter();
+
+  const isDark = colorScheme === "dark";
 
   // Student states
   const [enrolledCourses, setEnrolledCourses] = useState<any[]>([]);
@@ -70,21 +74,21 @@ export default function DashboardScreen() {
   const totalStudents = instructorStats?.reduce((acc, curr) => acc + curr.totalStudentsEnrolled, 0) || 0;
 
   return (
-    <SafeAreaView className="flex-1 bg-richblack-900">
+    <SafeAreaView className="flex-1 bg-pure-greys-5 dark:bg-richblack-900">
       <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
         {/* User Card */}
-        <View className="flex-row items-center py-6 border-b border-richblack-800">
+        <View className="flex-row items-center py-6 border-b border-pure-greys-25 dark:border-richblack-800">
           <Image
             source={{ uri: user?.image || `https://api.dicebear.com/5.x/initials/svg?seed=${user?.firstName}` }}
             style={{ width: 60, height: 60, borderRadius: 30 }}
           />
           <View className="ml-4 flex-1">
-            <Text className="text-xl font-bold text-richblack-5">
+            <Text className="text-xl font-bold text-richblack-900 dark:text-richblack-5">
               Hello, {user?.firstName || "User"} 👋
             </Text>
-            <Text className="text-xs text-richblack-300 mt-1">{user?.email}</Text>
+            <Text className="text-xs text-richblack-500 dark:text-richblack-300 mt-1">{user?.email}</Text>
           </View>
-          <View className="bg-richblack-800 px-3 py-1 rounded-full border border-richblack-700">
+          <View className="bg-white dark:bg-richblack-800 px-3 py-1 rounded-full border border-pure-greys-50 dark:border-richblack-700">
             <Text className="text-xxs font-semibold text-yellow-50">{user?.accountType}</Text>
           </View>
         </View>
@@ -94,38 +98,38 @@ export default function DashboardScreen() {
              ADMIN DASHBOARD VIEW
              ========================================================================= */
           <View className="mt-6 mb-8">
-            <Text className="text-lg font-bold text-richblack-5 mb-4">Platform Overview</Text>
+            <Text className="text-lg font-bold text-richblack-900 dark:text-richblack-5 mb-4">Platform Overview</Text>
             
             {/* Quick Metrics Grid */}
             <View className="flex-row flex-wrap justify-between mb-6">
-              <View className="w-[48%] bg-richblack-800 p-4 rounded-xl border border-richblack-700 mb-3">
-                <Text className="text-xxs font-medium text-richblack-400">Total Revenue</Text>
+              <View className="w-[48%] bg-white dark:bg-richblack-800 p-4 rounded-xl border border-pure-greys-25 dark:border-richblack-700 mb-3">
+                <Text className="text-xxs font-medium text-richblack-600 dark:text-richblack-400">Total Revenue</Text>
                 <Text className="text-lg font-bold text-yellow-50 mt-1">
                   ${adminStats?.totalRevenue?.toLocaleString() || "0"}
                 </Text>
               </View>
-              <View className="w-[48%] bg-richblack-800 p-4 rounded-xl border border-richblack-700 mb-3">
-                <Text className="text-xxs font-medium text-richblack-400">Course Sales</Text>
+              <View className="w-[48%] bg-white dark:bg-richblack-800 p-4 rounded-xl border border-pure-greys-25 dark:border-richblack-700 mb-3">
+                <Text className="text-xxs font-medium text-richblack-600 dark:text-richblack-400">Course Sales</Text>
                 <Text className="text-lg font-bold text-caribbeangreen-100 mt-1">
                   {adminStats?.totalSales || "0"}
                 </Text>
               </View>
-              <View className="w-[48%] bg-richblack-800 p-4 rounded-xl border border-richblack-700 mb-3">
-                <Text className="text-xxs font-medium text-richblack-400">Active Students</Text>
-                <Text className="text-lg font-bold text-richblack-50 mt-1">
+              <View className="w-[48%] bg-white dark:bg-richblack-800 p-4 rounded-xl border border-pure-greys-25 dark:border-richblack-700 mb-3">
+                <Text className="text-xxs font-medium text-richblack-600 dark:text-richblack-400">Active Students</Text>
+                <Text className="text-lg font-bold text-richblack-900 dark:text-richblack-50 mt-1">
                   {adminStats?.totalStudents || "0"}
                 </Text>
               </View>
-              <View className="w-[48%] bg-richblack-800 p-4 rounded-xl border border-richblack-700 mb-3">
-                <Text className="text-xxs font-medium text-richblack-400">Total Instructors</Text>
-                <Text className="text-lg font-bold text-richblack-50 mt-1">
+              <View className="w-[48%] bg-white dark:bg-richblack-800 p-4 rounded-xl border border-pure-greys-25 dark:border-richblack-700 mb-3">
+                <Text className="text-xxs font-medium text-richblack-600 dark:text-richblack-400">Total Instructors</Text>
+                <Text className="text-lg font-bold text-richblack-900 dark:text-richblack-50 mt-1">
                   {adminStats?.totalInstructors || "0"}
                 </Text>
               </View>
             </View>
 
             {/* Admin Management Links */}
-            <Text className="text-lg font-bold text-richblack-5 mb-4">Admin Control Center</Text>
+            <Text className="text-lg font-bold text-richblack-900 dark:text-richblack-5 mb-4">Admin Control Center</Text>
             <View className="space-y-4">
               {[
                 { name: "All Students", route: "/admin/all-students", icon: "people", color: "#FFD60A" },
@@ -137,7 +141,7 @@ export default function DashboardScreen() {
                 <TouchableOpacity
                   key={idx}
                   onPress={() => router.push(item.route as any)}
-                  className="bg-richblack-800 p-4 rounded-xl border border-richblack-700 flex-row justify-between items-center mb-3"
+                  className="bg-white dark:bg-richblack-800 p-4 rounded-xl border border-pure-greys-25 dark:border-richblack-700 flex-row justify-between items-center mb-3"
                 >
                   <View className="flex-row items-center">
                     <View
@@ -146,7 +150,7 @@ export default function DashboardScreen() {
                     >
                       <Ionicons name={item.icon as any} size={20} color={item.color} />
                     </View>
-                    <Text className="text-sm font-bold text-richblack-5 ml-3">{item.name}</Text>
+                    <Text className="text-sm font-bold text-richblack-900 dark:text-richblack-5 ml-3">{item.name}</Text>
                   </View>
                   <Ionicons name="chevron-forward" size={16} color="#838894" />
                 </TouchableOpacity>
@@ -169,50 +173,50 @@ export default function DashboardScreen() {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => router.push("/my-courses")}
-                className="flex-1 bg-richblack-800 border border-richblack-700 py-3.5 rounded-xl flex-row justify-center items-center"
+                className="flex-1 bg-white dark:bg-richblack-800 border border-pure-greys-25 dark:border-richblack-700 py-3.5 rounded-xl flex-row justify-center items-center"
               >
-                <Ionicons name="list" size={20} color="#FFD60A" />
-                <Text className="text-richblack-5 font-bold text-sm ml-2">My Courses</Text>
+                <Ionicons name="list" size={20} color={isDark ? "#FFD60A" : "#000814"} />
+                <Text className="text-richblack-900 dark:text-richblack-5 font-bold text-sm ml-2">My Courses</Text>
               </TouchableOpacity>
             </View>
 
             {/* Statistics */}
-            <Text className="text-lg font-bold text-richblack-5 mb-4">Your Statistics</Text>
+            <Text className="text-lg font-bold text-richblack-900 dark:text-richblack-5 mb-4">Your Statistics</Text>
             <View className="flex-row space-x-3 mb-6">
-              <View className="flex-1 bg-richblack-800 p-4 rounded-xl border border-richblack-700">
-                <Text className="text-xxs font-medium text-richblack-400">Total Courses</Text>
-                <Text className="text-xl font-bold text-richblack-50 mt-1">{instructorCourses.length}</Text>
+              <View className="flex-1 bg-white dark:bg-richblack-800 p-4 rounded-xl border border-pure-greys-25 dark:border-richblack-700">
+                <Text className="text-xxs font-medium text-richblack-600 dark:text-richblack-400">Total Courses</Text>
+                <Text className="text-xl font-bold text-richblack-900 dark:text-richblack-50 mt-1">{instructorCourses.length}</Text>
               </View>
-              <View className="flex-1 bg-richblack-800 p-4 rounded-xl border border-richblack-700">
-                <Text className="text-xxs font-medium text-richblack-400">Total Students</Text>
-                <Text className="text-xl font-bold text-richblack-50 mt-1">{totalStudents}</Text>
+              <View className="flex-1 bg-white dark:bg-richblack-800 p-4 rounded-xl border border-pure-greys-25 dark:border-richblack-700">
+                <Text className="text-xxs font-medium text-richblack-600 dark:text-richblack-400">Total Students</Text>
+                <Text className="text-xl font-bold text-richblack-900 dark:text-richblack-50 mt-1">{totalStudents}</Text>
               </View>
-              <View className="flex-1 bg-richblack-800 p-4 rounded-xl border border-richblack-700">
-                <Text className="text-xxs font-medium text-richblack-400">Total Income</Text>
+              <View className="flex-1 bg-white dark:bg-richblack-800 p-4 rounded-xl border border-pure-greys-25 dark:border-richblack-700">
+                <Text className="text-xxs font-medium text-richblack-600 dark:text-richblack-400">Total Income</Text>
                 <Text className="text-xl font-bold text-yellow-50 mt-1">${totalAmount}</Text>
               </View>
             </View>
 
             {/* Visualization */}
             {instructorCourses.length > 0 && (totalStudents > 0 || totalAmount > 0) ? (
-              <View className="bg-richblack-800 p-5 rounded-xl border border-richblack-700 mb-6">
+              <View className="bg-white dark:bg-richblack-800 p-5 rounded-xl border border-pure-greys-25 dark:border-richblack-700 mb-6">
                 <View className="flex-row justify-between items-center mb-4">
-                  <Text className="text-base font-bold text-richblack-5">Visual Distribution</Text>
+                  <Text className="text-base font-bold text-richblack-900 dark:text-richblack-5">Visual Distribution</Text>
                   {/* Toggle buttons */}
-                  <View className="flex-row bg-richblack-900 p-1 rounded-lg border border-richblack-700">
+                  <View className="flex-row bg-pure-greys-5 dark:bg-richblack-900 p-1 rounded-lg border border-pure-greys-25 dark:border-richblack-700">
                     <TouchableOpacity
                       onPress={() => setCurrChart("students")}
-                      className={`px-3 py-1 rounded ${currChart === "students" ? "bg-richblack-700" : ""}`}
+                      className={`px-3 py-1 rounded ${currChart === "students" ? "bg-white dark:bg-richblack-700" : ""}`}
                     >
-                      <Text className={`text-xxs font-bold ${currChart === "students" ? "text-yellow-50" : "text-richblack-300"}`}>
+                      <Text className={`text-xxs font-bold ${currChart === "students" ? (isDark ? "text-yellow-50" : "text-richblack-900") : "text-richblack-500 dark:text-richblack-300"}`}>
                         Students
                       </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => setCurrChart("income")}
-                      className={`px-3 py-1 rounded ${currChart === "income" ? "bg-richblack-700" : ""}`}
+                      className={`px-3 py-1 rounded ${currChart === "income" ? "bg-white dark:bg-richblack-700" : ""}`}
                     >
-                      <Text className={`text-xxs font-bold ${currChart === "income" ? "text-yellow-50" : "text-richblack-300"}`}>
+                      <Text className={`text-xxs font-bold ${currChart === "income" ? (isDark ? "text-yellow-50" : "text-richblack-900") : "text-richblack-500 dark:text-richblack-300"}`}>
                         Income
                       </Text>
                     </TouchableOpacity>
@@ -229,14 +233,14 @@ export default function DashboardScreen() {
                     return (
                       <View key={courseStat._id || `stat-${idx}`} className="mb-3">
                         <View className="flex-row justify-between items-center mb-1">
-                          <Text className="text-xs text-richblack-100 font-medium flex-1 mr-2" numberOfLines={1}>
+                          <Text className="text-xs text-richblack-900 dark:text-richblack-100 font-medium flex-1 mr-2" numberOfLines={1}>
                             {courseStat.courseName}
                           </Text>
                           <Text className="text-xs font-bold text-yellow-50">
                             {currChart === "students" ? `${value} students` : `$${value}`} ({percentage.toFixed(1)}%)
                           </Text>
                         </View>
-                        <View className="w-full h-2.5 bg-richblack-900 rounded-full overflow-hidden border border-richblack-700">
+                        <View className="w-full h-2.5 bg-pure-greys-5 dark:bg-richblack-900 rounded-full overflow-hidden border border-pure-greys-25 dark:border-richblack-700">
                           <View
                             className="h-full bg-yellow-50 rounded-full"
                             style={{ width: `${percentage}%` }}
@@ -248,18 +252,18 @@ export default function DashboardScreen() {
                 </View>
               </View>
             ) : instructorCourses.length > 0 ? (
-              <View className="bg-richblack-800 p-6 rounded-xl border border-richblack-700 items-center mb-6">
+              <View className="bg-white dark:bg-richblack-800 p-6 rounded-xl border border-pure-greys-25 dark:border-richblack-700 items-center mb-6">
                 <Ionicons name="stats-chart-outline" size={32} color="#AFB2BF" />
-                <Text className="text-richblack-200 text-sm mt-3 text-center">
+                <Text className="text-richblack-600 dark:text-richblack-200 text-sm mt-3 text-center">
                   No sales data yet to visualize.
                 </Text>
               </View>
             ) : null}
 
             {/* Courses list */}
-            <View className="bg-richblack-800 p-5 rounded-xl border border-richblack-700">
+            <View className="bg-white dark:bg-richblack-800 p-5 rounded-xl border border-pure-greys-25 dark:border-richblack-700">
               <View className="flex-row justify-between items-center mb-4">
-                <Text className="text-base font-bold text-richblack-5">Your Courses</Text>
+                <Text className="text-base font-bold text-richblack-900 dark:text-richblack-5">Your Courses</Text>
                 <TouchableOpacity onPress={() => router.push("/my-courses")}>
                   <Text className="text-xs font-bold text-yellow-50">View All</Text>
                 </TouchableOpacity>
@@ -268,7 +272,7 @@ export default function DashboardScreen() {
               {instructorCourses.length === 0 ? (
                 <View className="items-center py-6">
                   <Ionicons name="journal-outline" size={40} color="#AFB2BF" />
-                  <Text className="text-richblack-200 text-sm mt-3 text-center">
+                  <Text className="text-richblack-600 dark:text-richblack-200 text-sm mt-3 text-center">
                     You have not created any courses yet.
                   </Text>
                   <TouchableOpacity
@@ -289,7 +293,7 @@ export default function DashboardScreen() {
                           params: { courseId: course._id || course.id },
                         });
                       }}
-                      className="flex-row items-center py-3 border-b border-richblack-700 last:border-0 mb-3"
+                      className="flex-row items-center py-3 border-b border-pure-greys-50 dark:border-richblack-700 last:border-0 mb-3"
                     >
                       <Image
                         source={{ uri: course.thumbnail || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=500" }}
@@ -297,10 +301,10 @@ export default function DashboardScreen() {
                         resizeMode="cover"
                       />
                       <View className="ml-3 flex-1">
-                        <Text className="text-sm font-semibold text-richblack-5" numberOfLines={1}>
+                        <Text className="text-sm font-semibold text-richblack-900 dark:text-richblack-5" numberOfLines={1}>
                           {course.courseName}
                         </Text>
-                        <Text className="text-xs text-richblack-300 mt-1">
+                        <Text className="text-xs text-richblack-600 dark:text-richblack-300 mt-1">
                           {course.status} • ${course.price}
                         </Text>
                       </View>
@@ -316,11 +320,11 @@ export default function DashboardScreen() {
              STUDENT DASHBOARD VIEW
              ========================================================================= */
           <View className="mt-6 mb-8">
-            <Text className="text-lg font-bold text-richblack-5 mb-4">My Enrolled Courses</Text>
+            <Text className="text-lg font-bold text-richblack-900 dark:text-richblack-5 mb-4">My Enrolled Courses</Text>
             {enrolledCourses.length === 0 ? (
-              <View className="p-8 bg-richblack-800 rounded-2xl border border-richblack-700 items-center justify-center">
+              <View className="p-8 bg-white dark:bg-richblack-800 rounded-2xl border border-pure-greys-25 dark:border-richblack-700 items-center justify-center">
                 <Ionicons name="book-outline" size={48} color="#AFB2BF" />
-                <Text className="text-richblack-100 font-semibold mt-4 text-center">
+                <Text className="text-richblack-900 dark:text-richblack-100 font-semibold mt-4 text-center">
                   You have not enrolled in any courses yet.
                 </Text>
                 <TouchableOpacity
@@ -343,7 +347,7 @@ export default function DashboardScreen() {
                           params: { courseId: course._id || course.id },
                         });
                       }}
-                      className="bg-richblack-800 rounded-xl overflow-hidden border border-richblack-700 mb-4"
+                      className="bg-white dark:bg-richblack-800 rounded-xl overflow-hidden border border-pure-greys-25 dark:border-richblack-700 mb-4"
                     >
                       <Image
                         source={{ uri: course.thumbnail || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=500" }}
@@ -351,18 +355,18 @@ export default function DashboardScreen() {
                         resizeMode="cover"
                       />
                       <View className="p-4">
-                        <Text className="text-base font-bold text-richblack-5">{course.courseName}</Text>
-                        <Text className="text-xs text-richblack-300 mt-1" numberOfLines={2}>
+                        <Text className="text-base font-bold text-richblack-900 dark:text-richblack-5">{course.courseName}</Text>
+                        <Text className="text-xs text-richblack-600 dark:text-richblack-300 mt-1" numberOfLines={2}>
                           {course.courseDescription}
                         </Text>
 
                         {/* Progress Bar */}
                         <View className="mt-4">
                           <View className="flex-row justify-between items-center mb-1">
-                            <Text className="text-xxs text-richblack-200">Progress</Text>
+                            <Text className="text-xxs text-richblack-700 dark:text-richblack-200">Progress</Text>
                             <Text className="text-xxs font-bold text-yellow-50">{progressPercentage}%</Text>
                           </View>
-                          <View className="w-full h-1.5 bg-richblack-700 rounded-full overflow-hidden">
+                          <View className="w-full h-1.5 bg-pure-greys-50 dark:bg-richblack-700 rounded-full overflow-hidden">
                             <View
                               className="h-full bg-yellow-50"
                               style={{ width: `${progressPercentage}%` }}

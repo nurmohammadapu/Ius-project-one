@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image, TextInput } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image } from "react-native";
 import { fetchCourseCategories } from "../../services/operations/courseDetailsAPI";
 import { apiConnector } from "../../services/apiConnector";
 import { catalogData } from "../../services/apis";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 
 export default function CatalogScreen() {
   const params = useLocalSearchParams();
@@ -67,13 +66,13 @@ export default function CatalogScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-richblack-900">
-      <View className="px-4 py-3 border-b border-richblack-800">
-        <Text className="text-xl font-bold text-richblack-5">Course Catalog</Text>
+    <SafeAreaView className="flex-1 bg-pure-greys-5 dark:bg-richblack-900">
+      <View className="px-4 py-3 border-b border-pure-greys-25 dark:border-richblack-800 bg-white dark:bg-richblack-900">
+        <Text className="text-xl font-bold text-richblack-900 dark:text-richblack-5">Course Catalog</Text>
       </View>
 
       {/* Horizontal Category Selector */}
-      <View className="py-3 px-4 border-b border-richblack-800">
+      <View className="py-3 px-4 border-b border-pure-greys-25 dark:border-richblack-800 bg-white dark:bg-richblack-900">
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row">
           {categories.map((cat, idx) => {
             const catId = cat.id || cat._id;
@@ -83,12 +82,14 @@ export default function CatalogScreen() {
                 key={catId || `cat-${idx}`}
                 onPress={() => setSelectedCategoryId(catId)}
                 className={`px-4 py-2.5 rounded-full mr-2 border ${
-                  isSelected ? "bg-yellow-50 border-yellow-50" : "bg-richblack-800 border-richblack-700"
+                  isSelected 
+                    ? "bg-yellow-50 border-yellow-50" 
+                    : "bg-pure-greys-5 border-pure-greys-50 dark:bg-richblack-800 dark:border-richblack-700"
                 }`}
               >
                 <Text
                   className={`font-semibold text-xs ${
-                    isSelected ? "text-richblack-900" : "text-richblack-100"
+                    isSelected ? "text-richblack-900" : "text-richblack-700 dark:text-richblack-100"
                   }`}
                 >
                   {cat.name}
@@ -100,7 +101,7 @@ export default function CatalogScreen() {
       </View>
 
       {pageLoading ? (
-        <View className="flex-1 justify-center items-center">
+        <View className="flex-grow justify-center items-center">
           <ActivityIndicator size="large" color="#FFD60A" />
         </View>
       ) : (
@@ -109,10 +110,10 @@ export default function CatalogScreen() {
             <View className="space-y-6">
               {/* Category Header */}
               <View className="mb-4">
-                <Text className="text-lg font-bold text-richblack-5">
+                <Text className="text-lg font-bold text-richblack-900 dark:text-richblack-5">
                   Courses in {categoryPageData.selectedCategory?.name}
                 </Text>
-                <Text className="text-xs text-richblack-300 mt-1">
+                <Text className="text-xs text-richblack-600 dark:text-richblack-300 mt-1">
                   {categoryPageData.selectedCategory?.description}
                 </Text>
               </View>
@@ -121,13 +122,13 @@ export default function CatalogScreen() {
               <View className="space-y-4">
                 {(!categoryPageData.selectedCategory?.courses ||
                   categoryPageData.selectedCategory?.courses.length === 0) ? (
-                  <Text className="text-richblack-400 text-sm italic py-4">No courses available in this category yet.</Text>
+                  <Text className="text-richblack-500 dark:text-richblack-400 text-sm italic py-4">No courses available in this category yet.</Text>
                 ) : (
                   categoryPageData.selectedCategory?.courses.map((course: any, idx: number) => (
                     <TouchableOpacity
                       key={course.id || course._id || `scourse-${idx}`}
                       onPress={() => router.push({ pathname: "/course-details", params: { courseId: course.id || course._id } })}
-                      className="bg-richblack-800 rounded-xl overflow-hidden border border-richblack-700 mb-4 flex-row"
+                      className="bg-white dark:bg-richblack-800 rounded-xl overflow-hidden border border-pure-greys-25 dark:border-richblack-700 mb-4 flex-row"
                     >
                       <Image
                         source={{ uri: course.thumbnail || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=300" }}
@@ -136,15 +137,15 @@ export default function CatalogScreen() {
                       />
                       <View className="flex-1 p-3 justify-between">
                         <View>
-                          <Text className="text-sm font-bold text-richblack-5" numberOfLines={1}>
+                          <Text className="text-sm font-bold text-richblack-900 dark:text-richblack-5" numberOfLines={1}>
                             {course.courseName}
                           </Text>
-                          <Text className="text-xs text-richblack-300 mt-1" numberOfLines={2}>
+                          <Text className="text-xs text-richblack-600 dark:text-richblack-300 mt-1" numberOfLines={2}>
                             {course.courseDescription}
                           </Text>
                         </View>
                         <View className="flex-row justify-between items-center mt-2">
-                          <Text className="text-xs font-semibold text-richblack-200">
+                          <Text className="text-xs font-semibold text-richblack-500 dark:text-richblack-200">
                             By {course.instructor?.firstName}
                           </Text>
                           <Text className="text-sm font-bold text-yellow-50">${course.price}</Text>
@@ -158,12 +159,12 @@ export default function CatalogScreen() {
               {/* Render Different Category Courses */}
               {categoryPageData.differentCategory?.courses?.length > 0 && (
                 <View className="mt-6 mb-8">
-                  <Text className="text-base font-bold text-richblack-5 mb-3">Other Courses You Might Like</Text>
+                  <Text className="text-base font-bold text-richblack-900 dark:text-richblack-5 mb-3">Other Courses You Might Like</Text>
                   {categoryPageData.differentCategory.courses.slice(0, 3).map((course: any, idx: number) => (
                     <TouchableOpacity
                       key={course.id || course._id || `dcourse-${idx}`}
                       onPress={() => router.push({ pathname: "/course-details", params: { courseId: course.id || course._id } })}
-                      className="bg-richblack-800 rounded-xl overflow-hidden border border-richblack-700 mb-3 flex-row"
+                      className="bg-white dark:bg-richblack-800 rounded-xl overflow-hidden border border-pure-greys-25 dark:border-richblack-700 mb-3 flex-row"
                     >
                       <Image
                         source={{ uri: course.thumbnail || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=300" }}
@@ -171,11 +172,11 @@ export default function CatalogScreen() {
                         resizeMode="cover"
                       />
                       <View className="flex-1 p-3 justify-between">
-                        <Text className="text-xs font-bold text-richblack-5" numberOfLines={1}>
+                        <Text className="text-xs font-bold text-richblack-900 dark:text-richblack-5" numberOfLines={1}>
                           {course.courseName}
                         </Text>
                         <View className="flex-row justify-between items-center">
-                          <Text className="text-xxs text-richblack-300">By {course.instructor?.firstName}</Text>
+                          <Text className="text-xxs text-richblack-500 dark:text-richblack-300 font-semibold">By {course.instructor?.firstName}</Text>
                           <Text className="text-xs font-bold text-yellow-50">${course.price}</Text>
                         </View>
                       </View>
@@ -185,7 +186,7 @@ export default function CatalogScreen() {
               )}
             </View>
           ) : (
-            <Text className="text-richblack-300 text-sm italic">Select a category to view courses.</Text>
+            <Text className="text-richblack-500 dark:text-richblack-300 text-sm italic">Select a category to view courses.</Text>
           )}
         </ScrollView>
       )}

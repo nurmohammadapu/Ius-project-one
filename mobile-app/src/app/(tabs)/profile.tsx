@@ -8,14 +8,18 @@ import { Ionicons } from "@expo/vector-icons";
 import { apiConnector } from "../../services/apiConnector";
 import { settingsEndpoints } from "../../services/apis";
 import { setUser } from "../../redux/slices/profileSlice";
+import { useColorScheme } from "nativewind";
 
 const { UPDATE_PROFILE_API, CHANGE_PASSWORD_API } = settingsEndpoints;
 
 export default function ProfileScreen() {
   const { user } = useSelector((state: any) => state.profile);
   const { token } = useSelector((state: any) => state.auth);
+  const { colorScheme, toggleColorScheme } = useColorScheme();
   const dispatch = useDispatch();
   const router = useRouter();
+
+  const isDark = colorScheme === "dark";
 
   // Edit Profile Modal
   const [showEditModal, setShowEditModal] = useState(false);
@@ -124,9 +128,9 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-richblack-900">
-      <View className="px-4 py-3 border-b border-richblack-800 flex-row justify-between items-center">
-        <Text className="text-xl font-bold text-richblack-5">My Profile</Text>
+    <SafeAreaView className="flex-1 bg-pure-greys-5 dark:bg-richblack-900">
+      <View className="px-4 py-3 border-b border-pure-greys-25 dark:border-richblack-800 flex-row justify-between items-center bg-white dark:bg-richblack-900">
+        <Text className="text-xl font-bold text-richblack-900 dark:text-richblack-5">My Profile</Text>
         <TouchableOpacity
           onPress={() => setShowEditModal(true)}
           className="bg-yellow-50 px-3 py-1.5 rounded-lg flex-row items-center"
@@ -138,61 +142,80 @@ export default function ProfileScreen() {
 
       <ScrollView className="flex-1 px-4 py-6" showsVerticalScrollIndicator={false}>
         {/* User Card info */}
-        <View className="bg-richblack-800 rounded-2xl p-6 border border-richblack-700 items-center mb-6">
+        <View className="bg-white dark:bg-richblack-800 rounded-2xl p-6 border border-pure-greys-25 dark:border-richblack-700 items-center mb-6">
           <Image
             source={{ uri: user?.image || `https://api.dicebear.com/5.x/initials/svg?seed=${user?.firstName}` }}
             style={{ width: 100, height: 100, borderRadius: 50 }}
           />
-          <Text className="text-xl font-bold text-richblack-5 mt-4">
+          <Text className="text-xl font-bold text-richblack-900 dark:text-richblack-5 mt-4">
             {user?.firstName} {user?.lastName}
           </Text>
-          <Text className="text-sm text-richblack-300 mt-1">{user?.email}</Text>
-          <View className="bg-richblack-900 px-3 py-1 rounded-full border border-richblack-700 mt-3">
+          <Text className="text-sm text-richblack-500 dark:text-richblack-300 mt-1">{user?.email}</Text>
+          <View className="bg-pure-greys-5 dark:bg-richblack-900 px-3 py-1 rounded-full border border-pure-greys-25 dark:border-richblack-700 mt-3">
             <Text className="text-xs font-semibold text-yellow-50">{user?.accountType}</Text>
           </View>
         </View>
 
         {/* Details List */}
-        <View className="bg-richblack-800 rounded-2xl p-6 border border-richblack-700 mb-6">
-          <Text className="text-base font-bold text-richblack-5 mb-4">Personal Details</Text>
+        <View className="bg-white dark:bg-richblack-800 rounded-2xl p-6 border border-pure-greys-25 dark:border-richblack-700 mb-6">
+          <Text className="text-base font-bold text-richblack-900 dark:text-richblack-5 mb-4">Personal Details</Text>
 
-          <View className="flex-row justify-between py-2.5 border-b border-richblack-700">
-            <Text className="text-sm text-richblack-300">Gender</Text>
-            <Text className="text-sm font-semibold text-richblack-5">
+          <View className="flex-row justify-between py-2.5 border-b border-pure-greys-50 dark:border-richblack-700">
+            <Text className="text-sm text-richblack-500 dark:text-richblack-300">Gender</Text>
+            <Text className="text-sm font-semibold text-richblack-900 dark:text-richblack-5">
               {user?.additionalDetails?.gender || "Not specified"}
             </Text>
           </View>
 
-          <View className="flex-row justify-between py-2.5 border-b border-richblack-700">
-            <Text className="text-sm text-richblack-300">Date of Birth</Text>
-            <Text className="text-sm font-semibold text-richblack-5">
+          <View className="flex-row justify-between py-2.5 border-b border-pure-greys-50 dark:border-richblack-700">
+            <Text className="text-sm text-richblack-500 dark:text-richblack-300">Date of Birth</Text>
+            <Text className="text-sm font-semibold text-richblack-900 dark:text-richblack-5">
               {user?.additionalDetails?.dateOfBirth || "Not specified"}
             </Text>
           </View>
 
-          <View className="flex-row justify-between py-2.5 border-b border-richblack-700">
-            <Text className="text-sm text-richblack-300">Contact Number</Text>
-            <Text className="text-sm font-semibold text-richblack-5">
+          <View className="flex-row justify-between py-2.5 border-b border-pure-greys-50 dark:border-richblack-700">
+            <Text className="text-sm text-richblack-500 dark:text-richblack-300">Contact Number</Text>
+            <Text className="text-sm font-semibold text-richblack-900 dark:text-richblack-5">
               {user?.additionalDetails?.contactNumber || "Not specified"}
             </Text>
           </View>
 
           <View className="py-2.5">
-            <Text className="text-sm text-richblack-300 mb-1">About</Text>
-            <Text className="text-xs text-richblack-100 leading-relaxed">
+            <Text className="text-sm text-richblack-500 dark:text-richblack-300 mb-1">About</Text>
+            <Text className="text-xs text-richblack-700 dark:text-richblack-100 leading-relaxed">
               {user?.additionalDetails?.about || "Write something about yourself..."}
             </Text>
           </View>
+        </View>
+
+        {/* Theme Settings Card */}
+        <View className="bg-white dark:bg-richblack-800 rounded-2xl p-5 border border-pure-greys-25 dark:border-richblack-700 mb-6">
+          <Text className="text-base font-bold text-richblack-900 dark:text-richblack-5 mb-4">Settings</Text>
+          <TouchableOpacity
+            onPress={toggleColorScheme}
+            className="flex-row justify-between items-center py-2"
+          >
+            <View className="flex-row items-center">
+              <Ionicons name={isDark ? "moon" : "sunny"} size={20} color={isDark ? "#FFD60A" : "#000814"} />
+              <Text className="text-sm font-semibold text-richblack-900 dark:text-richblack-5 ml-3">Theme Mode</Text>
+            </View>
+            <View className="bg-pure-greys-5 dark:bg-richblack-900 px-3 py-1 rounded-full border border-pure-greys-25 dark:border-richblack-700">
+              <Text className="text-xxs font-bold text-richblack-900 dark:text-yellow-50">
+                {isDark ? "Dark Mode" : "Light Mode"}
+              </Text>
+            </View>
+          </TouchableOpacity>
         </View>
 
         {/* Action Buttons */}
         <View className="space-y-3 mb-8">
           <TouchableOpacity
             onPress={() => setShowPasswordModal(true)}
-            className="bg-richblack-800 border border-richblack-700 py-3.5 rounded-xl flex-row justify-center items-center mb-3"
+            className="bg-white dark:bg-richblack-800 border border-pure-greys-50 dark:border-richblack-700 py-3.5 rounded-xl flex-row justify-center items-center mb-3"
           >
-            <Ionicons name="key-outline" size={18} color="#FFD60A" />
-            <Text className="text-richblack-5 font-bold text-sm ml-2">Change Password</Text>
+            <Ionicons name="key-outline" size={18} color={isDark ? "#FFD60A" : "#000814"} />
+            <Text className="text-richblack-900 dark:text-richblack-5 font-bold text-sm ml-2">Change Password</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -208,49 +231,49 @@ export default function ProfileScreen() {
       {/* Edit Profile Modal */}
       <Modal visible={showEditModal} transparent animationType="slide">
         <View className="flex-1 bg-black/80 justify-center items-center px-5 py-8">
-          <ScrollView className="w-full bg-richblack-800 p-6 rounded-2xl border border-richblack-700 max-h-[85%]" showsVerticalScrollIndicator={false}>
-            <View className="flex-row justify-between items-center mb-5">
-              <Text className="text-lg font-bold text-richblack-5">Edit Profile</Text>
+          <ScrollView className="w-full bg-white dark:bg-richblack-800 p-6 rounded-2xl border border-pure-greys-25 dark:border-richblack-700 max-h-[85%]" showsVerticalScrollIndicator={false}>
+            <View className="flex-row justify-between items-center mb-5 pb-3 border-b border-pure-greys-50 dark:border-richblack-700">
+              <Text className="text-lg font-bold text-richblack-900 dark:text-richblack-5">Edit Profile</Text>
               <TouchableOpacity onPress={() => setShowEditModal(false)}>
-                <Ionicons name="close" size={24} color="#F1F2FF" />
+                <Ionicons name="close" size={24} color={isDark ? "#F1F2FF" : "#000814"} />
               </TouchableOpacity>
             </View>
 
             <View className="space-y-4">
               <View>
-                <Text className="text-xs font-semibold text-richblack-100 mb-1.5">First Name</Text>
+                <Text className="text-xs font-semibold text-richblack-700 dark:text-richblack-100 mb-1.5">First Name</Text>
                 <TextInput
                   value={firstName}
                   onChangeText={setFirstName}
                   placeholder="First name"
                   placeholderTextColor="#999DAA"
-                  className="bg-richblack-900 text-richblack-5 px-3 py-2.5 rounded-lg border border-richblack-700"
+                  className="bg-pure-greys-5 text-richblack-900 dark:bg-richblack-900 dark:text-richblack-5 px-3 py-2.5 rounded-lg border border-pure-greys-50 dark:border-richblack-700"
                 />
               </View>
 
               <View className="mt-3">
-                <Text className="text-xs font-semibold text-richblack-100 mb-1.5">Last Name</Text>
+                <Text className="text-xs font-semibold text-richblack-700 dark:text-richblack-100 mb-1.5">Last Name</Text>
                 <TextInput
                   value={lastName}
                   onChangeText={setLastName}
                   placeholder="Last name"
                   placeholderTextColor="#999DAA"
-                  className="bg-richblack-900 text-richblack-5 px-3 py-2.5 rounded-lg border border-richblack-700"
+                  className="bg-pure-greys-5 text-richblack-900 dark:bg-richblack-900 dark:text-richblack-5 px-3 py-2.5 rounded-lg border border-pure-greys-50 dark:border-richblack-700"
                 />
               </View>
 
               <View className="mt-3">
-                <Text className="text-xs font-semibold text-richblack-100 mb-1.5">Gender</Text>
+                <Text className="text-xs font-semibold text-richblack-700 dark:text-richblack-100 mb-1.5">Gender</Text>
                 <View className="flex-row space-x-3">
                   {["Male", "Female", "Other"].map((g) => (
                     <TouchableOpacity
                       key={g}
                       onPress={() => setGender(g)}
                       className={`flex-1 py-2 rounded-lg border items-center ${
-                        gender === g ? "bg-yellow-50 border-yellow-50" : "bg-richblack-900 border-richblack-700"
+                        gender === g ? "bg-yellow-50 border-yellow-50" : "bg-pure-greys-5 border-pure-greys-50 dark:bg-richblack-900 dark:border-richblack-700"
                       }`}
                     >
-                      <Text className={`text-xs font-bold ${gender === g ? "text-richblack-900" : "text-richblack-100"}`}>
+                      <Text className={`text-xs font-bold ${gender === g ? "text-richblack-900" : "text-richblack-700 dark:text-richblack-100"}`}>
                         {g}
                       </Text>
                     </TouchableOpacity>
@@ -259,30 +282,30 @@ export default function ProfileScreen() {
               </View>
 
               <View className="mt-3">
-                <Text className="text-xs font-semibold text-richblack-100 mb-1.5">Date of Birth</Text>
+                <Text className="text-xs font-semibold text-richblack-700 dark:text-richblack-100 mb-1.5">Date of Birth</Text>
                 <TextInput
                   value={dateOfBirth}
                   onChangeText={setDateOfBirth}
                   placeholder="YYYY-MM-DD"
                   placeholderTextColor="#999DAA"
-                  className="bg-richblack-900 text-richblack-5 px-3 py-2.5 rounded-lg border border-richblack-700"
+                  className="bg-pure-greys-5 text-richblack-900 dark:bg-richblack-900 dark:text-richblack-5 px-3 py-2.5 rounded-lg border border-pure-greys-50 dark:border-richblack-700"
                 />
               </View>
 
               <View className="mt-3">
-                <Text className="text-xs font-semibold text-richblack-100 mb-1.5">Contact Number</Text>
+                <Text className="text-xs font-semibold text-richblack-700 dark:text-richblack-100 mb-1.5">Contact Number</Text>
                 <TextInput
                   value={contactNumber}
                   onChangeText={setContactNumber}
                   placeholder="Phone number"
                   placeholderTextColor="#999DAA"
                   keyboardType="phone-pad"
-                  className="bg-richblack-900 text-richblack-5 px-3 py-2.5 rounded-lg border border-richblack-700"
+                  className="bg-pure-greys-5 text-richblack-900 dark:bg-richblack-900 dark:text-richblack-5 px-3 py-2.5 rounded-lg border border-pure-greys-50 dark:border-richblack-700"
                 />
               </View>
 
               <View className="mt-3 mb-4">
-                <Text className="text-xs font-semibold text-richblack-100 mb-1.5">About Bio</Text>
+                <Text className="text-xs font-semibold text-richblack-700 dark:text-richblack-100 mb-1.5">About Bio</Text>
                 <TextInput
                   value={about}
                   onChangeText={setAbout}
@@ -290,7 +313,7 @@ export default function ProfileScreen() {
                   placeholderTextColor="#999DAA"
                   multiline
                   numberOfLines={3}
-                  className="bg-richblack-900 text-richblack-5 px-3 py-2.5 rounded-lg border border-richblack-700 min-h-[80px]"
+                  className="bg-pure-greys-5 text-richblack-900 dark:bg-richblack-900 dark:text-richblack-5 px-3 py-2.5 rounded-lg border border-pure-greys-50 dark:border-richblack-700 min-h-[80px]"
                 />
               </View>
 
@@ -313,17 +336,17 @@ export default function ProfileScreen() {
       {/* Change Password Modal */}
       <Modal visible={showPasswordModal} transparent animationType="slide">
         <View className="flex-1 bg-black/80 justify-center items-center px-5">
-          <View className="w-full bg-richblack-800 p-6 rounded-2xl border border-richblack-700">
-            <View className="flex-row justify-between items-center mb-5">
-              <Text className="text-lg font-bold text-richblack-5">Change Password</Text>
+          <View className="w-full bg-white dark:bg-richblack-800 p-6 rounded-2xl border border-pure-greys-25 dark:border-richblack-700">
+            <View className="flex-row justify-between items-center mb-5 pb-3 border-b border-pure-greys-50 dark:border-richblack-700">
+              <Text className="text-lg font-bold text-richblack-900 dark:text-richblack-5">Change Password</Text>
               <TouchableOpacity onPress={() => setShowPasswordModal(false)}>
-                <Ionicons name="close" size={24} color="#F1F2FF" />
+                <Ionicons name="close" size={24} color={isDark ? "#F1F2FF" : "#000814"} />
               </TouchableOpacity>
             </View>
 
             <View className="space-y-4">
               <View>
-                <Text className="text-xs font-semibold text-richblack-100 mb-1.5">Current Password</Text>
+                <Text className="text-xs font-semibold text-richblack-700 dark:text-richblack-100 mb-1.5">Current Password</Text>
                 <View className="w-full relative justify-center">
                   <TextInput
                     value={oldPassword}
@@ -331,7 +354,7 @@ export default function ProfileScreen() {
                     placeholder="Enter current password"
                     placeholderTextColor="#999DAA"
                     secureTextEntry={!showOldPassword}
-                    className="bg-richblack-900 text-richblack-5 px-3 py-2.5 pr-10 rounded-lg border border-richblack-700"
+                    className="bg-pure-greys-5 text-richblack-900 dark:bg-richblack-900 dark:text-richblack-5 px-3 py-2.5 pr-10 rounded-lg border border-pure-greys-50 dark:border-richblack-700"
                   />
                   <TouchableOpacity
                     onPress={() => setShowOldPassword(!showOldPassword)}
@@ -347,7 +370,7 @@ export default function ProfileScreen() {
               </View>
 
               <View className="mt-3">
-                <Text className="text-xs font-semibold text-richblack-100 mb-1.5">New Password</Text>
+                <Text className="text-xs font-semibold text-richblack-700 dark:text-richblack-100 mb-1.5">New Password</Text>
                 <View className="w-full relative justify-center">
                   <TextInput
                     value={newPassword}
@@ -355,7 +378,7 @@ export default function ProfileScreen() {
                     placeholder="Enter new password"
                     placeholderTextColor="#999DAA"
                     secureTextEntry={!showNewPassword}
-                    className="bg-richblack-900 text-richblack-5 px-3 py-2.5 pr-10 rounded-lg border border-richblack-700"
+                    className="bg-pure-greys-5 text-richblack-900 dark:bg-richblack-900 dark:text-richblack-5 px-3 py-2.5 pr-10 rounded-lg border border-pure-greys-50 dark:border-richblack-700"
                   />
                   <TouchableOpacity
                     onPress={() => setShowNewPassword(!showNewPassword)}
@@ -371,7 +394,7 @@ export default function ProfileScreen() {
               </View>
 
               <View className="mt-3 mb-5">
-                <Text className="text-xs font-semibold text-richblack-100 mb-1.5">Confirm New Password</Text>
+                <Text className="text-xs font-semibold text-richblack-700 dark:text-richblack-100 mb-1.5">Confirm New Password</Text>
                 <View className="w-full relative justify-center">
                   <TextInput
                     value={confirmNewPassword}
@@ -379,7 +402,7 @@ export default function ProfileScreen() {
                     placeholder="Re-enter new password"
                     placeholderTextColor="#999DAA"
                     secureTextEntry={!showConfirmNewPassword}
-                    className="bg-richblack-900 text-richblack-5 px-3 py-2.5 pr-10 rounded-lg border border-richblack-700"
+                    className="bg-pure-greys-5 text-richblack-900 dark:bg-richblack-900 dark:text-richblack-5 px-3 py-2.5 pr-10 rounded-lg border border-pure-greys-50 dark:border-richblack-700"
                   />
                   <TouchableOpacity
                     onPress={() => setShowConfirmNewPassword(!showConfirmNewPassword)}

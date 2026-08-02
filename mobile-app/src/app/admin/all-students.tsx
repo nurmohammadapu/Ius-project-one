@@ -5,6 +5,7 @@ import { getAllStudents, toggleUserStatus, deleteUser, createUser } from "../../
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useColorScheme } from "nativewind";
 
 export default function AllStudentsScreen() {
   const { token } = useSelector((state: any) => state.auth);
@@ -13,6 +14,9 @@ export default function AllStudentsScreen() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const { colorScheme } = useColorScheme();
+
+  const isDark = colorScheme === "dark";
 
   // Form State
   const [firstName, setFirstName] = useState("");
@@ -118,14 +122,14 @@ export default function AllStudentsScreen() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-richblack-900">
+    <SafeAreaView className="flex-1 bg-pure-greys-5 dark:bg-richblack-900">
       {/* Header */}
-      <View className="px-4 py-3 border-b border-richblack-800 flex-row justify-between items-center">
+      <View className="px-4 py-3 border-b border-pure-greys-25 dark:border-richblack-800 flex-row justify-between items-center bg-white dark:bg-richblack-900">
         <View className="flex-row items-center">
           <TouchableOpacity onPress={() => router.back()} className="mr-3">
-            <Ionicons name="arrow-back" size={24} color="#F1F2FF" />
+            <Ionicons name="arrow-back" size={24} color={isDark ? "#F1F2FF" : "#000814"} />
           </TouchableOpacity>
-          <Text className="text-xl font-bold text-richblack-5">All Students</Text>
+          <Text className="text-xl font-bold text-richblack-900 dark:text-richblack-5">All Students</Text>
         </View>
         <TouchableOpacity
           onPress={() => setShowCreateModal(true)}
@@ -137,15 +141,15 @@ export default function AllStudentsScreen() {
       </View>
 
       {/* Search Filter */}
-      <View className="px-4 py-3 border-b border-richblack-800 bg-richblack-900">
-        <View className="flex-row items-center bg-richblack-800 rounded-lg px-3 py-2 border border-richblack-700">
+      <View className="px-4 py-3 border-b border-pure-greys-25 dark:border-richblack-800 bg-white dark:bg-richblack-900">
+        <View className="flex-row items-center bg-pure-greys-5 dark:bg-richblack-800 rounded-lg px-3 py-2 border border-pure-greys-50 dark:border-richblack-700">
           <Ionicons name="search" size={18} color="#AFB2BF" />
           <TextInput
             placeholder="Search by name or email..."
             placeholderTextColor="#999DAA"
             value={searchTerm}
             onChangeText={setSearchTerm}
-            className="flex-1 text-richblack-5 ml-2 text-sm"
+            className="flex-1 text-richblack-900 dark:text-richblack-5 ml-2 text-sm"
           />
           {searchTerm.length > 0 && (
             <TouchableOpacity onPress={() => setSearchTerm("")}>
@@ -162,7 +166,7 @@ export default function AllStudentsScreen() {
       ) : filteredStudents.length === 0 ? (
         <View className="flex-grow justify-center items-center px-6">
           <Ionicons name="people-outline" size={64} color="#AFB2BF" />
-          <Text className="text-richblack-100 font-semibold text-lg mt-4 text-center">
+          <Text className="text-richblack-900 dark:text-richblack-100 font-semibold text-lg mt-4 text-center">
             No students found
           </Text>
         </View>
@@ -173,7 +177,7 @@ export default function AllStudentsScreen() {
             return (
               <View
                 key={studentId || `student-${idx}`}
-                className="bg-richblack-800 border border-richblack-700 rounded-xl p-4 mb-4 flex-row items-center justify-between"
+                className="bg-white dark:bg-richblack-800 border border-pure-greys-25 dark:border-richblack-700 rounded-xl p-4 mb-4 flex-row items-center justify-between"
               >
                 <View className="flex-row items-center flex-1 mr-3">
                   <Image
@@ -183,12 +187,12 @@ export default function AllStudentsScreen() {
                     style={{ width: 44, height: 44, borderRadius: 22 }}
                   />
                   <View className="ml-3 flex-shrink-1">
-                    <Text className="text-sm font-bold text-richblack-5">
+                    <Text className="text-sm font-bold text-richblack-900 dark:text-richblack-5">
                       {student.firstName} {student.lastName}
                     </Text>
-                    <Text className="text-xs text-richblack-300 mt-0.5">{student.email}</Text>
+                    <Text className="text-xs text-richblack-600 dark:text-richblack-300 mt-0.5">{student.email}</Text>
                     {student.contactNumber ? (
-                      <Text className="text-xxs text-richblack-400 mt-0.5">{student.contactNumber}</Text>
+                      <Text className="text-xxs text-richblack-500 dark:text-richblack-400 mt-0.5">{student.contactNumber}</Text>
                     ) : null}
                   </View>
                 </View>
@@ -224,40 +228,40 @@ export default function AllStudentsScreen() {
       {/* Create User Modal */}
       <Modal visible={showCreateModal} transparent animationType="slide">
         <View className="flex-1 bg-black/80 justify-end">
-          <View className="bg-richblack-800 border-t border-richblack-700 rounded-t-2xl p-5 max-h-[90%]">
-            <View className="flex-row justify-between items-center pb-4 border-b border-richblack-700">
-              <Text className="text-lg font-bold text-richblack-5">Create Student Account</Text>
+          <View className="bg-white dark:bg-richblack-800 border-t border-pure-greys-25 dark:border-richblack-700 rounded-t-2xl p-5 max-h-[90%]">
+            <View className="flex-row justify-between items-center pb-4 border-b border-pure-greys-50 dark:border-richblack-700">
+              <Text className="text-lg font-bold text-richblack-900 dark:text-richblack-5">Create Student Account</Text>
               <TouchableOpacity onPress={() => setShowCreateModal(false)}>
-                <Ionicons name="close" size={24} color="#F1F2FF" />
+                <Ionicons name="close" size={24} color={isDark ? "#F1F2FF" : "#000814"} />
               </TouchableOpacity>
             </View>
 
-            <ScrollView className="py-4 space-y-4">
+            <ScrollView className="py-4">
               <View className="flex-row space-x-3">
-                <View className="flex-1">
-                  <Text className="text-xs font-semibold text-richblack-100 mb-1.5">First Name *</Text>
+                <View className="flex-grow mr-2">
+                  <Text className="text-xs font-semibold text-richblack-700 dark:text-richblack-100 mb-1.5">First Name *</Text>
                   <TextInput
                     value={firstName}
                     onChangeText={setFirstName}
                     placeholder="First Name"
                     placeholderTextColor="#999DAA"
-                    className="bg-richblack-900 text-richblack-5 px-3 py-2.5 rounded-lg border border-richblack-700"
+                    className="bg-pure-greys-5 text-richblack-900 dark:bg-richblack-900 dark:text-richblack-5 px-3 py-2.5 rounded-lg border border-pure-greys-50 dark:border-richblack-700"
                   />
                 </View>
-                <View className="flex-1">
-                  <Text className="text-xs font-semibold text-richblack-100 mb-1.5">Last Name *</Text>
+                <View className="flex-grow">
+                  <Text className="text-xs font-semibold text-richblack-700 dark:text-richblack-100 mb-1.5">Last Name *</Text>
                   <TextInput
                     value={lastName}
                     onChangeText={setLastName}
                     placeholder="Last Name"
                     placeholderTextColor="#999DAA"
-                    className="bg-richblack-900 text-richblack-5 px-3 py-2.5 rounded-lg border border-richblack-700"
+                    className="bg-pure-greys-5 text-richblack-900 dark:bg-richblack-900 dark:text-richblack-5 px-3 py-2.5 rounded-lg border border-pure-greys-50 dark:border-richblack-700"
                   />
                 </View>
               </View>
 
               <View className="mt-3">
-                <Text className="text-xs font-semibold text-richblack-100 mb-1.5">Email Address *</Text>
+                <Text className="text-xs font-semibold text-richblack-700 dark:text-richblack-100 mb-1.5">Email Address *</Text>
                 <TextInput
                   value={email}
                   onChangeText={setEmail}
@@ -265,12 +269,12 @@ export default function AllStudentsScreen() {
                   placeholderTextColor="#999DAA"
                   keyboardType="email-address"
                   autoCapitalize="none"
-                  className="bg-richblack-900 text-richblack-5 px-3 py-2.5 rounded-lg border border-richblack-700"
+                  className="bg-pure-greys-5 text-richblack-900 dark:bg-richblack-900 dark:text-richblack-5 px-3 py-2.5 rounded-lg border border-pure-greys-50 dark:border-richblack-700"
                 />
               </View>
 
               <View className="mt-3">
-                <Text className="text-xs font-semibold text-richblack-100 mb-1.5">Create Password *</Text>
+                <Text className="text-xs font-semibold text-richblack-700 dark:text-richblack-100 mb-1.5">Create Password *</Text>
                 <TextInput
                   value={password}
                   onChangeText={setPassword}
@@ -278,19 +282,19 @@ export default function AllStudentsScreen() {
                   placeholderTextColor="#999DAA"
                   secureTextEntry
                   autoCapitalize="none"
-                  className="bg-richblack-900 text-richblack-5 px-3 py-2.5 rounded-lg border border-richblack-700"
+                  className="bg-pure-greys-5 text-richblack-900 dark:bg-richblack-900 dark:text-richblack-5 px-3 py-2.5 rounded-lg border border-pure-greys-50 dark:border-richblack-700"
                 />
               </View>
 
               <View className="mt-3 mb-6">
-                <Text className="text-xs font-semibold text-richblack-100 mb-1.5">Contact Number</Text>
+                <Text className="text-xs font-semibold text-richblack-700 dark:text-richblack-100 mb-1.5">Contact Number</Text>
                 <TextInput
                   value={contactNumber}
                   onChangeText={setContactNumber}
                   placeholder="Contact Number"
                   placeholderTextColor="#999DAA"
                   keyboardType="phone-pad"
-                  className="bg-richblack-900 text-richblack-5 px-3 py-2.5 rounded-lg border border-richblack-700"
+                  className="bg-pure-greys-5 text-richblack-900 dark:bg-richblack-900 dark:text-richblack-5 px-3 py-2.5 rounded-lg border border-pure-greys-50 dark:border-richblack-700"
                 />
               </View>
 

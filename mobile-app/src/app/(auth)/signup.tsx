@@ -47,34 +47,34 @@ export default function SignupScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-richblack-900">
+    <SafeAreaView className="flex-1 bg-pure-greys-5 dark:bg-richblack-900">
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
       >
         <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }} className="px-6 py-4">
           <View className="mb-6 mt-4">
-            <Text className="text-3xl font-bold text-richblack-5 mb-2">Join the Future</Text>
-            <Text className="text-base text-richblack-100">
+            <Text className="text-3xl font-bold text-richblack-900 dark:text-richblack-5 mb-2">Join the Future</Text>
+            <Text className="text-base text-richblack-700 dark:text-richblack-100">
               Build skills for today, tomorrow, and beyond.
             </Text>
           </View>
 
           {/* Account Type Toggle */}
-          <View className="flex-row bg-richblack-800 p-1.5 rounded-full mb-6 border border-richblack-700 max-w-[280px]">
+          <View className="flex-row bg-white border border-pure-greys-50 dark:bg-richblack-800 p-1.5 rounded-full mb-6 dark:border-richblack-700 max-w-[280px]">
             <TouchableOpacity
               onPress={() => setAccountType("Student")}
-              className={`flex-1 py-2 rounded-full ${accountType === "Student" ? "bg-richblack-900" : ""}`}
+              className={`flex-1 py-2 rounded-full ${accountType === "Student" ? "bg-pure-greys-5 dark:bg-richblack-900" : ""}`}
             >
-              <Text className={`text-center font-semibold text-sm ${accountType === "Student" ? "text-richblack-5" : "text-richblack-300"}`}>
+              <Text className={`text-center font-semibold text-sm ${accountType === "Student" ? "text-richblack-900 dark:text-richblack-5" : "text-richblack-500 dark:text-richblack-300"}`}>
                 Student
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setAccountType("Instructor")}
-              className={`flex-1 py-2 rounded-full ${accountType === "Instructor" ? "bg-richblack-900" : ""}`}
+              className={`flex-1 py-2 rounded-full ${accountType === "Instructor" ? "bg-pure-greys-5 dark:bg-richblack-900" : ""}`}
             >
-              <Text className={`text-center font-semibold text-sm ${accountType === "Instructor" ? "text-richblack-5" : "text-richblack-300"}`}>
+              <Text className={`text-center font-semibold text-sm ${accountType === "Instructor" ? "text-richblack-900 dark:text-richblack-5" : "text-richblack-500 dark:text-richblack-300"}`}>
                 Instructor
               </Text>
             </TouchableOpacity>
@@ -83,29 +83,29 @@ export default function SignupScreen() {
           <View className="space-y-4">
             <View className="flex-row space-x-4">
               <View className="flex-1">
-                <Text className="text-sm font-medium text-richblack-5 mb-2">First Name *</Text>
+                <Text className="text-sm font-medium text-richblack-900 dark:text-richblack-5 mb-2">First Name *</Text>
                 <TextInput
                   placeholder="First name"
                   placeholderTextColor="#999DAA"
                   value={firstName}
                   onChangeText={setFirstName}
-                  className="bg-richblack-800 text-richblack-5 px-4 py-3 rounded-lg border border-richblack-700"
+                  className="bg-white text-richblack-900 border border-pure-greys-50 dark:bg-richblack-800 dark:text-richblack-5 dark:border-richblack-700 px-4 py-3 rounded-lg"
                 />
               </View>
               <View className="flex-1">
-                <Text className="text-sm font-medium text-richblack-5 mb-2">Last Name *</Text>
+                <Text className="text-sm font-medium text-richblack-900 dark:text-richblack-5 mb-2">Last Name *</Text>
                 <TextInput
                   placeholder="Last name"
                   placeholderTextColor="#999DAA"
                   value={lastName}
                   onChangeText={setLastName}
-                  className="bg-richblack-800 text-richblack-5 px-4 py-3 rounded-lg border border-richblack-700"
+                  className="bg-white text-richblack-900 border border-pure-greys-50 dark:bg-richblack-800 dark:text-richblack-5 dark:border-richblack-700 px-4 py-3 rounded-lg"
                 />
               </View>
             </View>
 
             <View className="mt-4">
-              <Text className="text-sm font-medium text-richblack-5 mb-2">Email Address *</Text>
+              <Text className="text-sm font-medium text-richblack-900 dark:text-richblack-5 mb-2">Email Address *</Text>
               <TextInput
                 placeholder="Enter email address"
                 placeholderTextColor="#999DAA"
@@ -113,12 +113,12 @@ export default function SignupScreen() {
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
-                className="w-full bg-richblack-800 text-richblack-5 px-4 py-3 rounded-lg border border-richblack-700"
+                className="w-full bg-white text-richblack-900 border border-pure-greys-50 dark:bg-richblack-800 dark:text-richblack-5 dark:border-richblack-700 px-4 py-3 rounded-lg"
               />
             </View>
 
             <View className="mt-4">
-              <Text className="text-sm font-medium text-richblack-5 mb-2">Create Password *</Text>
+              <Text className="text-sm font-medium text-richblack-900 dark:text-richblack-5 mb-2">Create Password *</Text>
               <View className="w-full relative justify-center">
                 <TextInput
                   placeholder="Password"
@@ -127,7 +127,7 @@ export default function SignupScreen() {
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
-                  className="w-full bg-richblack-800 text-richblack-5 px-4 py-3 pr-12 rounded-lg border border-richblack-700"
+                  className="w-full bg-white text-richblack-900 border border-pure-greys-50 dark:bg-richblack-800 dark:text-richblack-5 dark:border-richblack-700 px-4 py-3 pr-12 rounded-lg"
                 />
                 <TouchableOpacity
                   onPress={() => setShowPassword(!showPassword)}
@@ -143,7 +143,7 @@ export default function SignupScreen() {
             </View>
 
             <View className="mt-4">
-              <Text className="text-sm font-medium text-richblack-5 mb-2">Confirm Password *</Text>
+              <Text className="text-sm font-medium text-richblack-900 dark:text-richblack-5 mb-2">Confirm Password *</Text>
               <View className="w-full relative justify-center">
                 <TextInput
                   placeholder="Confirm password"
@@ -152,7 +152,7 @@ export default function SignupScreen() {
                   onChangeText={setConfirmPassword}
                   secureTextEntry={!showConfirmPassword}
                   autoCapitalize="none"
-                  className="w-full bg-richblack-800 text-richblack-5 px-4 py-3 pr-12 rounded-lg border border-richblack-700"
+                  className="w-full bg-white text-richblack-900 border border-pure-greys-50 dark:bg-richblack-800 dark:text-richblack-5 dark:border-richblack-700 px-4 py-3 pr-12 rounded-lg"
                 />
                 <TouchableOpacity
                   onPress={() => setShowConfirmPassword(!showConfirmPassword)}
@@ -181,7 +181,7 @@ export default function SignupScreen() {
           </View>
 
           <View className="flex-row justify-center items-center mt-6 mb-4">
-            <Text className="text-richblack-100 text-sm">Already have an account? </Text>
+            <Text className="text-richblack-700 dark:text-richblack-100 text-sm">Already have an account? </Text>
             <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
               <Text className="text-yellow-50 text-sm font-bold">Sign In</Text>
             </TouchableOpacity>
