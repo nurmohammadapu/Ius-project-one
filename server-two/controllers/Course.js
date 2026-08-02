@@ -908,7 +908,7 @@ exports.getFullCourseDetails = async (req, res) => {
         COALESCE(
           (
             SELECT json_agg(json_build_object('id', subsec.id))
-            FROM "_CompletedVideos" cv
+            FROM "_CompletedSubSections" cv
             JOIN "SubSection" subsec ON cv."B" = subsec.id
             WHERE cv."A" = cp.id
           ),

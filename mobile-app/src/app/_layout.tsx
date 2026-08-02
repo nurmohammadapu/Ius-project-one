@@ -13,6 +13,7 @@ function AppContent() {
   const router = useRouter();
   const segments = useSegments();
   const { token } = useSelector((state: any) => state.auth);
+  const { user } = useSelector((state: any) => state.profile);
   const [isBootstrapped, setIsBootstrapped] = useState(false);
 
   // Load credentials on startup
@@ -52,10 +53,14 @@ function AppContent() {
       // Redirect to login if not authenticated and not in auth screens
       router.replace("/(auth)/login");
     } else if (token && inAuthGroup) {
-      // Redirect to main tabs if authenticated and trying to access auth screens
-      router.replace("/(tabs)");
+      // Redirect to main tabs/dashboard based on role
+      if (user?.accountType === "Admin" || user?.accountType === "Instructor") {
+        router.replace("/(tabs)/dashboard");
+      } else {
+        router.replace("/(tabs)");
+      }
     }
-  }, [token, isBootstrapped, segments]);
+  }, [token, user?.accountType, isBootstrapped, segments]);
 
   if (!isBootstrapped) {
     return (
@@ -74,6 +79,11 @@ function AppContent() {
       <Stack.Screen name="my-courses" />
       <Stack.Screen name="add-course" />
       <Stack.Screen name="edit-course" />
+      <Stack.Screen name="admin/all-students" />
+      <Stack.Screen name="admin/all-instructors" />
+      <Stack.Screen name="admin/pending-approvals" />
+      <Stack.Screen name="admin/all-courses" />
+      <Stack.Screen name="admin/financial-report" />
     </Stack>
   );
 }

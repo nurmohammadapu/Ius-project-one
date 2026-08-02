@@ -3,6 +3,7 @@ import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator } fr
 import { useSelector } from "react-redux";
 import { getUserEnrolledCourses, getInstructorData } from "../../services/operations/profileAPI";
 import { fetchInstructorCourses } from "../../services/operations/courseDetailsAPI";
+import { getFinancialReport } from "../../services/operations/adminAPI";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -20,6 +21,9 @@ export default function DashboardScreen() {
   const [instructorStats, setInstructorStats] = useState<any[]>([]);
   const [currChart, setCurrChart] = useState<"students" | "income">("students");
 
+  // Admin states
+  const [adminStats, setAdminStats] = useState<any>(null);
+
   const [loading, setLoading] = useState(true);
 
   const fetchDashboardData = useCallback(async () => {
@@ -28,7 +32,10 @@ export default function DashboardScreen() {
       return;
     }
     try {
-      if (user?.accountType === "Instructor") {
+      if (user?.accountType === "Admin") {
+        const report = await getFinancialReport(token);
+        setAdminStats(report || null);
+      } else if (user?.accountType === "Instructor") {
         const stats = await getInstructorData(token);
         const coursesList = await fetchInstructorCourses(token);
         setInstructorStats(stats || []);
@@ -82,7 +89,71 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {user?.accountType === "Instructor" ? (
+        {user?.accountType === "Admin" ? (
+          /* =========================================================================
+             ADMIN DASHBOARD VIEW
+             ========================================================================= */
+          <View className="mt-6 mb-8">
+            <Text className="text-lg font-bold text-richblack-5 mb-4">Platform Overview</Text>
+            
+            {/* Quick Metrics Grid */}
+            <View className="flex-row flex-wrap justify-between mb-6">
+              <View className="w-[48%] bg-richblack-800 p-4 rounded-xl border border-richblack-700 mb-3">
+                <Text className="text-xxs font-medium text-richblack-400">Total Revenue</Text>
+                <Text className="text-lg font-bold text-yellow-50 mt-1">
+                  ${adminStats?.totalRevenue?.toLocaleString() || "0"}
+                </Text>
+              </View>
+              <View className="w-[48%] bg-richblack-800 p-4 rounded-xl border border-richblack-700 mb-3">
+                <Text className="text-xxs font-medium text-richblack-400">Course Sales</Text>
+                <Text className="text-lg font-bold text-caribbeangreen-100 mt-1">
+                  {adminStats?.totalSales || "0"}
+                </Text>
+              </View>
+              <View className="w-[48%] bg-richblack-800 p-4 rounded-xl border border-richblack-700 mb-3">
+                <Text className="text-xxs font-medium text-richblack-400">Active Students</Text>
+                <Text className="text-lg font-bold text-richblack-50 mt-1">
+                  {adminStats?.totalStudents || "0"}
+                </Text>
+              </View>
+              <View className="w-[48%] bg-richblack-800 p-4 rounded-xl border border-richblack-700 mb-3">
+                <Text className="text-xxs font-medium text-richblack-400">Total Instructors</Text>
+                <Text className="text-lg font-bold text-richblack-50 mt-1">
+                  {adminStats?.totalInstructors || "0"}
+                </Text>
+              </View>
+            </View>
+
+            {/* Admin Management Links */}
+            <Text className="text-lg font-bold text-richblack-5 mb-4">Admin Control Center</Text>
+            <View className="space-y-4">
+              {[
+                { name: "All Students", route: "/admin/all-students", icon: "people", color: "#FFD60A" },
+                { name: "All Instructors", route: "/admin/all-instructors", icon: "school", color: "#54B4D3" },
+                { name: "Pending Approvals", route: "/admin/pending-approvals", icon: "checkmark-done-circle", color: "#06D6A0" },
+                { name: "All Courses", route: "/admin/all-courses", icon: "book", color: "#EF476F" },
+                { name: "Financial Report", route: "/admin/financial-report", icon: "analytics", color: "#118AB2" },
+              ].map((item, idx) => (
+                <TouchableOpacity
+                  key={idx}
+                  onPress={() => router.push(item.route as any)}
+                  className="bg-richblack-800 p-4 rounded-xl border border-richblack-700 flex-row justify-between items-center mb-3"
+                >
+                  <View className="flex-row items-center">
+                    <View
+                      style={{ backgroundColor: item.color + "20" }}
+                      className="p-2 rounded-lg"
+                    >
+                      <Ionicons name={item.icon as any} size={20} color={item.color} />
+                    </View>
+                    <Text className="text-sm font-bold text-richblack-5 ml-3">{item.name}</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={16} color="#838894" />
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        ) : user?.accountType === "Instructor" ? (
           /* =========================================================================
              INSTRUCTOR DASHBOARD VIEW
              ========================================================================= */

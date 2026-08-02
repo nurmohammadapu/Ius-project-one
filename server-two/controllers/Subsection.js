@@ -313,9 +313,9 @@ exports.deleteSubSection = async (req, res) => {
         .json({ success: false, message: "SubSection not found" });
     }
 
-    // Clean up _CompletedVideos Junction Table references if needed
+    // Clean up _CompletedSubSections Junction Table references if needed
     await prisma.$executeRaw`
-      DELETE FROM "_CompletedVideos" WHERE "B" = ${subSectionId}
+      DELETE FROM "_CompletedSubSections" WHERE "B" = ${subSectionId}
     `.catch(() => {});
 
     // Delete SubSection

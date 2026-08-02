@@ -617,11 +617,11 @@ exports.getEnrolledCourses = async (req, res) => {
 
       course.totalDuration = convertSecondsToDuration(totalDurationInSeconds);
 
-      // Fetch Completed Videos Count from "_CompletedVideos"
+      // Fetch Completed Videos Count from "_CompletedSubSections"
       const progressResult = await prisma.$queryRaw`
         SELECT COUNT(cv."B")::int AS "completedCount"
         FROM "CourseProgress" cp
-        JOIN "_CompletedVideos" cv ON cv."A" = cp.id
+        JOIN "_CompletedSubSections" cv ON cv."A" = cp.id
         WHERE cp."courseID" = ${course.id} AND cp."userId" = ${userId}
       `;
 
