@@ -71,6 +71,9 @@ function AppContent() {
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="course-details" />
       <Stack.Screen name="view-course" />
+      <Stack.Screen name="my-courses" />
+      <Stack.Screen name="add-course" />
+      <Stack.Screen name="edit-course" />
     </Stack>
   );
 }

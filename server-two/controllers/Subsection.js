@@ -191,7 +191,7 @@ exports.createSubSection = async (req, res) => {
     // Insert SubSection
     await prisma.$executeRaw`
       INSERT INTO "SubSection" (
-        id, title, "timeDuration", description, "videoUrl", "sectionId", "createdAt", "updatedAt"
+        id, title, "timeDuration", description, "videoUrl", "sectionId"
       )
       VALUES (
         gen_random_uuid()::text,
@@ -199,9 +199,7 @@ exports.createSubSection = async (req, res) => {
         ${timeDuration},
         ${description},
         ${uploadDetails.secure_url},
-        ${sectionId},
-        NOW(),
-        NOW()
+        ${sectionId}
       )
     `;
 
@@ -271,8 +269,7 @@ exports.updateSubSection = async (req, res) => {
         title = ${updatedTitle},
         description = ${updatedDescription},
         "videoUrl" = ${updatedVideoUrl},
-        "timeDuration" = ${updatedTimeDuration},
-        "updatedAt" = NOW()
+        "timeDuration" = ${updatedTimeDuration}
       WHERE id = ${subSectionId}
     `;
 

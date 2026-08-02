@@ -176,13 +176,11 @@ exports.createSection = async (req, res) => {
 
     // Insert Section
     await prisma.$executeRaw`
-      INSERT INTO "Section" (id, "sectionName", "courseId", "createdAt", "updatedAt")
+      INSERT INTO "Section" (id, "sectionName", "courseId")
       VALUES (
         gen_random_uuid()::text,
         ${sectionName},
-        ${courseId},
-        NOW(),
-        NOW()
+        ${courseId}
       )
     `;
 
@@ -219,7 +217,7 @@ exports.updateSection = async (req, res) => {
     // Update Section
     const updatedSectionResult = await prisma.$queryRaw`
       UPDATE "Section"
-      SET "sectionName" = ${sectionName}, "updatedAt" = NOW()
+      SET "sectionName" = ${sectionName}
       WHERE id = ${sectionId}
       RETURNING *
     `;
