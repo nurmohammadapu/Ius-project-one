@@ -3,9 +3,7 @@ const mailSender = require("../utils/mailSender")
 
 exports.contactUsController = async (req, res) => {
   const { email, firstname, lastname, message, phoneNo, countrycode } = req.body
-  console.log(req.body)
   try {
-
     if(!email){
       return res.status(404).json({
         success:false,
