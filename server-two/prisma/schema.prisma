@@ -1,0 +1,144 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AccountType {
+  Admin
+  Student
+  Instructor
+}
+
+enum CourseStatus {
+  Draft
+  Published
+  Hold
+}
+
+model User {
+  id                   String            @id @default(uuid())
+  firstName            String
+  lastName             String
+  email                String            @unique
+  password             String
+  accountType          AccountType
+  active               Boolean           @default(true)
+  approved             Boolean           @default(true)
+  image                String
+  token                String?
+  resetPasswordExpires DateTime?
+
+  // Relations
+  profileId            String?           @unique
+  additionalDetails    Profile?          @relation(fields: [profileId], references: [id], onDelete: SetNull)
+  
+  // Courses created as instructor
+  instructorCourses    Course[]          @relation("InstructorCourses")
+  
+  // Courses enrolled as student
+  courses              Course[]          @relation("EnrolledStudents")
+  
+  // Ratings given by user
+  ratings              RatingAndReview[]
+
+  // Progress records
+  courseProgress       CourseProgress[]
+
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+}
+
+model Profile {
+  id            String   @id @default(uuid())
+  gender        String?
+  dateOfBirth   String?
+  about         String?
+  contactNumber String?
+  user          User?
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  courses     Course[]
+}
+
+model Course {
+  id               String            @id @default(uuid())
+  courseName       String
+  courseDescription String?
+  whatYouWillLearn String?
+  price            Float?
+  thumbnail        String?
+  tag              String[]
+  instructions     String[]
+  status           CourseStatus      @default(Draft)
+
+  // Relations
+  instructorId     String
+  instructor       User              @relation("InstructorCourses", fields: [instructorId], references: [id], onDelete: Cascade)
+
+  categoryId       String?
+  category         Category?         @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  courseContent    Section[]
+  ratingAndReviews RatingAndReview[]
+  studentsEnroled  User[]            @relation("EnrolledStudents")
+  courseProgress   CourseProgress[]
+
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+}
+
+model Section {
+  id          String       @id @default(uuid())
+  sectionName String
+  courseId    String?
+  course      Course?      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  subSection  SubSection[]
+}
+
+model SubSection {
+  id                 String           @id @default(uuid())
+  title              String?
+  timeDuration       String?
+  description        String?
+  videoUrl           String?
+  sectionId          String?
+  section            Section?         @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  completedInCourses CourseProgress[] @relation("CompletedSubSections")
+}
+
+model RatingAndReview {
+  id       String @id @default(uuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating   Float
+  review   String
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+}
+
+model OTP {
+  id        String   @id @default(uuid())
+  email     String
+  otp       String
+  createdAt DateTime @default(now())
+}
+
+model CourseProgress {
+  id              String       @id @default(uuid())
+  courseID        String?
+  course          Course?      @relation(fields: [courseID], references: [id], onDelete: Cascade)
+  userId          String?
+  user            User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  completedVideos SubSection[] @relation("CompletedSubSections")
+}
