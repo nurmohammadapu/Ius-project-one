@@ -29,13 +29,6 @@ export const sidebarLinks = [
     icon: "VscAdd",
   },
   {
-    id: 13,
-    name: "Exam Evaluation",
-    path: "/dashboard/exam-evaluation",
-    type: ACCOUNT_TYPE.INSTRUCTOR,
-    icon: "VscChecklist",
-  },
-  {
     id: 5,
     name: "Enrolled Courses",
     path: "/dashboard/enrolled-courses",

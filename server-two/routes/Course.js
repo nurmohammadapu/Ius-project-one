@@ -105,22 +105,4 @@ router.post("/createRating", auth, isStudent, createRating)
 router.get("/getAverageRating", getAverageRating)
 router.get("/getReviews", getAllRatingReview)
 
-// Quiz Controllers Import
-const {
-  createQuiz,
-  getQuiz,
-  submitQuiz,
-  gradeQuiz,
-  getQuizResults,
-} = require("../controllers/Quiz")
-
-// ********************************************************************************************************
-//                                      Quiz routes
-// ********************************************************************************************************
-router.post("/quiz/create", auth, isInstructor, createQuiz)
-router.get("/quiz/get/:type/:id", auth, getQuiz)
-router.post("/quiz/submit", auth, isStudent, submitQuiz)
-router.post("/quiz/instructor/grade", auth, isInstructor, gradeQuiz)
-router.get("/quiz/instructor/results/:quizId", auth, isInstructor, getQuizResults)
-
 module.exports = router

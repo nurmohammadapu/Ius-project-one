@@ -37,7 +37,6 @@ import AllInstructors from './components/core/Dashboard/Admin/AllInstructors';
 import AllCourses from './components/core/Dashboard/Admin/AllCourses';
 import PendingApprovals from './components/core/Dashboard/Admin/PendingApprovals';
 import FinancialReport from './components/core/Dashboard/Admin/FinancialReport';
-import InstructorQuizEvaluation from './components/core/Dashboard/InstructorQuizEvaluation';
 
 
 
@@ -162,7 +161,6 @@ function App() {
           <Route path="dashboard/add-course" element={<AddCourse />} />
           <Route path="dashboard/my-courses" element={<MyCourses />} />
           <Route path="dashboard/edit-course/:courseId" element={<EditCourse />} />
-          <Route path="dashboard/exam-evaluation" element={<InstructorQuizEvaluation />} />
           
           </>
         )
