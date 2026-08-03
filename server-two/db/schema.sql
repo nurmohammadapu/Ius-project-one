@@ -122,3 +122,56 @@ CREATE INDEX IF NOT EXISTS "idx_section_courseId" ON "Section"("courseId");
 CREATE INDEX IF NOT EXISTS "idx_subsection_sectionId" ON "SubSection"("sectionId");
 CREATE INDEX IF NOT EXISTS "idx_rating_courseId" ON "RatingAndReview"("courseId");
 CREATE INDEX IF NOT EXISTS "idx_rating_userId" ON "RatingAndReview"("userId");
+
+-- Exam Enums
+CREATE TYPE "ExamType" AS ENUM ('MCQ', 'WRITTEN');
+CREATE TYPE "SubmissionStatus" AS ENUM ('PENDING', 'PASSED', 'FAILED');
+
+-- Exam Table
+CREATE TABLE "Exam" (
+  "id" TEXT NOT NULL PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  "title" TEXT NOT NULL,
+  "description" TEXT,
+  "examType" "ExamType" NOT NULL,
+  "totalMarks" DOUBLE PRECISION NOT NULL DEFAULT 100,
+  "courseId" TEXT REFERENCES "Course"("id") ON DELETE CASCADE,
+  "sectionId" TEXT REFERENCES "Section"("id") ON DELETE CASCADE,
+  "subSectionId" TEXT REFERENCES "SubSection"("id") ON DELETE CASCADE,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Question Table
+CREATE TABLE "Question" (
+  "id" TEXT NOT NULL PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  "examId" TEXT NOT NULL REFERENCES "Exam"("id") ON DELETE CASCADE,
+  "questionText" TEXT NOT NULL,
+  "options" TEXT[] NOT NULL,
+  "correctOption" TEXT NOT NULL,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ExamSubmission Table
+CREATE TABLE "ExamSubmission" (
+  "id" TEXT NOT NULL PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  "examId" TEXT NOT NULL REFERENCES "Exam"("id") ON DELETE CASCADE,
+  "studentId" TEXT NOT NULL REFERENCES "User"("id") ON DELETE CASCADE,
+  "submissionUrl" TEXT,
+  "answers" JSONB,
+  "obtainedMarks" DOUBLE PRECISION,
+  "feedback" TEXT,
+  "status" "SubmissionStatus" NOT NULL DEFAULT 'PENDING',
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT "ExamSubmission_examId_studentId_key" UNIQUE ("examId", "studentId")
+);
+
+-- Indexes for Exams
+CREATE INDEX IF NOT EXISTS "idx_exam_courseId" ON "Exam"("courseId");
+CREATE INDEX IF NOT EXISTS "idx_exam_sectionId" ON "Exam"("sectionId");
+CREATE INDEX IF NOT EXISTS "idx_exam_subSectionId" ON "Exam"("subSectionId");
+CREATE INDEX IF NOT EXISTS "idx_question_examId" ON "Question"("examId");
+CREATE INDEX IF NOT EXISTS "idx_submission_examId" ON "ExamSubmission"("examId");
+CREATE INDEX IF NOT EXISTS "idx_submission_studentId" ON "ExamSubmission"("studentId");
+

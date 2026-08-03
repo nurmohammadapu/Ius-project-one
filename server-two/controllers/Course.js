@@ -227,11 +227,89 @@ exports.getCourseDetails = async (req, res) => {
           (
             SELECT json_agg(
               json_build_object(
+                'id', e.id,
+                'title', e.title,
+                'description', e.description,
+                'examType', e."examType",
+                'totalMarks', e."totalMarks",
+                'courseId', e."courseId",
+                'sectionId', e."sectionId",
+                'subSectionId', e."subSectionId",
+                'questions', COALESCE(
+                  (SELECT json_agg(q.*) FROM "Question" q WHERE q."examId" = e.id),
+                  '[]'::json
+                )
+              )
+            )
+            FROM "Exam" e
+            WHERE e."courseId" = c.id AND e."sectionId" IS NULL AND e."subSectionId" IS NULL
+          ),
+          '[]'::json
+        ) AS "exams",
+        COALESCE(
+          (
+            SELECT json_agg(
+              json_build_object(
                 'id', sec.id,
                 'sectionName', sec."sectionName",
+                'exams', COALESCE(
+                  (
+                    SELECT json_agg(
+                      json_build_object(
+                        'id', e.id,
+                        'title', e.title,
+                        'description', e.description,
+                        'examType', e."examType",
+                        'totalMarks', e."totalMarks",
+                        'courseId', e."courseId",
+                        'sectionId', e."sectionId",
+                        'subSectionId', e."subSectionId",
+                        'questions', COALESCE(
+                          (SELECT json_agg(q.*) FROM "Question" q WHERE q."examId" = e.id),
+                          '[]'::json
+                        )
+                      )
+                    )
+                    FROM "Exam" e
+                    WHERE e."sectionId" = sec.id AND e."subSectionId" IS NULL
+                  ),
+                  '[]'::json
+                ),
                 'subSection', COALESCE(
                   (
-                    SELECT json_agg(subsec.*)
+                    SELECT json_agg(
+                      json_build_object(
+                        'id', subsec.id,
+                        'title', subsec.title,
+                        'timeDuration', subsec."timeDuration",
+                        'description', subsec.description,
+                        'videoUrl', subsec."videoUrl",
+                        'sectionId', subsec."sectionId",
+                        'exams', COALESCE(
+                          (
+                            SELECT json_agg(
+                              json_build_object(
+                                'id', e.id,
+                                'title', e.title,
+                                'description', e.description,
+                                'examType', e."examType",
+                                'totalMarks', e."totalMarks",
+                                'courseId', e."courseId",
+                                'sectionId', e."sectionId",
+                                'subSectionId', e."subSectionId",
+                                'questions', COALESCE(
+                                  (SELECT json_agg(q.*) FROM "Question" q WHERE q."examId" = e.id),
+                                  '[]'::json
+                                )
+                              )
+                            )
+                            FROM "Exam" e
+                            WHERE e."subSectionId" = subsec.id
+                          ),
+                          '[]'::json
+                        )
+                      )
+                    )
                     FROM "SubSection" subsec
                     WHERE subsec."sectionId" = sec.id
                   ),
@@ -446,10 +524,92 @@ exports.getFullCourseDetails = async (req, res) => {
           (
             SELECT json_agg(
               json_build_object(
+                'id', e.id,
+                'title', e.title,
+                'description', e.description,
+                'examType', e."examType",
+                'totalMarks', e."totalMarks",
+                'courseId', e."courseId",
+                'sectionId', e."sectionId",
+                'subSectionId', e."subSectionId",
+                'questions', COALESCE(
+                  (SELECT json_agg(q.*) FROM "Question" q WHERE q."examId" = e.id),
+                  '[]'::json
+                )
+              )
+            )
+            FROM "Exam" e
+            WHERE e."courseId" = c.id AND e."sectionId" IS NULL AND e."subSectionId" IS NULL
+          ),
+          '[]'::json
+        ) AS "exams",
+        COALESCE(
+          (
+            SELECT json_agg(
+              json_build_object(
                 'id', sec.id,
                 'sectionName', sec."sectionName",
+                'exams', COALESCE(
+                  (
+                    SELECT json_agg(
+                      json_build_object(
+                        'id', e.id,
+                        'title', e.title,
+                        'description', e.description,
+                        'examType', e."examType",
+                        'totalMarks', e."totalMarks",
+                        'courseId', e."courseId",
+                        'sectionId', e."sectionId",
+                        'subSectionId', e."subSectionId",
+                        'questions', COALESCE(
+                          (SELECT json_agg(q.*) FROM "Question" q WHERE q."examId" = e.id),
+                          '[]'::json
+                        )
+                      )
+                    )
+                    FROM "Exam" e
+                    WHERE e."sectionId" = sec.id AND e."subSectionId" IS NULL
+                  ),
+                  '[]'::json
+                ),
                 'subSection', COALESCE(
-                  (SELECT json_agg(subsec.*) FROM "SubSection" subsec WHERE subsec."sectionId" = sec.id),
+                  (
+                    SELECT json_agg(
+                      json_build_object(
+                        'id', subsec.id,
+                        'title', subsec.title,
+                        'timeDuration', subsec."timeDuration",
+                        'description', subsec.description,
+                        'videoUrl', subsec."videoUrl",
+                        'sectionId', subsec."sectionId",
+                        'exams', COALESCE(
+                          (
+                            SELECT json_agg(
+                              json_build_object(
+                                'id', e.id,
+                                'title', e.title,
+                                'description', e.description,
+                                'examType', e."examType",
+                                'totalMarks', e."totalMarks",
+                                'courseId', e."courseId",
+                                'sectionId', e."sectionId",
+                                'subSectionId', e."subSectionId",
+                                'questions', COALESCE(
+                                  (SELECT json_agg(q.*) FROM "Question" q WHERE q."examId" = e.id),
+                                  '[]'::json
+                                )
+                              )
+                            )
+                            FROM "Exam" e
+                            WHERE e."subSectionId" = subsec.id
+                          ),
+                          '[]'::json
+                        )
+                      )
+                    )
+                    FROM "SubSection" subsec
+                    WHERE subsec."sectionId" = sec.id
+                  ),
                   '[]'::json
                 )
               )
@@ -539,10 +699,92 @@ exports.getInstructorCourses = async (req, res) => {
           (
             SELECT json_agg(
               json_build_object(
+                'id', e.id,
+                'title', e.title,
+                'description', e.description,
+                'examType', e."examType",
+                'totalMarks', e."totalMarks",
+                'courseId', e."courseId",
+                'sectionId', e."sectionId",
+                'subSectionId', e."subSectionId",
+                'questions', COALESCE(
+                  (SELECT json_agg(q.*) FROM "Question" q WHERE q."examId" = e.id),
+                  '[]'::json
+                )
+              )
+            )
+            FROM "Exam" e
+            WHERE e."courseId" = c.id AND e."sectionId" IS NULL AND e."subSectionId" IS NULL
+          ),
+          '[]'::json
+        ) AS "exams",
+        COALESCE(
+          (
+            SELECT json_agg(
+              json_build_object(
                 'id', sec.id,
                 'sectionName', sec."sectionName",
+                'exams', COALESCE(
+                  (
+                    SELECT json_agg(
+                      json_build_object(
+                        'id', e.id,
+                        'title', e.title,
+                        'description', e.description,
+                        'examType', e."examType",
+                        'totalMarks', e."totalMarks",
+                        'courseId', e."courseId",
+                        'sectionId', e."sectionId",
+                        'subSectionId', e."subSectionId",
+                        'questions', COALESCE(
+                          (SELECT json_agg(q.*) FROM "Question" q WHERE q."examId" = e.id),
+                          '[]'::json
+                        )
+                      )
+                    )
+                    FROM "Exam" e
+                    WHERE e."sectionId" = sec.id AND e."subSectionId" IS NULL
+                  ),
+                  '[]'::json
+                ),
                 'subSection', COALESCE(
-                  (SELECT json_agg(subsec.*) FROM "SubSection" subsec WHERE subsec."sectionId" = sec.id),
+                  (
+                    SELECT json_agg(
+                      json_build_object(
+                        'id', subsec.id,
+                        'title', subsec.title,
+                        'timeDuration', subsec."timeDuration",
+                        'description', subsec.description,
+                        'videoUrl', subsec."videoUrl",
+                        'sectionId', subsec."sectionId",
+                        'exams', COALESCE(
+                          (
+                            SELECT json_agg(
+                              json_build_object(
+                                'id', e.id,
+                                'title', e.title,
+                                'description', e.description,
+                                'examType', e."examType",
+                                'totalMarks', e."totalMarks",
+                                'courseId', e."courseId",
+                                'sectionId', e."sectionId",
+                                'subSectionId', e."subSectionId",
+                                'questions', COALESCE(
+                                  (SELECT json_agg(q.*) FROM "Question" q WHERE q."examId" = e.id),
+                                  '[]'::json
+                                )
+                              )
+                            )
+                            FROM "Exam" e
+                            WHERE e."subSectionId" = subsec.id
+                          ),
+                          '[]'::json
+                        )
+                      )
+                    )
+                    FROM "SubSection" subsec
+                    WHERE subsec."sectionId" = sec.id
+                  ),
                   '[]'::json
                 )
               )
