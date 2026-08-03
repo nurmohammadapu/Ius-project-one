@@ -7,6 +7,7 @@ import { editCourseDetails } from "../../../../../services/operations/courseDeta
 import { resetCourseState, setStep } from "../../../../../redux/Slices/courseSlice"
 import { COURSE_STATUS } from "../../../../../utils/constants"
 import IconBtn from "../../../../Common/IconBtn"
+import CreateQuizModal from "../CourseBuilder/CreateQuizModal"
 
 export default function PublishCourse() {
   const { register, handleSubmit, setValue, getValues } = useForm()
@@ -16,6 +17,7 @@ export default function PublishCourse() {
   const { token } = useSelector((state) => state.auth)
   const { course } = useSelector((state) => state.course)
   const [loading, setLoading] = useState(false)
+  const [createQuizModal, setCreateQuizModal] = useState(null)
 
   useEffect(() => {
     if (course?.status === COURSE_STATUS.PUBLISHED) {
@@ -84,6 +86,29 @@ export default function PublishCourse() {
           </label>
         </div>
 
+        {/* Optional Final Exam Button */}
+        <div className="my-6 rounded-md border border-richblack-600 bg-richblack-700 p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-semibold text-richblack-5">Final Certificate Exam / Course Assignment (Optional)</p>
+              <p className="text-xs text-richblack-300">Add a course-level final exam or assignment required for course completion.</p>
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                setCreateQuizModal({
+                  quizType: "COURSE_FINAL",
+                  id: course?.id || course?._id,
+                  titleLabel: `Final Exam: ${course?.courseName}`
+                })
+              }
+              className="rounded bg-yellow-50 px-3 py-1 text-xs font-semibold text-richblack-900"
+            >
+              + Create Final Exam
+            </button>
+          </div>
+        </div>
+
         {/* Next Prev Button */}
         <div className="ml-auto flex max-w-max items-center gap-x-4">
           <button
@@ -97,6 +122,9 @@ export default function PublishCourse() {
           <IconBtn disabled={loading} text="Save Changes" />
         </div>
       </form>
+      {createQuizModal && (
+        <CreateQuizModal modalData={createQuizModal} setModalData={setCreateQuizModal} />
+      )}
     </div>
   )
 }

@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { AiFillCaretDown } from "react-icons/ai"
-import { FaPlus } from "react-icons/fa"
+import { FaPlus, FaQuestionCircle } from "react-icons/fa"
 import { MdEdit } from "react-icons/md"
 import { RiDeleteBin6Line } from "react-icons/ri"
 import { RxDropdownMenu } from "react-icons/rx"
@@ -13,6 +13,7 @@ import {
 import { setCourse } from "../../../../../redux/Slices/courseSlice"
 import ConfirmationModal from "../../../../Common/ConfirmationModal"
 import SubSectionModal from "./SubSectionModal"
+import CreateQuizModal from "./CreateQuizModal"
 
 export default function NestedView({ handleChangeEditSectionName }) {
   const { course } = useSelector((state) => state.course)
@@ -22,6 +23,7 @@ export default function NestedView({ handleChangeEditSectionName }) {
   const [addSubSection, setAddSubsection] = useState(null)
   const [viewSubSection, setViewSubSection] = useState(null)
   const [editSubSection, setEditSubSection] = useState(null)
+  const [createQuizModal, setCreateQuizModal] = useState(null)
   // to keep track of confirmation modal
   const [confirmationModal, setConfirmationModal] = useState(null)
 
@@ -69,6 +71,21 @@ export default function NestedView({ handleChangeEditSectionName }) {
               </div>
               <div className="flex items-center gap-x-3">
                 <button
+                  type="button"
+                  title="Add Section Exam/Quiz"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setCreateQuizModal({
+                      quizType: "SECTION",
+                      id: section?.id || section?._id,
+                      titleLabel: `Section: ${section.sectionName}`
+                    })
+                  }}
+                  className="flex items-center gap-x-1 rounded bg-yellow-50 px-2 py-0.5 text-xs font-medium text-richblack-900"
+                >
+                  <FaQuestionCircle /> Exam
+                </button>
+                <button
                   onClick={() =>
                     handleChangeEditSectionName(
                       section?.id || section?._id,
@@ -114,6 +131,20 @@ export default function NestedView({ handleChangeEditSectionName }) {
                     onClick={(e) => e.stopPropagation()}
                     className="flex items-center gap-x-3"
                   >
+                    <button
+                      type="button"
+                      title="Add Quiz/Assignment to Video"
+                      onClick={() =>
+                        setCreateQuizModal({
+                          quizType: "SUBSECTION",
+                          id: data?.id || data?._id,
+                          titleLabel: `Lecture: ${data.title}`
+                        })
+                      }
+                      className="flex items-center gap-x-1 rounded border border-yellow-50 px-2 py-0.5 text-xs text-yellow-50"
+                    >
+                      <FaQuestionCircle /> Quiz
+                    </button>
                     <button
                       onClick={() =>
                         setEditSubSection({ ...data, sectionId: section?.id || section?._id })
@@ -169,6 +200,11 @@ export default function NestedView({ handleChangeEditSectionName }) {
           modalData={editSubSection}
           setModalData={setEditSubSection}
           edit={true}
+        />
+      ) : createQuizModal ? (
+        <CreateQuizModal
+          modalData={createQuizModal}
+          setModalData={setCreateQuizModal}
         />
       ) : (
         <></>

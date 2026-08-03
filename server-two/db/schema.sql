@@ -122,3 +122,65 @@ CREATE INDEX IF NOT EXISTS "idx_section_courseId" ON "Section"("courseId");
 CREATE INDEX IF NOT EXISTS "idx_subsection_sectionId" ON "SubSection"("sectionId");
 CREATE INDEX IF NOT EXISTS "idx_rating_courseId" ON "RatingAndReview"("courseId");
 CREATE INDEX IF NOT EXISTS "idx_rating_userId" ON "RatingAndReview"("userId");
+
+-- Exam Engine Enums
+DO $$ BEGIN
+    CREATE TYPE "QuizType" AS ENUM ('SUBSECTION', 'SECTION', 'COURSE_FINAL');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+    CREATE TYPE "ExamSubmissionType" AS ENUM ('MCQ', 'FILE_UPLOAD', 'BOTH');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+-- Quiz / Exam Table
+CREATE TABLE IF NOT EXISTS "Quiz" (
+  "id" TEXT NOT NULL PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  "title" TEXT NOT NULL,
+  "description" TEXT,
+  "quizType" "QuizType" NOT NULL,
+  "submissionType" "ExamSubmissionType" NOT NULL DEFAULT 'MCQ',
+  "questionFileUrl" TEXT,
+  "totalMarks" INT NOT NULL DEFAULT 10,
+  "passMarks" INT NOT NULL DEFAULT 5,
+  "timeLimitMinutes" INT DEFAULT 10,
+  "dueDate" TIMESTAMP(3),
+  "publishDate" TIMESTAMP(3),
+  "isPublished" BOOLEAN NOT NULL DEFAULT false,
+  "courseId" TEXT REFERENCES "Course"("id") ON DELETE CASCADE,
+  "sectionId" TEXT REFERENCES "Section"("id") ON DELETE CASCADE,
+  "subSectionId" TEXT REFERENCES "SubSection"("id") ON DELETE CASCADE,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Question Table (For MCQ)
+CREATE TABLE IF NOT EXISTS "Question" (
+  "id" TEXT NOT NULL PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  "quizId" TEXT NOT NULL REFERENCES "Quiz"("id") ON DELETE CASCADE,
+  "questionText" TEXT NOT NULL,
+  "optionA" TEXT NOT NULL,
+  "optionB" TEXT NOT NULL,
+  "optionC" TEXT NOT NULL,
+  "optionD" TEXT NOT NULL,
+  "correctAnswer" TEXT NOT NULL,
+  "marks" INT NOT NULL DEFAULT 1
+);
+
+-- QuizResult / Submission Table
+CREATE TABLE IF NOT EXISTS "QuizResult" (
+  "id" TEXT NOT NULL DEFAULT gen_random_uuid()::text,
+  "quizId" TEXT NOT NULL REFERENCES "Quiz"("id") ON DELETE CASCADE,
+  "userId" TEXT NOT NULL REFERENCES "User"("id") ON DELETE CASCADE,
+  "answersJson" JSONB,
+  "submissionUrl" TEXT,
+  "score" INT,
+  "feedback" TEXT,
+  "isPassed" BOOLEAN,
+  "status" TEXT DEFAULT 'PENDING',
+  "submittedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY ("quizId", "userId")
+);
+

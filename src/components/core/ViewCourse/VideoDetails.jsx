@@ -9,6 +9,7 @@ import { BigPlayButton, Player } from "video-react"
 import { markLectureAsComplete } from "../../../services/operations/courseDetailsAPI"
 import { updateCompletedLectures } from "../../../redux/Slices/viewCourseSlice"
 import IconBtn from "../../Common/IconBtn"
+import StudentQuizPlayer from "./StudentQuizPlayer"
 
 const VideoDetails = () => {
   const { courseId, sectionId, subSectionId } = useParams()
@@ -242,6 +243,11 @@ const VideoDetails = () => {
 
       <h1 className="mt-4 text-3xl font-semibold">{videoData?.title}</h1>
       <p className="pt-2 pb-6">{videoData?.description}</p>
+
+      {/* Render Attached SubSection Quiz / Assignment */}
+      {subSectionId && (
+        <StudentQuizPlayer quizType="SUBSECTION" targetId={subSectionId} />
+      )}
     </div>
   )
 }
