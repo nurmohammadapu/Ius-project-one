@@ -29,6 +29,13 @@ export const sidebarLinks = [
     icon: "VscAdd",
   },
   {
+    id: 13,
+    name: "Evaluate Exams",
+    path: "/dashboard/evaluate-exams",
+    type: ACCOUNT_TYPE.INSTRUCTOR,
+    icon: "VscPass",
+  },
+  {
     id: 5,
     name: "Enrolled Courses",
     path: "/dashboard/enrolled-courses",
@@ -41,6 +48,13 @@ export const sidebarLinks = [
     path: "/dashboard/cart",
     type: ACCOUNT_TYPE.STUDENT,
     icon: "VscArchive",
+  },
+  {
+    id: 14,
+    name: "My Exams",
+    path: "/dashboard/my-exams",
+    type: ACCOUNT_TYPE.STUDENT,
+    icon: "VscTasklist",
   },
   {
     id: 8,

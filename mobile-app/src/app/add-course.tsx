@@ -435,6 +435,7 @@ function CourseInfoStep() {
    ========================================================================= */
 function CourseBuilderStep() {
   const dispatch = useDispatch();
+  const router = useRouter();
   const { token } = useSelector((state: any) => state.auth);
   const { course } = useSelector((state: any) => state.course);
 
@@ -587,6 +588,32 @@ function CourseBuilderStep() {
         </View>
       </View>
 
+      {/* Course Final Exam Card/Button */}
+      {course?.exams && course.exams.filter((e: any) => !e.sectionId && !e.subSectionId).length > 0 ? (
+        <View className="bg-richblack-800 border border-richblack-700 p-4 rounded-xl mb-4 flex-row justify-between items-center">
+          <View>
+            <Text className="text-[10px] text-richblack-400 font-semibold uppercase">Course Final Exam</Text>
+            <Text className="text-xs font-bold text-yellow-50 mt-1">
+              🏆 {course.exams.find((e: any) => !e.sectionId && !e.subSectionId)?.title}
+            </Text>
+          </View>
+          <Text className="text-[10px] text-richblack-300">Created</Text>
+        </View>
+      ) : (
+        <TouchableOpacity
+          onPress={() => {
+            router.push({
+              pathname: "/create-exam",
+              params: { courseId: course._id || course.id },
+            });
+          }}
+          className="bg-richblack-800 border-2 border-dashed border-richblack-700 p-4 rounded-xl mb-4 flex-row justify-center items-center"
+        >
+          <Ionicons name="add" size={18} color="#FFD60A" />
+          <Text className="text-yellow-50 font-bold text-xs ml-1.5">Add Final Course Exam</Text>
+        </TouchableOpacity>
+      )}
+
       {/* Sections and lectures listing */}
       <View className="space-y-4 mb-6">
         {course?.courseContent?.map((section: any) => {
@@ -610,6 +637,14 @@ function CourseBuilderStep() {
                 </View>
               </View>
 
+              {section.exams && section.exams.filter((e: any) => !e.subSectionId).length > 0 && (
+                <View className="bg-richblack-900/50 p-2.5 rounded-lg mt-2.5 mx-4 border border-yellow-50/10">
+                  <Text className="text-[10px] text-yellow-50 font-bold">
+                    📝 Section Exam: {section.exams.find((e: any) => !e.subSectionId)?.title} ({section.exams.find((e: any) => !e.subSectionId)?.examType})
+                  </Text>
+                </View>
+              )}
+
               <View className="px-4 py-3">
                 {section.subSection?.map((sub: any) => {
                   const subId = sub._id || sub.id;
@@ -624,11 +659,32 @@ function CourseBuilderStep() {
                         className="flex-row items-center flex-1 mr-2"
                       >
                         <Ionicons name="play-circle-outline" size={16} color="#AFB2BF" />
-                        <Text className="text-xs text-richblack-50 font-semibold ml-2 flex-1" numberOfLines={1}>
-                          {sub.title}
-                        </Text>
+                        <View className="flex-1 ml-2">
+                          <Text className="text-xs text-richblack-50 font-semibold" numberOfLines={1}>
+                            {sub.title}
+                          </Text>
+                          {sub.exams && sub.exams.length > 0 && (
+                            <Text className="text-[9px] text-yellow-50 font-medium">
+                              📝 Exam: {sub.exams[0].title} ({sub.exams[0].examType})
+                            </Text>
+                          )}
+                        </View>
                       </TouchableOpacity>
-                      <View className="flex-row space-x-3">
+                      <View className="flex-row space-x-3 items-center">
+                        <TouchableOpacity
+                          onPress={() => {
+                            router.push({
+                              pathname: "/create-exam",
+                              params: {
+                                courseId: course._id || course.id,
+                                sectionId: sectionId,
+                                subSectionId: subId,
+                              },
+                            });
+                          }}
+                        >
+                          <Ionicons name="document-text-outline" size={16} color="#FFD60A" />
+                        </TouchableOpacity>
                         <TouchableOpacity onPress={() => {
                           setSelectedSub(sub);
                           setActiveSectionId(sectionId);
@@ -645,18 +701,38 @@ function CourseBuilderStep() {
                   );
                 })}
 
-                <TouchableOpacity
-                  onPress={() => {
-                    setActiveSectionId(sectionId);
-                    setSubModalMode("add");
-                    setSelectedSub(null);
-                    setShowSubModal(true);
-                  }}
-                  className="flex-row items-center mt-3"
-                >
-                  <Ionicons name="add" size={16} color="#FFD60A" />
-                  <Text className="text-yellow-50 font-bold text-xs ml-1">Add Lecture</Text>
-                </TouchableOpacity>
+                <View className="flex-row items-center mt-3 space-x-3">
+                  <TouchableOpacity
+                    onPress={() => {
+                      setActiveSectionId(sectionId);
+                      setSubModalMode("add");
+                      setSelectedSub(null);
+                      setShowSubModal(true);
+                    }}
+                    className="flex-row items-center"
+                  >
+                    <Ionicons name="add" size={16} color="#FFD60A" />
+                    <Text className="text-yellow-50 font-bold text-xs ml-1">Add Lecture</Text>
+                  </TouchableOpacity>
+
+                  <Text className="text-richblack-600">|</Text>
+
+                  <TouchableOpacity
+                    onPress={() => {
+                      router.push({
+                        pathname: "/create-exam",
+                        params: {
+                          courseId: course._id || course.id,
+                          sectionId: sectionId,
+                        },
+                      });
+                    }}
+                    className="flex-row items-center"
+                  >
+                    <Ionicons name="add" size={16} color="#FFD60A" />
+                    <Text className="text-yellow-50 font-bold text-xs ml-1">Add Exam</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
           );

@@ -8,14 +8,12 @@ import { useDispatch, useSelector } from "react-redux"
 import {
   createSection,
   updateSection,
+  getFullDetailsOfCourse,
 } from "../../../../../services/operations/courseDetailsAPI"
-import {
-  setCourse,
-  setEditCourse,
-  setStep,
-} from "../../../../../redux/Slices/courseSlice"
+import { setCourse, setEditCourse, setStep } from "../../../../../redux/Slices/courseSlice"
 import IconBtn from "../../../../Common/IconBtn"
 import NestedView from "./NestedView"
+import CreateExamModal from "../../Exam/CreateExamModal"
 
 export default function CourseBuilderForm() {
   const {
@@ -29,6 +27,7 @@ export default function CourseBuilderForm() {
   const { token } = useSelector((state) => state.auth)
   const [loading, setLoading] = useState(false)
   const [editSectionName, setEditSectionName] = useState(null)
+  const [createCourseExam, setCreateCourseExam] = useState(false)
   const dispatch = useDispatch()
 
   // handle form submission
@@ -101,7 +100,16 @@ export default function CourseBuilderForm() {
 
   return (
     <div className="space-y-8 rounded-md border-[1px] border-richblack-700 bg-richblack-800 p-6">
-      <p className="text-2xl font-semibold text-richblack-5">Course Builder</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <p className="text-2xl font-semibold text-richblack-5">Course Builder</p>
+        <button
+          type="button"
+          onClick={() => setCreateCourseExam(true)}
+          className="flex items-center gap-x-1 text-xs text-yellow-50 border border-yellow-50/20 px-3 py-1.5 rounded bg-yellow-50/5 hover:bg-yellow-50/15 transition-all font-semibold"
+        >
+          <IoAddCircleOutline size={16} /> Add Final Course Exam
+        </button>
+      </div>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="flex flex-col space-y-2">
           <label className="text-sm text-richblack-5" htmlFor="sectionName">
@@ -140,8 +148,31 @@ export default function CourseBuilderForm() {
           )}
         </div>
       </form>
-      {course.courseContent.length > 0 && (
+      {course?.courseContent && course.courseContent.length > 0 && (
         <NestedView handleChangeEditSectionName={handleChangeEditSectionName} />
+      )}
+
+      {/* Render Final Course Exam if exists */}
+      {course.exams && course.exams.length > 0 && (
+        <div className="rounded-md border border-yellow-50/20 bg-richblack-900 p-5 font-inter text-sm text-richblack-100 space-y-3">
+          <div className="flex items-center justify-between border-b border-richblack-800 pb-2">
+            <h3 className="font-bold text-yellow-50 flex items-center gap-1.5">
+              🏆 Final Course Exam: {course.exams[0].title} ({course.exams[0].examType})
+            </h3>
+            <span className="text-xs text-richblack-400">Total Marks: {course.exams[0].totalMarks}</span>
+          </div>
+          {course.exams[0].description && <p className="text-xs text-richblack-300 italic">"{course.exams[0].description}"</p>}
+          {course.exams[0].questions && course.exams[0].questions.length > 0 && (
+            <div className="space-y-1.5 pl-3 border-l-2 border-richblack-700 mt-3">
+              <p className="text-xs font-semibold text-richblack-200">Exam Questions ({course.exams[0].questions.length}):</p>
+              {course.exams[0].questions.map((q, qidx) => (
+                <p key={q.id} className="text-xs text-richblack-400">
+                  {qidx + 1}. {q.questionText}
+                </p>
+              ))}
+            </div>
+          )}
+        </div>
       )}
       {/* Next Prev Button */}
       <div className="flex justify-end gap-x-3">
@@ -155,6 +186,22 @@ export default function CourseBuilderForm() {
           <MdNavigateNext />
         </IconBtn>
       </div>
+
+      {createCourseExam && (
+        <CreateExamModal
+          courseId={course?.id || course?._id}
+          onClose={() => setCreateCourseExam(false)}
+          onSuccess={async () => {
+            toast.success("Final Course Exam added successfully!")
+            const result = await getFullDetailsOfCourse(course?.id || course?._id, token)
+            if (result && result.courseDetails) {
+              dispatch(setCourse(result.courseDetails))
+            } else if (result) {
+              dispatch(setCourse(result))
+            }
+          }}
+        />
+      )}
     </div>
   )
 }

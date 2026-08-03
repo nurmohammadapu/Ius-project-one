@@ -163,20 +163,29 @@ export default function DashboardScreen() {
              ========================================================================= */
           <View className="mt-6 mb-8">
             {/* Quick Actions */}
-            <View className="flex-row justify-between mb-6 space-x-3">
+            <View className="mb-6">
+              <View className="flex-row justify-between space-x-3 mb-3">
+                <TouchableOpacity
+                  onPress={() => router.push("/add-course")}
+                  className="flex-1 bg-yellow-50 py-3.5 rounded-xl flex-row justify-center items-center"
+                >
+                  <Ionicons name="add-circle-outline" size={20} color="#000" />
+                  <Text className="text-richblack-900 font-bold text-sm ml-2">Add Course</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => router.push("/my-courses")}
+                  className="flex-1 bg-white dark:bg-richblack-800 border border-pure-greys-25 dark:border-richblack-700 py-3.5 rounded-xl flex-row justify-center items-center"
+                >
+                  <Ionicons name="list" size={20} color={isDark ? "#FFD60A" : "#000814"} />
+                  <Text className="text-richblack-900 dark:text-richblack-5 font-bold text-sm ml-2">My Courses</Text>
+                </TouchableOpacity>
+              </View>
               <TouchableOpacity
-                onPress={() => router.push("/add-course")}
-                className="flex-1 bg-yellow-50 py-3.5 rounded-xl flex-row justify-center items-center"
+                onPress={() => router.push("/evaluate-exams")}
+                className="w-full bg-white dark:bg-richblack-800 border border-pure-greys-25 dark:border-richblack-700 py-3.5 rounded-xl flex-row justify-center items-center"
               >
-                <Ionicons name="add-circle-outline" size={20} color="#000" />
-                <Text className="text-richblack-900 font-bold text-sm ml-2">Add Course</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => router.push("/my-courses")}
-                className="flex-1 bg-white dark:bg-richblack-800 border border-pure-greys-25 dark:border-richblack-700 py-3.5 rounded-xl flex-row justify-center items-center"
-              >
-                <Ionicons name="list" size={20} color={isDark ? "#FFD60A" : "#000814"} />
-                <Text className="text-richblack-900 dark:text-richblack-5 font-bold text-sm ml-2">My Courses</Text>
+                <Ionicons name="shield-checkmark-outline" size={20} color={isDark ? "#FFD60A" : "#000814"} />
+                <Text className="text-richblack-900 dark:text-richblack-5 font-bold text-sm ml-2">Evaluate Exams</Text>
               </TouchableOpacity>
             </View>
 
@@ -320,6 +329,17 @@ export default function DashboardScreen() {
              STUDENT DASHBOARD VIEW
              ========================================================================= */
           <View className="mt-6 mb-8">
+            {/* Quick Actions */}
+            <View className="mb-6">
+              <TouchableOpacity
+                onPress={() => router.push("/my-exams")}
+                className="w-full bg-yellow-50 py-3.5 rounded-xl flex-row justify-center items-center"
+              >
+                <Ionicons name="clipboard-outline" size={20} color="#000" />
+                <Text className="text-richblack-900 font-bold text-sm ml-2">My Exams</Text>
+              </TouchableOpacity>
+            </View>
+
             <Text className="text-lg font-bold text-richblack-900 dark:text-richblack-5 mb-4">My Enrolled Courses</Text>
             {enrolledCourses.length === 0 ? (
               <View className="p-8 bg-white dark:bg-richblack-800 rounded-2xl border border-pure-greys-25 dark:border-richblack-700 items-center justify-center">

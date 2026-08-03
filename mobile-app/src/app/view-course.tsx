@@ -307,6 +307,96 @@ export default function ViewCourseScreen() {
               <Ionicons name="chevron-forward" size={16} color={isDark ? "#F1F2FF" : "#000814"} />
             </TouchableOpacity>
           </View>
+
+          {/* Exams Section */}
+          {(() => {
+            const currentSection = courseDetails?.courseContent?.find(
+              (s: any) => (s.id || s._id) === currentSectionId
+            );
+            const lectureExams = activeSubSection?.exams || [];
+            const sectionExams = currentSection?.exams || [];
+            const courseExams = courseDetails?.exams || [];
+
+            const hasExams = lectureExams.length > 0 || sectionExams.length > 0 || courseExams.length > 0;
+            if (!hasExams) return null;
+
+            return (
+              <View className="mt-6 border-t border-pure-greys-25 dark:border-richblack-800 pt-4">
+                <Text className="text-sm font-bold text-richblack-900 dark:text-richblack-5 mb-3">
+                  Available Exams
+                </Text>
+                
+                {/* 1. Lecture Exam */}
+                {lectureExams.map((exam: any) => (
+                  <TouchableOpacity
+                    key={exam.id}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/my-exams",
+                        params: { autoTakeExamId: exam.id },
+                      })
+                    }
+                    className="flex-row items-center justify-between p-3.5 bg-yellow-500/10 border border-yellow-50/20 rounded-xl mb-3"
+                  >
+                    <View className="flex-row items-center flex-1 mr-2">
+                      <Ionicons name="document-text" size={18} color="#FFD60A" />
+                      <View className="ml-2 flex-1">
+                        <Text className="text-xs font-bold text-yellow-50">Lecture Exam: {exam.title}</Text>
+                        <Text className="text-xxs text-richblack-300 mt-0.5">Type: {exam.examType} | Marks: {exam.totalMarks}</Text>
+                      </View>
+                    </View>
+                    <Ionicons name="play" size={14} color="#FFD60A" />
+                  </TouchableOpacity>
+                ))}
+
+                {/* 2. Section Exam */}
+                {sectionExams.map((exam: any) => (
+                  <TouchableOpacity
+                    key={exam.id}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/my-exams",
+                        params: { autoTakeExamId: exam.id },
+                      })
+                    }
+                    className="flex-row items-center justify-between p-3.5 bg-yellow-500/10 border border-yellow-50/20 rounded-xl mb-3"
+                  >
+                    <View className="flex-row items-center flex-1 mr-2">
+                      <Ionicons name="document-text" size={18} color="#FFD60A" />
+                      <View className="ml-2 flex-1">
+                        <Text className="text-xs font-bold text-yellow-50">Section Exam: {exam.title}</Text>
+                        <Text className="text-xxs text-richblack-300 mt-0.5">Type: {exam.examType} | Marks: {exam.totalMarks}</Text>
+                      </View>
+                    </View>
+                    <Ionicons name="play" size={14} color="#FFD60A" />
+                  </TouchableOpacity>
+                ))}
+
+                {/* 3. Course Final Exam */}
+                {courseExams.map((exam: any) => (
+                  <TouchableOpacity
+                    key={exam.id}
+                    onPress={() =>
+                      router.push({
+                        pathname: "/my-exams",
+                        params: { autoTakeExamId: exam.id },
+                      })
+                    }
+                    className="flex-row items-center justify-between p-3.5 bg-yellow-500/10 border border-yellow-50/20 rounded-xl mb-3"
+                  >
+                    <View className="flex-row items-center flex-1 mr-2">
+                      <Ionicons name="trophy" size={18} color="#FFD60A" />
+                      <View className="ml-2 flex-1">
+                        <Text className="text-xs font-bold text-yellow-50">Course Final Exam: {exam.title}</Text>
+                        <Text className="text-xxs text-richblack-300 mt-0.5">Type: {exam.examType} | Marks: {exam.totalMarks}</Text>
+                      </View>
+                    </View>
+                    <Ionicons name="play" size={14} color="#FFD60A" />
+                  </TouchableOpacity>
+                ))}
+              </View>
+            );
+          })()}
         </View>
 
         {/* Section List Accordion */}

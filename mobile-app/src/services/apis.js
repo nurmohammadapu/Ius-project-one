@@ -1,6 +1,6 @@
 // Update this with your machine's local IP when testing on physical devices or emulator
-// export const BASE_URL = "http://192.168.0.106:5001/api/v1";
-export const BASE_URL = "http://192.168.1.167:5001/api/v1";
+export const BASE_URL = "http://192.168.0.105:5001/api/v1";
+// export const BASE_URL = "http://192.168.1.167:5001/api/v1";
 // AUTH ENDPOINTS
 export const endpoints = {
   SENDOTP_API: BASE_URL + "/auth/sendotp",
@@ -87,4 +87,14 @@ export const adminEndpoints = {
   GET_PENDING_INSTRUCTORS_API: BASE_URL + "/auth/pending-instructors",
   MANAGE_INSTRUCTOR_API: BASE_URL + "/auth/manageInstructor",
   GET_FINANCIAL_REPORT_API: BASE_URL + "/auth/admin/financial-report",
+};
+
+// EXAM ENDPOINTS
+export const examEndpoints = {
+  CREATE_EXAM_API: BASE_URL + "/exam/createExam",
+  GET_EXAM_BY_TARGET_API: BASE_URL + "/exam/getExamByTarget",
+  SUBMIT_EXAM_API: BASE_URL + "/exam/submitExam",
+  GET_SUBMISSIONS_BY_EXAM_API: BASE_URL + "/exam/getSubmissionsByExam",
+  GRADE_SUBMISSION_API: BASE_URL + "/exam/gradeSubmission",
+  GET_STUDENT_EXAMS_API: BASE_URL + "/exam/getStudentExams",
 };

@@ -167,9 +167,15 @@ exports.getCourseDetails = async (req, res) => {
         studentsEnroled: true,
         courseContent: {
           include: {
-            subSection: true,
+            subSection: {
+              include: {
+                exams: true,
+              },
+            },
+            exams: true,
           },
         },
+        exams: true,
       },
     });
 
@@ -255,7 +261,25 @@ exports.editCourse = async (req, res) => {
         ratingAndReviews: true,
         courseContent: {
           include: {
-            subSection: true,
+            subSection: {
+              include: {
+                exams: {
+                  include: {
+                    questions: true,
+                  },
+                },
+              },
+            },
+            exams: {
+              include: {
+                questions: true,
+              },
+            },
+          },
+        },
+        exams: {
+          include: {
+            questions: true,
           },
         },
       },
@@ -293,9 +317,15 @@ exports.getFullCourseDetails = async (req, res) => {
         studentsEnroled: true,
         courseContent: {
           include: {
-            subSection: true,
+            subSection: {
+              include: {
+                exams: true,
+              },
+            },
+            exams: true,
           },
         },
+        exams: true,
       },
     });
 
@@ -358,7 +388,25 @@ exports.getInstructorCourses = async (req, res) => {
         studentsEnroled: true,
         courseContent: {
           include: {
-            subSection: true,
+            subSection: {
+              include: {
+                exams: {
+                  include: {
+                    questions: true,
+                  },
+                },
+              },
+            },
+            exams: {
+              include: {
+                questions: true,
+              },
+            },
+          },
+        },
+        exams: {
+          include: {
+            questions: true,
           },
         },
       },

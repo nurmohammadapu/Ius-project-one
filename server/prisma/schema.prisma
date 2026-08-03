@@ -51,6 +51,8 @@ model User {
   // Progress records
   courseProgress       CourseProgress[]
 
+  examSubmissions      ExamSubmission[]
+
   createdAt            DateTime          @default(now())
   updatedAt            DateTime          @updatedAt
 }
@@ -93,6 +95,7 @@ model Course {
   ratingAndReviews RatingAndReview[]
   studentsEnroled  User[]            @relation("EnrolledStudents")
   courseProgress   CourseProgress[]
+  exams            Exam[]
 
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
@@ -104,6 +107,7 @@ model Section {
   courseId    String?
   course      Course?      @relation(fields: [courseId], references: [id], onDelete: Cascade)
   subSection  SubSection[]
+  exams       Exam[]
 }
 
 model SubSection {
@@ -115,6 +119,7 @@ model SubSection {
   sectionId          String?
   section            Section?         @relation(fields: [sectionId], references: [id], onDelete: Cascade)
   completedInCourses CourseProgress[] @relation("CompletedSubSections")
+  exams              Exam[]
 }
 
 model RatingAndReview {
@@ -141,4 +146,61 @@ model CourseProgress {
   userId          String?
   user            User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
   completedVideos SubSection[] @relation("CompletedSubSections")
+}
+
+enum ExamType {
+  MCQ
+  WRITTEN
+}
+
+enum SubmissionStatus {
+  PENDING
+  PASSED
+  FAILED
+}
+
+model Exam {
+  id            String           @id @default(uuid())
+  title         String
+  description   String?
+  examType      ExamType
+  totalMarks    Float            @default(100)
+  courseId      String?
+  course        Course?          @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  sectionId     String?
+  section       Section?         @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  subSectionId  String?
+  subSection    SubSection?      @relation(fields: [subSectionId], references: [id], onDelete: Cascade)
+  questions     Question[]
+  submissions   ExamSubmission[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+}
+
+model Question {
+  id            String   @id @default(uuid())
+  examId        String
+  exam          Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  questionText  String
+  options       String[]
+  correctOption String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model ExamSubmission {
+  id            String           @id @default(uuid())
+  examId        String
+  exam          Exam             @relation(fields: [examId], references: [id], onDelete: Cascade)
+  studentId     String
+  student       User             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  submissionUrl String?
+  answers       Json?
+  obtainedMarks Float?
+  feedback      String?
+  status        SubmissionStatus @default(PENDING)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@unique([examId, studentId])
 }

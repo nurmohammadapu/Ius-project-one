@@ -37,6 +37,8 @@ import AllInstructors from './components/core/Dashboard/Admin/AllInstructors';
 import AllCourses from './components/core/Dashboard/Admin/AllCourses';
 import PendingApprovals from './components/core/Dashboard/Admin/PendingApprovals';
 import FinancialReport from './components/core/Dashboard/Admin/FinancialReport';
+import InstructorEvaluationDashboard from './components/core/Dashboard/Exam/InstructorEvaluationDashboard';
+import StudentExamsList from './components/core/Dashboard/Exam/StudentExamsList';
 
 
 
@@ -150,6 +152,7 @@ function App() {
           <>
           <Route path="dashboard/cart" element={<Cart />} />
           <Route path="dashboard/enrolled-courses" element={<EnrolledCourses />} />
+          <Route path="dashboard/my-exams" element={<StudentExamsList />} />
           </>
         )
       }
@@ -161,6 +164,7 @@ function App() {
           <Route path="dashboard/add-course" element={<AddCourse />} />
           <Route path="dashboard/my-courses" element={<MyCourses />} />
           <Route path="dashboard/edit-course/:courseId" element={<EditCourse />} />
+          <Route path="dashboard/evaluate-exams" element={<InstructorEvaluationDashboard />} />
           
           </>
         )
