@@ -16,7 +16,7 @@ export async function BuyCourse(token, courses, user_details, router, dispatch) 
       CREATE_STRIPE_SESSION_API,
       {
         courses,
-        success_url: "http://192.168.1.167:5001/api/v1/payment/mobile-success?session_id={CHECKOUT_SESSION_ID}",
+        success_url: "http://10.0.31.238:5001/api/v1/payment/mobile-success?session_id={CHECKOUT_SESSION_ID}",
       },
       { Authorization: `Bearer ${token}` }
     );

@@ -99,7 +99,7 @@ CREATE TABLE "CourseProgress" (
   "userId" TEXT REFERENCES "User"("id") ON DELETE CASCADE
 );
 
--- Implicit Many-to-Many Join Tables created by Prisma
+-- Implicit Many-to-Many Join Tables created 
 -- _EnrolledStudents (User <-> Course)
 CREATE TABLE "_EnrolledStudents" (
   "A" TEXT NOT NULL REFERENCES "Course"("id") ON DELETE CASCADE,
