@@ -1,4 +1,4 @@
--- PostgreSQL Schema generated for server-two database
+-- PostgreSQL Schema for server-two database (Pure Raw SQL)
 
 -- Extension for UUID generation
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
@@ -96,22 +96,26 @@ CREATE TABLE "OTP" (
 CREATE TABLE "CourseProgress" (
   "id" TEXT NOT NULL PRIMARY KEY DEFAULT gen_random_uuid()::text,
   "courseID" TEXT REFERENCES "Course"("id") ON DELETE CASCADE,
-  "userId" TEXT REFERENCES "User"("id") ON DELETE CASCADE
+  "userId" TEXT REFERENCES "User"("id") ON DELETE CASCADE,
+  CONSTRAINT "CourseProgress_courseID_userId_key" UNIQUE ("courseID", "userId")
 );
 
--- Implicit Many-to-Many Join Tables created 
--- _EnrolledStudents (User <-> Course)
-CREATE TABLE "_EnrolledStudents" (
-  "A" TEXT NOT NULL REFERENCES "Course"("id") ON DELETE CASCADE,
-  "B" TEXT NOT NULL REFERENCES "User"("id") ON DELETE CASCADE,
-  PRIMARY KEY ("A", "B")
+-- Explicit Many-to-Many Join Tables
+
+-- CourseEnrollment (User <-> Course)
+CREATE TABLE "CourseEnrollment" (
+  "courseId" TEXT NOT NULL REFERENCES "Course"("id") ON DELETE CASCADE,
+  "userId" TEXT NOT NULL REFERENCES "User"("id") ON DELETE CASCADE,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY ("courseId", "userId")
 );
 
--- _CompletedSubSections (CourseProgress <-> SubSection)
-CREATE TABLE "_CompletedSubSections" (
-  "A" TEXT NOT NULL REFERENCES "CourseProgress"("id") ON DELETE CASCADE,
-  "B" TEXT NOT NULL REFERENCES "SubSection"("id") ON DELETE CASCADE,
-  PRIMARY KEY ("A", "B")
+-- CompletedSubSection (CourseProgress <-> SubSection)
+CREATE TABLE "CompletedSubSection" (
+  "courseProgressId" TEXT NOT NULL REFERENCES "CourseProgress"("id") ON DELETE CASCADE,
+  "subSectionId" TEXT NOT NULL REFERENCES "SubSection"("id") ON DELETE CASCADE,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY ("courseProgressId", "subSectionId")
 );
 
 -- Indexes for performance
@@ -122,6 +126,10 @@ CREATE INDEX IF NOT EXISTS "idx_section_courseId" ON "Section"("courseId");
 CREATE INDEX IF NOT EXISTS "idx_subsection_sectionId" ON "SubSection"("sectionId");
 CREATE INDEX IF NOT EXISTS "idx_rating_courseId" ON "RatingAndReview"("courseId");
 CREATE INDEX IF NOT EXISTS "idx_rating_userId" ON "RatingAndReview"("userId");
+CREATE INDEX IF NOT EXISTS "idx_course_enrollment_userId" ON "CourseEnrollment"("userId");
+CREATE INDEX IF NOT EXISTS "idx_course_enrollment_courseId" ON "CourseEnrollment"("courseId");
+CREATE INDEX IF NOT EXISTS "idx_completed_subsection_progressId" ON "CompletedSubSection"("courseProgressId");
+CREATE INDEX IF NOT EXISTS "idx_completed_subsection_subSectionId" ON "CompletedSubSection"("subSectionId");
 
 -- Exam Enums
 CREATE TYPE "ExamType" AS ENUM ('MCQ', 'WRITTEN');
@@ -174,4 +182,3 @@ CREATE INDEX IF NOT EXISTS "idx_exam_subSectionId" ON "Exam"("subSectionId");
 CREATE INDEX IF NOT EXISTS "idx_question_examId" ON "Question"("examId");
 CREATE INDEX IF NOT EXISTS "idx_submission_examId" ON "ExamSubmission"("examId");
 CREATE INDEX IF NOT EXISTS "idx_submission_studentId" ON "ExamSubmission"("studentId");
-

@@ -13,10 +13,10 @@ exports.createRating = async (req, res) => {
       });
     }
 
-    // A. Check if Student is Enrolled via "_EnrolledStudents" Junction Table
+    // A. Check if Student is Enrolled via "CourseEnrollment" Junction Table
     const enrollmentCheck = await db.$query`
-      SELECT "A" FROM "_EnrolledStudents"
-      WHERE "A" = ${courseId} AND "B" = ${userId}
+      SELECT "courseId" FROM "CourseEnrollment"
+      WHERE "courseId" = ${courseId} AND "userId" = ${userId}
       LIMIT 1
     `;
 

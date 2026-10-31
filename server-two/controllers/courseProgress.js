@@ -44,19 +44,19 @@ exports.updateCourseProgress = async (req, res) => {
       courseProgressId = progressResult[0].id;
     }
 
-    // Check if video is already completed in "_CompletedSubSections" junction table
+    // Check if video is already completed in "CompletedSubSection" junction table
     const isCompletedResult = await db.$query`
-      SELECT * FROM "_CompletedSubSections"
-      WHERE "A" = ${courseProgressId} AND "B" = ${targetSubId}
+      SELECT * FROM "CompletedSubSection"
+      WHERE "courseProgressId" = ${courseProgressId} AND "subSectionId" = ${targetSubId}
     `;
 
     if (isCompletedResult && isCompletedResult.length > 0) {
       return res.status(200).json({ success: true, message: "Subsection already completed" });
     }
 
-    // Insert into Many-to-Many Junction Table "_CompletedSubSections"
+    // Insert into Many-to-Many Junction Table "CompletedSubSection"
     await db.$execute`
-      INSERT INTO "_CompletedSubSections" ("A", "B")
+      INSERT INTO "CompletedSubSection" ("courseProgressId", "subSectionId")
       VALUES (${courseProgressId}, ${targetSubId})
     `;
 
@@ -77,13 +77,13 @@ exports.getProgressPercentage = async (req, res) => {
   }
 
   try {
-    // Count completed videos using "_CompletedSubSections"
+    // Count completed videos using "CompletedSubSection"
     const progressResult = await db.$query`
       SELECT 
         cp.id,
-        COUNT(cv."B")::int AS "completedCount"
+        COUNT(cv."subSectionId")::int AS "completedCount"
       FROM "CourseProgress" cp
-      LEFT JOIN "_CompletedSubSections" cv ON cv."A" = cp.id
+      LEFT JOIN "CompletedSubSection" cv ON cv."courseProgressId" = cp.id
       WHERE cp."courseID" = ${courseId} AND cp."userId" = ${userId}
       GROUP BY cp.id
     `;

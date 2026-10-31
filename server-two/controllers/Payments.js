@@ -24,16 +24,16 @@ const enrollStudents = async (courses, userId) => {
       throw new Error(`Course not found: ${courseId}`);
     }
 
-    // Check if already enrolled in "_EnrolledStudents"
+    // Check if already enrolled in "CourseEnrollment"
     const enrollmentCheck = await db.$query`
-      SELECT * FROM "_EnrolledStudents"
-      WHERE "A" = ${courseId} AND "B" = ${userId}
+      SELECT * FROM "CourseEnrollment"
+      WHERE "courseId" = ${courseId} AND "userId" = ${userId}
     `;
 
     if (!enrollmentCheck || enrollmentCheck.length === 0) {
-      // Connect Student in "_EnrolledStudents"
+      // Connect Student in "CourseEnrollment"
       await db.$execute`
-        INSERT INTO "_EnrolledStudents" ("A", "B")
+        INSERT INTO "CourseEnrollment" ("courseId", "userId")
         VALUES (${courseId}, ${userId})
       `;
     }
@@ -96,8 +96,8 @@ exports.capturePayment = async (req, res) => {
       const courseResult = await db.$query`
         SELECT c.id, c.price,
           EXISTS(
-            SELECT 1 FROM "_EnrolledStudents" es
-            WHERE es."A" = c.id AND es."B" = ${userId}
+            SELECT 1 FROM "CourseEnrollment" es
+            WHERE es."courseId" = c.id AND es."userId" = ${userId}
           ) AS "isEnrolled"
         FROM "Course" c
         WHERE c.id = ${course_id}
@@ -234,8 +234,8 @@ exports.createStripeCheckoutSession = async (req, res) => {
       const courseResult = await db.$query`
         SELECT c.id, c."courseName", c."courseDescription", c.thumbnail, c.price,
           EXISTS(
-            SELECT 1 FROM "_EnrolledStudents" es
-            WHERE es."A" = c.id AND es."B" = ${userId}
+            SELECT 1 FROM "CourseEnrollment" es
+            WHERE es."courseId" = c.id AND es."userId" = ${userId}
           ) AS "isEnrolled"
         FROM "Course" c
         WHERE c.id = ${course_id}
@@ -357,8 +357,8 @@ exports.verifyStripePayment = async (req, res) => {
         const courseResult = await db.$query`
           SELECT c.id,
             EXISTS(
-              SELECT 1 FROM "_EnrolledStudents" es
-              WHERE es."A" = c.id AND es."B" = ${userId}
+              SELECT 1 FROM "CourseEnrollment" es
+              WHERE es."courseId" = c.id AND es."userId" = ${userId}
             ) AS "isEnrolled"
           FROM "Course" c
           WHERE c.id = ${courseId}
@@ -400,8 +400,8 @@ exports.directMobilePayment = async (req, res) => {
       const courseResult = await db.$query`
         SELECT c.id,
           EXISTS(
-            SELECT 1 FROM "_EnrolledStudents" es
-            WHERE es."A" = c.id AND es."B" = ${userId}
+            SELECT 1 FROM "CourseEnrollment" es
+            WHERE es."courseId" = c.id AND es."userId" = ${userId}
           ) AS "isEnrolled"
         FROM "Course" c
         WHERE c.id = ${courseId}

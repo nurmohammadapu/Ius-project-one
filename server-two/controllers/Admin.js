@@ -306,7 +306,7 @@ exports.toggleCoursePublish = async (req, res) => {
 // 8. getFinancialReport (Raw SQL Many-To-Many JOIN)
 exports.getFinancialReport = async (req, res) => {
   try {
-    // Implicit Many-To-Many Table: "_EnrolledStudents"
+    // Explicit Many-To-Many Table: "CourseEnrollment"
     const courses = await db.$query`
       SELECT 
         c.id,
@@ -315,10 +315,10 @@ exports.getFinancialReport = async (req, res) => {
         c.status,
         u."firstName" AS "instructorFirstName",
         u."lastName" AS "instructorLastName",
-        COUNT(es."B")::int AS "salesCount"
+        COUNT(es."userId")::int AS "salesCount"
       FROM "Course" c
       LEFT JOIN "User" u ON c."instructorId" = u.id
-      LEFT JOIN "_EnrolledStudents" es ON es."A" = c.id
+      LEFT JOIN "CourseEnrollment" es ON es."courseId" = c.id
       GROUP BY c.id, u.id
     `;
 

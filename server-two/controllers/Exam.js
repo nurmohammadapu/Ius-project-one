@@ -440,8 +440,8 @@ exports.getStudentExams = async (req, res) => {
     const enrolledCourses = await db.$query`
       SELECT c.id, c."courseName"
       FROM "Course" c
-      JOIN "_EnrolledStudents" es ON es."A" = c.id
-      WHERE es."B" = ${studentId}
+      JOIN "CourseEnrollment" es ON es."courseId" = c.id
+      WHERE es."userId" = ${studentId}
     `;
 
     const examsList = [];

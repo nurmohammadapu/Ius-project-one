@@ -164,9 +164,9 @@ exports.deleteSubSection = async (req, res) => {
         .json({ success: false, message: "SubSection not found" });
     }
 
-    // Clean up _CompletedSubSections Junction Table references if needed
+    // Clean up CompletedSubSection Junction Table references if needed
     await db.$execute`
-      DELETE FROM "_CompletedSubSections" WHERE "B" = ${subSectionId}
+      DELETE FROM "CompletedSubSection" WHERE "subSectionId" = ${subSectionId}
     `.catch(() => {});
 
     // Delete SubSection

@@ -158,9 +158,9 @@ exports.getAllCourses = async (req, res) => {
         COALESCE(
           (
             SELECT json_agg(json_build_object('id', u_enrol.id))
-            FROM "_EnrolledStudents" es
-            JOIN "User" u_enrol ON es."B" = u_enrol.id
-            WHERE es."A" = c.id
+            FROM "CourseEnrollment" es
+            JOIN "User" u_enrol ON es."userId" = u_enrol.id
+            WHERE es."courseId" = c.id
           ),
           '[]'::json
         ) AS "studentsEnroled"
@@ -218,8 +218,8 @@ exports.getCourseDetails = async (req, res) => {
         ) AS "ratingAndReviews",
         COALESCE(
           (
-            SELECT json_agg(json_build_object('id', es."B"))
-            FROM "_EnrolledStudents" es WHERE es."A" = c.id
+            SELECT json_agg(json_build_object('id', es."userId"))
+            FROM "CourseEnrollment" es WHERE es."courseId" = c.id
           ),
           '[]'::json
         ) AS "studentsEnroled",
@@ -517,7 +517,7 @@ exports.getFullCourseDetails = async (req, res) => {
           '[]'::json
         ) AS "ratingAndReviews",
         COALESCE(
-          (SELECT json_agg(json_build_object('id', es."B")) FROM "_EnrolledStudents" es WHERE es."A" = c.id),
+          (SELECT json_agg(json_build_object('id', es."userId")) FROM "CourseEnrollment" es WHERE es."courseId" = c.id),
           '[]'::json
         ) AS "studentsEnroled",
         COALESCE(
@@ -639,9 +639,9 @@ exports.getFullCourseDetails = async (req, res) => {
         COALESCE(
           (
             SELECT json_agg(json_build_object('id', subsec.id))
-            FROM "_CompletedSubSections" cv
-            JOIN "SubSection" subsec ON cv."B" = subsec.id
-            WHERE cv."A" = cp.id
+            FROM "CompletedSubSection" cv
+            JOIN "SubSection" subsec ON cv."subSectionId" = subsec.id
+            WHERE cv."courseProgressId" = cp.id
           ),
           '[]'::json
         ) AS "completedVideos"
@@ -692,7 +692,7 @@ exports.getInstructorCourses = async (req, res) => {
       SELECT 
         c.*,
         COALESCE(
-          (SELECT json_agg(json_build_object('id', es."B")) FROM "_EnrolledStudents" es WHERE es."A" = c.id),
+          (SELECT json_agg(json_build_object('id', es."userId")) FROM "CourseEnrollment" es WHERE es."courseId" = c.id),
           '[]'::json
         ) AS "studentsEnroled",
         COALESCE(
@@ -849,7 +849,7 @@ exports.deleteCourse = async (req, res) => {
     // Manual Cascade Deletion in Order for Clean Up
     await db.$execute`DELETE FROM "RatingAndReview" WHERE "courseId" = ${courseId}`;
     await db.$execute`DELETE FROM "CourseProgress" WHERE "courseID" = ${courseId}`;
-    await db.$execute`DELETE FROM "_EnrolledStudents" WHERE "A" = ${courseId}`;
+    await db.$execute`DELETE FROM "CourseEnrollment" WHERE "courseId" = ${courseId}`;
     
     // Delete Subsections and Sections
     await db.$execute`

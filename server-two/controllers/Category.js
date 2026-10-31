@@ -164,7 +164,7 @@ exports.categoryPageDetails = async (req, res) => {
       differentCategory = differentCategoryResult[0] || null;
     }
 
-    // C. Top Selling Courses Across All Categories (Joining "_EnrolledStudents")
+    // C. Top Selling Courses Across All Categories (Joining "CourseEnrollment")
     const mostSellingCourses = await db.$query`
       SELECT 
         c.id,
@@ -174,9 +174,9 @@ exports.categoryPageDetails = async (req, res) => {
         c.thumbnail,
         c.status,
         c."categoryId",
-        COUNT(es."B")::int AS "enrolledCount"
+        COUNT(es."userId")::int AS "enrolledCount"
       FROM "Course" c
-      LEFT JOIN "_EnrolledStudents" es ON es."A" = c.id
+      LEFT JOIN "CourseEnrollment" es ON es."courseId" = c.id
       WHERE c.status = 'Published'::"CourseStatus"
       GROUP BY c.id
       ORDER BY "enrolledCount" DESC

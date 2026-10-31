@@ -271,7 +271,7 @@ exports.getEnrolledCourses = async (req, res) => {
   try {
     const userId = req.user?.id;
 
-    // Fetch Enrolled Courses via "_EnrolledStudents" Junction Table
+    // Fetch Enrolled Courses via "CourseEnrollment" Junction Table
     const enrolledCourses = await db.$query`
       SELECT 
         c.*,
@@ -292,8 +292,8 @@ exports.getEnrolledCourses = async (req, res) => {
           '[]'::json
         ) AS "courseContent"
       FROM "Course" c
-      JOIN "_EnrolledStudents" es ON es."A" = c.id
-      WHERE es."B" = ${userId}
+      JOIN "CourseEnrollment" es ON es."courseId" = c.id
+      WHERE es."userId" = ${userId}
     `;
 
     const coursesWithProgress = [];
@@ -318,11 +318,11 @@ exports.getEnrolledCourses = async (req, res) => {
 
       course.totalDuration = convertSecondsToDuration(totalDurationInSeconds);
 
-      // Fetch Completed Videos Count from "_CompletedSubSections"
+      // Fetch Completed Videos Count from "CompletedSubSection"
       const progressResult = await db.$query`
-        SELECT COUNT(cv."B")::int AS "completedCount"
+        SELECT COUNT(cv."subSectionId")::int AS "completedCount"
         FROM "CourseProgress" cp
-        JOIN "_CompletedSubSections" cv ON cv."A" = cp.id
+        JOIN "CompletedSubSection" cv ON cv."courseProgressId" = cp.id
         WHERE cp."courseID" = ${course.id} AND cp."userId" = ${userId}
       `;
 
@@ -364,10 +364,10 @@ exports.instructorDashboard = async (req, res) => {
         c."courseName",
         c."courseDescription",
         c.price,
-        COUNT(es."B")::int AS "totalStudentsEnrolled"
+        COUNT(es."userId")::int AS "totalStudentsEnrolled"
       FROM "Course" c
       LEFT JOIN "User" u ON c."instructorId" = u.id
-      LEFT JOIN "_EnrolledStudents" es ON es."A" = c.id
+      LEFT JOIN "CourseEnrollment" es ON es."courseId" = c.id
       WHERE c."instructorId" = ${userId || null} OR u.email = ${email || null}
       GROUP BY c.id
     `;
