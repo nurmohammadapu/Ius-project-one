@@ -57,6 +57,12 @@ exports.createCategory = async (req, res) => {
       data: categoryDetails[0],
     });
   } catch (error) {
+    if (error.code === '23505') {
+      return res.status(400).json({
+        success: false,
+        message: "Category with this name already exists",
+      });
+    }
     return res.status(500).json({
       success: false,
       message: error.message,

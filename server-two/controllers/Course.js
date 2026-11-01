@@ -3,6 +3,34 @@ const { uploadImageToCloudinary } = require("../utils/imageUploader");
 const { convertSecondsToDuration } = require("../utils/secToDuration");
 require("dotenv").config();
 
+async function generateUniqueCourseId(categoryName) {
+  const firstWord = (categoryName || "COURSE")
+    .trim()
+    .split(/\s+/)[0]
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .toUpperCase();
+  const prefix = firstWord || "COURSE";
+
+  let courseId = "";
+  let isUnique = false;
+  let attempts = 0;
+
+  while (!isUnique && attempts < 15) {
+    const randomDigits = Math.floor(1000 + Math.random() * 9000);
+    courseId = `${prefix}-${randomDigits}`;
+
+    const existing = await db.$query`
+      SELECT id FROM "Course" WHERE id = ${courseId} LIMIT 1
+    `;
+    if (!existing || existing.length === 0) {
+      isUnique = true;
+    }
+    attempts++;
+  }
+  return courseId;
+}
+
+
 // 1. createCourse (Pure Raw Query)
 exports.createCourse = async (req, res) => {
   try {
@@ -103,6 +131,8 @@ exports.createCourse = async (req, res) => {
     let instructionsArr = Array.isArray(instructions) ? instructions : (typeof instructions === "string" ? JSON.parse(instructions) : []);
     if (!Array.isArray(instructionsArr)) instructionsArr = [instructionsArr];
 
+    const customCourseId = await generateUniqueCourseId(categoryDetails.name);
+
     const newCourseResult = await db.$query`
       INSERT INTO "Course" (
         id, "courseName", "courseDescription", "instructorId", 
@@ -110,8 +140,8 @@ exports.createCourse = async (req, res) => {
         thumbnail, status, instructions, "createdAt", "updatedAt"
       )
       VALUES (
-        gen_random_uuid()::text,
-        ${courseName},
+        ${customCourseId},
+        ${courseName.trim()},
         ${courseDescription},
         ${instructorDetails.id},
         ${whatYouWillLearn},
@@ -140,8 +170,14 @@ exports.createCourse = async (req, res) => {
       message: "Course Created Successfully",
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
+    console.error("CREATE COURSE ERROR:", error);
+    if (error.code === '23505') {
+      return res.status(400).json({
+        success: false,
+        message: "A course with this name already exists",
+      });
+    }
+    return res.status(500).json({
       success: false,
       message: "Failed to create course",
       error: error.message,
@@ -406,7 +442,22 @@ exports.editCourse = async (req, res) => {
       newThumbnail = thumbnailImage.secure_url;
     }
 
-    const courseName = updates.courseName || currentCourse.courseName;
+    const courseName = updates.courseName ? updates.courseName.trim() : currentCourse.courseName;
+
+    // Check if another course already has this name
+    if (updates.courseName && courseName.toLowerCase() !== currentCourse.courseName.toLowerCase()) {
+      const duplicate = await db.$query`
+        SELECT id FROM "Course"
+        WHERE LOWER("courseName") = LOWER(${courseName}) AND id != ${courseId}
+        LIMIT 1
+      `;
+      if (duplicate && duplicate.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "A course with this name already exists",
+        });
+      }
+    }
     const courseDescription = updates.courseDescription || currentCourse.courseDescription;
     const whatYouWillLearn = updates.whatYouWillLearn || currentCourse.whatYouWillLearn;
     const price = updates.price !== undefined ? parseFloat(updates.price) : currentCourse.price;
@@ -689,6 +740,13 @@ exports.getFullCourseDetails = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("EDIT COURSE ERROR:", error);
+    if (error.code === '23505') {
+      return res.status(400).json({
+        success: false,
+        message: "A course with this name already exists",
+      });
+    }
     return res.status(500).json({
       success: false,
       message: error.message,
