@@ -1,4 +1,16 @@
 const { db } = require("../config/database");
+function generateSlug(text) {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '') || text.toLowerCase().trim().replace(/\s+/g, '-');
+}
+
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
@@ -14,11 +26,26 @@ exports.createCategory = async (req, res) => {
         .json({ success: false, message: "All fields are required" });
     }
 
+    const trimmedName = name.trim();
+    const slugId = generateSlug(trimmedName);
+
+    const existing = await db.$query`
+      SELECT id FROM "Category" 
+      WHERE LOWER(name) = LOWER(${trimmedName}) OR id = ${slugId} 
+      LIMIT 1
+    `;
+    if (existing && existing.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Category with this name already exists",
+      });
+    }
+
     const categoryDetails = await db.$query`
       INSERT INTO "Category" (id, name, description)
       VALUES (
-        gen_random_uuid()::text,
-        ${name},
+        ${slugId},
+        ${trimmedName},
         ${description || null}
       )
       RETURNING *
@@ -224,8 +251,23 @@ exports.updateCategory = async (req, res) => {
     }
 
     const currentCat = existingCategory[0];
-    const updatedName = name || currentCat.name;
+    const updatedName = name ? name.trim() : currentCat.name;
     const updatedDescription = description !== undefined ? description : currentCat.description;
+
+    // Check if another category already has this name
+    if (name && updatedName.toLowerCase() !== currentCat.name.toLowerCase()) {
+      const duplicate = await db.$query`
+        SELECT id FROM "Category"
+        WHERE LOWER(name) = LOWER(${updatedName}) AND id != ${categoryId}
+        LIMIT 1
+      `;
+      if (duplicate && duplicate.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "A category with this name already exists",
+        });
+      }
+    }
 
     const updatedCategory = await db.$query`
       UPDATE "Category"
@@ -242,9 +284,61 @@ exports.updateCategory = async (req, res) => {
       data: updatedCategory[0],
     });
   } catch (error) {
+    if (error.code === '23505') {
+      return res.status(400).json({
+        success: false,
+        message: "A category with this name already exists",
+      });
+    }
     return res.status(500).json({
       success: false,
       message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+// 5. deleteCategory (Pure Raw Query)
+exports.deleteCategory = async (req, res) => {
+  try {
+    const { categoryId } = req.body;
+
+    if (!categoryId) {
+      return res.status(400).json({
+        success: false,
+        message: "Category ID is required",
+      });
+    }
+
+    const existingCategory = await db.$query`
+      SELECT id, name FROM "Category" WHERE id = ${categoryId} LIMIT 1
+    `;
+
+    if (!existingCategory || existingCategory.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Category not found",
+      });
+    }
+
+    // Set categoryId in courses to null before deleting
+    await db.$execute`
+      UPDATE "Course" SET "categoryId" = NULL WHERE "categoryId" = ${categoryId}
+    `;
+
+    await db.$execute`
+      DELETE FROM "Category" WHERE id = ${categoryId}
+    `;
+
+    return res.status(200).json({
+      success: true,
+      message: "Category deleted successfully",
+    });
+  } catch (error) {
+    console.error("DELETE CATEGORY ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete category",
       error: error.message,
     });
   }

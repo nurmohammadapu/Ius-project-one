@@ -37,6 +37,7 @@ import AllInstructors from './components/core/Dashboard/Admin/AllInstructors';
 import AllCourses from './components/core/Dashboard/Admin/AllCourses';
 import PendingApprovals from './components/core/Dashboard/Admin/PendingApprovals';
 import FinancialReport from './components/core/Dashboard/Admin/FinancialReport';
+import CategoryManage from './components/core/Dashboard/Admin/CategoryManage';
 import InstructorEvaluationDashboard from './components/core/Dashboard/Exam/InstructorEvaluationDashboard';
 import StudentExamsList from './components/core/Dashboard/Exam/StudentExamsList';
 
@@ -178,6 +179,7 @@ function App() {
           <Route path="dashboard/pending-approvals" element={<PendingApprovals />} />
           <Route path="dashboard/all-courses" element={<AllCourses />} />
           <Route path="dashboard/financial-report" element={<FinancialReport />} />
+          <Route path="dashboard/categories" element={<CategoryManage />} />
           </>
         )
       }

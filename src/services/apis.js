@@ -40,6 +40,9 @@ export const endpoints = {
     COURSE_DETAILS_API: BASE_URL + "/course/getCourseDetails",
     EDIT_COURSE_API: BASE_URL + "/course/editCourse",
     COURSE_CATEGORIES_API: BASE_URL + "/course/showAllCategories",
+    CREATE_CATEGORY_API: BASE_URL + "/course/createCategory",
+    UPDATE_CATEGORY_API: BASE_URL + "/course/updateCategory",
+    DELETE_CATEGORY_API: BASE_URL + "/course/deleteCategory",
     CREATE_COURSE_API: BASE_URL + "/course/createCourse",
     CREATE_SECTION_API: BASE_URL + "/course/addSection",
     CREATE_SUBSECTION_API: BASE_URL + "/course/addSubSection",
@@ -63,6 +66,9 @@ export const endpoints = {
   // CATAGORIES API
   export const categories = {
     CATEGORIES_API: BASE_URL + "/course/showAllCategories",
+    CREATE_CATEGORY_API: BASE_URL + "/course/createCategory",
+    UPDATE_CATEGORY_API: BASE_URL + "/course/updateCategory",
+    DELETE_CATEGORY_API: BASE_URL + "/course/deleteCategory",
   }
   
   // CATALOG PAGE DATA

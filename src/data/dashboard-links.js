@@ -91,4 +91,11 @@ export const sidebarLinks = [
     type: ACCOUNT_TYPE.ADMIN,
     icon: "VscGraph",
   },
+  {
+    id: 15,
+    name: "Manage Categories",
+    path: "/dashboard/categories",
+    type: ACCOUNT_TYPE.ADMIN,
+    icon: "VscFolder",
+  },
 ]

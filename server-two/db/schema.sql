@@ -1,5 +1,3 @@
--- PostgreSQL Schema for server-two database (Pure Raw SQL)
-
 -- Extension for UUID generation
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
@@ -36,15 +34,16 @@ CREATE TABLE "User" (
 
 -- Category Table
 CREATE TABLE "Category" (
-  "id" TEXT NOT NULL PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  "id" TEXT NOT NULL PRIMARY KEY,
   "name" TEXT NOT NULL UNIQUE,
   "description" TEXT
 );
 
 -- Course Table
+-- Note: 'courseName' is globally UNIQUE across the platform
 CREATE TABLE "Course" (
   "id" TEXT NOT NULL PRIMARY KEY DEFAULT gen_random_uuid()::text,
-  "courseName" TEXT NOT NULL,
+  "courseName" TEXT NOT NULL UNIQUE,
   "courseDescription" TEXT,
   "whatYouWillLearn" TEXT,
   "price" DOUBLE PRECISION,
@@ -122,6 +121,7 @@ CREATE TABLE "CompletedSubSection" (
 CREATE INDEX IF NOT EXISTS "idx_user_email" ON "User"("email");
 CREATE INDEX IF NOT EXISTS "idx_course_instructorId" ON "Course"("instructorId");
 CREATE INDEX IF NOT EXISTS "idx_course_categoryId" ON "Course"("categoryId");
+CREATE INDEX IF NOT EXISTS "idx_course_courseName" ON "Course"("courseName");
 CREATE INDEX IF NOT EXISTS "idx_section_courseId" ON "Section"("courseId");
 CREATE INDEX IF NOT EXISTS "idx_subsection_sectionId" ON "SubSection"("sectionId");
 CREATE INDEX IF NOT EXISTS "idx_rating_courseId" ON "RatingAndReview"("courseId");

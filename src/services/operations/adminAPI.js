@@ -1,6 +1,8 @@
 import { toast } from "react-hot-toast"
 import { apiConnector } from "../apiConnector"
-import { adminEndpoints } from "../apis"
+import { adminEndpoints, categories } from "../apis"
+
+const { CATEGORIES_API, CREATE_CATEGORY_API, UPDATE_CATEGORY_API, DELETE_CATEGORY_API } = categories
 
 const {
   GET_ALL_STUDENTS_API,
@@ -221,4 +223,85 @@ export async function getFinancialReport(token) {
     toast.error(error.response?.data?.message || "Could Not Fetch Financial Report")
   }
   return result
+}
+
+// CATEGORY MANAGEMENT OPERATIONS
+export async function getAdminCategories() {
+  let result = []
+  try {
+    const response = await apiConnector("GET", CATEGORIES_API)
+    if (!response?.data?.success) {
+      throw new Error(response?.data?.message || "Could Not Fetch Categories")
+    }
+    result = response?.data?.data || []
+  } catch (error) {
+    console.log("GET_CATEGORIES_API ERROR............", error)
+    toast.error(error.response?.data?.message || "Could Not Fetch Categories")
+  }
+  return result
+}
+
+export async function addCategory(data, token) {
+  let success = false
+  const toastId = toast.loading("Creating category...")
+  try {
+    const response = await apiConnector("POST", CREATE_CATEGORY_API, data, {
+      Authorization: `Bearer ${token}`,
+    })
+    if (!response.data.success) {
+      throw new Error(response.data.message)
+    }
+    toast.success("Category created successfully")
+    success = true
+  } catch (error) {
+    console.log("CREATE_CATEGORY_API ERROR............", error)
+    toast.error(error.response?.data?.message || "Failed to create category")
+  }
+  toast.dismiss(toastId)
+  return success
+}
+
+export async function editCategory(data, token) {
+  let success = false
+  const toastId = toast.loading("Updating category...")
+  try {
+    const response = await apiConnector("POST", UPDATE_CATEGORY_API, data, {
+      Authorization: `Bearer ${token}`,
+    })
+    if (!response.data.success) {
+      throw new Error(response.data.message)
+    }
+    toast.success("Category updated successfully")
+    success = true
+  } catch (error) {
+    console.log("UPDATE_CATEGORY_API ERROR............", error)
+    toast.error(error.response?.data?.message || "Failed to update category")
+  }
+  toast.dismiss(toastId)
+  return success
+}
+
+export async function removeCategory(categoryId, token) {
+  let success = false
+  const toastId = toast.loading("Deleting category...")
+  try {
+    const response = await apiConnector(
+      "POST",
+      DELETE_CATEGORY_API,
+      { categoryId },
+      {
+        Authorization: `Bearer ${token}`,
+      }
+    )
+    if (!response.data.success) {
+      throw new Error(response.data.message)
+    }
+    toast.success("Category deleted successfully")
+    success = true
+  } catch (error) {
+    console.log("DELETE_CATEGORY_API ERROR............", error)
+    toast.error(error.response?.data?.message || "Failed to delete category")
+  }
+  toast.dismiss(toastId)
+  return success
 }

@@ -78,6 +78,20 @@ exports.createCourse = async (req, res) => {
       });
     }
 
+    // Check if course with same name already exists globally
+    const existingCourse = await db.$query`
+      SELECT id FROM "Course"
+      WHERE LOWER("courseName") = LOWER(${courseName.trim()})
+      LIMIT 1
+    `;
+
+    if (existingCourse && existingCourse.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "A course with this name already exists",
+      });
+    }
+
     const thumbnailImage = await uploadImageToCloudinary(
       thumbnail,
       process.env.FOLDER_NAME
