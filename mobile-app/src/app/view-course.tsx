@@ -1,11 +1,11 @@
 import { useEffect, useState, useRef } from "react";
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Modal, TextInput } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "../navigation/navigationShim";
 import { getFullDetailsOfCourse, fetchCourseDetails, markLectureAsComplete, createRating } from "../services/operations/courseDetailsAPI";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "react-native-vector-icons/Ionicons";
 import { useSelector } from "react-redux";
-import { Video, ResizeMode } from "expo-av";
+import { Video, ResizeMode } from "../utils/videoShim";
 import { useColorScheme } from "nativewind";
 
 export default function ViewCourseScreen() {

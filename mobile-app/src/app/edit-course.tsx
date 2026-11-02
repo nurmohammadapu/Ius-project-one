@@ -4,9 +4,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { setStep, setCourse, setEditCourse, resetCourseState } from "../redux/slices/courseSlice";
 import { getFullDetailsOfCourse, fetchCourseDetails, fetchCourseCategories, editCourseDetails, createSection, updateSection, deleteSection, createSubSection, updateSubSection, deleteSubSection } from "../services/operations/courseDetailsAPI";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import * as ImagePicker from "expo-image-picker";
+import { useRouter, useLocalSearchParams } from "../navigation/navigationShim";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import * as ImagePicker from "../utils/imagePickerShim";
 import { useColorScheme } from "nativewind";
 
 export default function EditCourseScreen() {

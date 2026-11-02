@@ -3,8 +3,8 @@ import { View, Text, Image, TouchableOpacity, ScrollView, ActivityIndicator, Ale
 import { useSelector } from "react-redux";
 import { fetchInstructorCourses, deleteCourse } from "../services/operations/courseDetailsAPI";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter, useFocusEffect } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { useRouter, useFocusEffect } from "../navigation/navigationShim";
+import Ionicons from "react-native-vector-icons/Ionicons";
 import { useColorScheme } from "nativewind";
 
 export default function MyCoursesScreen() {

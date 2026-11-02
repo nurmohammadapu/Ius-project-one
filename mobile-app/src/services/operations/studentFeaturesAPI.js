@@ -1,5 +1,5 @@
 import { Alert } from "react-native";
-import * as WebBrowser from "expo-web-browser";
+import { Linking } from "react-native";
 import { resetCart } from "../../redux/slices/cartSlice";
 import { setPaymentLoading } from "../../redux/slices/courseSlice";
 import { apiConnector } from "../apiConnector";
@@ -25,7 +25,7 @@ export async function BuyCourse(token, courses, user_details, router, dispatch) 
       const { sessionUrl, sessionId } = response.data.data;
       
       // 2. Open Stripe Checkout page in native WebBrowser
-      await WebBrowser.openBrowserAsync(sessionUrl);
+      await Linking.openURL(sessionUrl);
 
       // 3. Verify Stripe Payment with backend when returning to app
       try {

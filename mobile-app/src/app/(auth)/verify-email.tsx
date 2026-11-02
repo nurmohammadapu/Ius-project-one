@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Alert } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { useRouter } from "expo-router";
+import { useRouter } from "../../navigation/navigationShim";
 import { signUp } from "../../services/operations/authAPI";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -13,11 +13,11 @@ export default function VerifyEmailScreen() {
 
   const handleVerifyAndSignup = () => {
     if (!otp) {
-      alert("Please enter the OTP");
+      Alert.alert("Error", "Please enter the OTP");
       return;
     }
     if (!signupData) {
-      alert("Signup data missing. Please fill in registration details again.");
+      Alert.alert("Error", "Signup data missing. Please fill in registration details again.");
       router.push("/(auth)/signup");
       return;
     }

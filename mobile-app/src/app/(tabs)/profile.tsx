@@ -3,8 +3,8 @@ import { View, Text, Image, TouchableOpacity, ScrollView, Modal, TextInput, Acti
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../services/operations/authAPI";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "../../navigation/navigationShim";
+import Ionicons from "react-native-vector-icons/Ionicons";
 import { apiConnector } from "../../services/apiConnector";
 import { settingsEndpoints } from "../../services/apis";
 import { setUser } from "../../redux/slices/profileSlice";

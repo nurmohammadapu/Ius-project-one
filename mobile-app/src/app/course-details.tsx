@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator, Alert, Modal, TextInput } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "../navigation/navigationShim";
 import { fetchCourseDetails } from "../services/operations/courseDetailsAPI";
 import { executeDirectMobilePayment } from "../services/operations/studentFeaturesAPI";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "react-native-vector-icons/Ionicons";
 import { useDispatch, useSelector } from "react-redux";
 import { useColorScheme } from "nativewind";
 

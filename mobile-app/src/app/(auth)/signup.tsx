@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Alert } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { useRouter } from "expo-router";
+import { useRouter } from "../../navigation/navigationShim";
 import { setSignupData } from "../../redux/slices/authSlice";
 import { sendOtp } from "../../services/operations/authAPI";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 export default function SignupScreen() {
   const [accountType, setAccountType] = useState("Student"); // "Student" | "Instructor"
@@ -22,11 +22,11 @@ export default function SignupScreen() {
 
   const handleSignup = () => {
     if (!firstName || !lastName || !email || !password || !confirmPassword) {
-      alert("Please fill in all fields");
+      Alert.alert("Error", "Please fill in all fields");
       return;
     }
     if (password !== confirmPassword) {
-      alert("Passwords do not match");
+      Alert.alert("Error", "Passwords do not match");
       return;
     }
 

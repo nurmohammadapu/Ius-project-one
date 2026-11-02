@@ -5,8 +5,8 @@ import { getUserEnrolledCourses, getInstructorData } from "../../services/operat
 import { fetchInstructorCourses } from "../../services/operations/courseDetailsAPI";
 import { getFinancialReport } from "../../services/operations/adminAPI";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter, useFocusEffect } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { useRouter, useFocusEffect } from "../../navigation/navigationShim";
+import Ionicons from "react-native-vector-icons/Ionicons";
 import { useColorScheme } from "nativewind";
 
 export default function DashboardScreen() {

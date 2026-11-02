@@ -1,19 +1,26 @@
-import { Tabs } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import React from "react";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import Ionicons from "react-native-vector-icons/Ionicons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Platform } from "react-native";
 import { useColorScheme } from "nativewind";
 
-export default function TabsLayout() {
+import HomeScreen from "../app/(tabs)/index";
+import CatalogScreen from "../app/(tabs)/catalog";
+import DashboardScreen from "../app/(tabs)/dashboard";
+import ProfileScreen from "../app/(tabs)/profile";
+
+const Tab = createBottomTabNavigator();
+
+export default function TabNavigator() {
   const insets = useSafeAreaInsets();
   const { colorScheme } = useColorScheme();
   const bottomPadding = Platform.OS === "ios" ? (insets.bottom > 0 ? insets.bottom : 8) : Math.max(insets.bottom, 8);
   const tabHeight = 56 + bottomPadding;
-
   const isDark = colorScheme === "dark";
 
   return (
-    <Tabs
+    <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
@@ -34,8 +41,9 @@ export default function TabsLayout() {
         },
       }}
     >
-      <Tabs.Screen
-        name="index"
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
         options={{
           title: "Home",
           tabBarIcon: ({ color, size }) => (
@@ -43,8 +51,9 @@ export default function TabsLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="catalog"
+      <Tab.Screen
+        name="Catalog"
+        component={CatalogScreen}
         options={{
           title: "Catalog",
           tabBarIcon: ({ color, size }) => (
@@ -52,8 +61,9 @@ export default function TabsLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="dashboard"
+      <Tab.Screen
+        name="Dashboard"
+        component={DashboardScreen}
         options={{
           title: "Dashboard",
           tabBarIcon: ({ color, size }) => (
@@ -61,8 +71,9 @@ export default function TabsLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="profile"
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
         options={{
           title: "Profile",
           tabBarIcon: ({ color, size }) => (
@@ -70,6 +81,7 @@ export default function TabsLayout() {
           ),
         }}
       />
-    </Tabs>
+    </Tab.Navigator>
   );
 }
+

@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Modal, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { useRouter, useLocalSearchParams } from "../navigation/navigationShim";
+import Ionicons from "react-native-vector-icons/Ionicons";
 import { useColorScheme } from "nativewind";
-import * as ImagePicker from "expo-image-picker";
+import * as ImagePicker from "../utils/imagePickerShim";
 import { getStudentExams, submitExam } from "../services/operations/examAPI";
 
 export default function MyExamsScreen() {

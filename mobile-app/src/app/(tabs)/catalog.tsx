@@ -4,7 +4,7 @@ import { fetchCourseCategories } from "../../services/operations/courseDetailsAP
 import { apiConnector } from "../../services/apiConnector";
 import { catalogData } from "../../services/apis";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams } from "../../navigation/navigationShim";
 
 export default function CatalogScreen() {
   const params = useLocalSearchParams();

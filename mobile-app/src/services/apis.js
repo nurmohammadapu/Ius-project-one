@@ -1,5 +1,5 @@
 // Update this with your machine's local IP when testing on physical devices or emulator
-export const BASE_URL = "http://10.0.31.238:5001/api/v1";
+export const BASE_URL = "http://192.168.0.107:5001/api/v1";
 // export const BASE_URL = "http://192.168.1.167:5001/api/v1";
 
 // AUTH ENDPOINTS

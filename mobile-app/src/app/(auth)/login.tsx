@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Alert } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { useRouter } from "expo-router";
+import { useRouter } from "../../navigation/navigationShim";
 import { login } from "../../services/operations/authAPI";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -16,7 +16,7 @@ export default function LoginScreen() {
 
   const handleLogin = () => {
     if (!email || !password) {
-      alert("Please fill in all fields");
+      Alert.alert("Error", "Please fill in all fields");
       return;
     }
     dispatch(login(email, password, router) as any);
@@ -76,7 +76,7 @@ export default function LoginScreen() {
             </View>
 
             <TouchableOpacity
-              onPress={() => alert("Password reset link is sent via web frontend")}
+              onPress={() => Alert.alert("Notice", "Password reset link is sent via web frontend")}
               className="align-self-end mt-2"
             >
               <Text className="text-xs text-blue-200 text-right">Forgot Password?</Text>

@@ -3,8 +3,8 @@ import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Image, Ale
 import { useSelector } from "react-redux";
 import { getPendingInstructors, manageInstructor } from "../../services/operations/adminAPI";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter, useFocusEffect } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { useRouter, useFocusEffect } from "../../navigation/navigationShim";
+import Ionicons from "react-native-vector-icons/Ionicons";
 import { useColorScheme } from "nativewind";
 
 export default function PendingApprovalsScreen() {

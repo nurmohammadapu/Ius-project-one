@@ -3,8 +3,8 @@ import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator,
 import { useSelector } from "react-redux";
 import { getAllStudents, toggleUserStatus, deleteUser, createUser } from "../../services/operations/adminAPI";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter, useFocusEffect } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { useRouter, useFocusEffect } from "../../navigation/navigationShim";
+import Ionicons from "react-native-vector-icons/Ionicons";
 import { useColorScheme } from "nativewind";
 
 export default function AllStudentsScreen() {

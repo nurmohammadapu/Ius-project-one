@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image } from "react-native";
 import { getAllCourses, fetchCourseCategories } from "../../services/operations/courseDetailsAPI";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "../../navigation/navigationShim";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 export default function HomeScreen() {
   const [courses, setCourses] = useState<any[]>([]);
