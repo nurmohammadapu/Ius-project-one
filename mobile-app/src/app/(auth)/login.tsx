@@ -1,18 +1,40 @@
-import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Alert } from "react-native";
+import { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Alert,
+} from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "../../navigation/navigationShim";
 import { login } from "../../services/operations/authAPI";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import ServerConfigModal from "../../components/ServerConfigModal";
+import { getServerUrl } from "../../services/apiConnector";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [activeUrl, setActiveUrl] = useState("");
   const { loading } = useSelector((state: any) => state.auth);
   const dispatch = useDispatch();
   const router = useRouter();
+
+  const refreshUrl = () => {
+    getServerUrl().then((u) => setActiveUrl(u));
+  };
+
+  useEffect(() => {
+    refreshUrl();
+  }, [modalVisible]);
 
   const handleLogin = () => {
     if (!email || !password) {
@@ -28,9 +50,35 @@ export default function LoginScreen() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1"
       >
-        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }} className="px-6">
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
+          className="px-6 py-4"
+        >
+          {/* Top Server IP bar */}
+          <View className="flex-row justify-between items-center mb-6">
+            <TouchableOpacity
+              onPress={() => setModalVisible(true)}
+              className="flex-row items-center bg-richblack-800 px-3 py-1.5 rounded-full border border-richblack-700"
+            >
+              <Ionicons name="hardware-chip-outline" size={16} color="#FFD60A" />
+              <Text className="text-xs text-yellow-50 ml-1.5 font-medium max-w-[200px]" numberOfLines={1}>
+                {activeUrl.replace("http://", "").replace("/api/v1", "") || "Server Settings"}
+              </Text>
+              <Ionicons name="settings-outline" size={14} color="#999DAA" style={{ marginLeft: 6 }} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => setModalVisible(true)}
+              className="p-2"
+            >
+              <Ionicons name="settings-sharp" size={20} color="#FFD60A" />
+            </TouchableOpacity>
+          </View>
+
           <View className="mb-8">
-            <Text className="text-3xl font-bold text-richblack-900 dark:text-richblack-5 mb-2">Welcome Back</Text>
+            <Text className="text-3xl font-bold text-richblack-900 dark:text-richblack-5 mb-2">
+              Welcome Back
+            </Text>
             <Text className="text-base text-richblack-700 dark:text-richblack-100">
               Discover your passion, <Text className="italic text-blue-200">Be unstoppable</Text>
             </Text>
@@ -38,7 +86,9 @@ export default function LoginScreen() {
 
           <View className="space-y-4">
             <View>
-              <Text className="text-sm font-medium text-richblack-900 dark:text-richblack-5 mb-2">Email Address *</Text>
+              <Text className="text-sm font-medium text-richblack-900 dark:text-richblack-5 mb-2">
+                Email Address *
+              </Text>
               <TextInput
                 placeholder="Enter email address"
                 placeholderTextColor="#999DAA"
@@ -51,7 +101,9 @@ export default function LoginScreen() {
             </View>
 
             <View className="mt-4">
-              <Text className="text-sm font-medium text-richblack-900 dark:text-richblack-5 mb-2">Password *</Text>
+              <Text className="text-sm font-medium text-richblack-900 dark:text-richblack-5 mb-2">
+                Password *
+              </Text>
               <View className="w-full relative justify-center">
                 <TextInput
                   placeholder="Enter Password"
@@ -96,13 +148,20 @@ export default function LoginScreen() {
           </View>
 
           <View className="flex-row justify-center items-center mt-8">
-            <Text className="text-richblack-700 dark:text-richblack-100 text-sm">Don't have an account? </Text>
+            <Text className="text-richblack-700 dark:text-richblack-100 text-sm">
+              Don't have an account?{" "}
+            </Text>
             <TouchableOpacity onPress={() => router.push("/(auth)/signup")}>
               <Text className="text-yellow-50 text-sm font-bold">Create Account</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <ServerConfigModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+      />
     </SafeAreaView>
   );
 }

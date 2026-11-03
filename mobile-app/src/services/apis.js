@@ -1,22 +1,6 @@
-// Update this with your machine's local IP when testing on physical devices or emulator
-import { NativeModules } from "react-native";
+import { DEFAULT_SERVER_URL } from "./apiConnector";
 
-// Automatically detects the laptop's IP address from Metro bundler on ANY Wi-Fi / Hotspot network
-const getDevHost = () => {
-  try {
-    const scriptURL = NativeModules?.SourceCode?.scriptURL;
-    if (scriptURL) {
-      const match = scriptURL.match(/https?:\/\/([^:\/]+)/);
-      if (match && match[1] && match[1] !== "localhost" && match[1] !== "127.0.0.1") {
-        return match[1];
-      }
-    }
-  } catch (e) {}
-  return "192.168.0.107";
-};
-
-export const BASE_URL = `http://${getDevHost()}:5001/api/v1`;
-// export const BASE_URL = "http://192.168.1.167:5001/api/v1";
+export const BASE_URL = DEFAULT_SERVER_URL;
 
 // AUTH ENDPOINTS
 export const endpoints = {
