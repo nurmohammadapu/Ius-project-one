@@ -7,6 +7,7 @@ export const sidebarLinks = [
     path: "/dashboard/my-profile",
     icon: "VscAccount",
   },
+  // INSTRUCTOR LINKS
   {
     id: 2,
     name: "Dashboard",
@@ -36,6 +37,22 @@ export const sidebarLinks = [
     icon: "VscPass",
   },
   {
+    id: 16,
+    name: "Certificates",
+    path: "/dashboard/instructor-certificates",
+    type: ACCOUNT_TYPE.INSTRUCTOR,
+    icon: "VscWorkspaceTrusted",
+  },
+  {
+    id: 17,
+    name: "Leaderboard",
+    path: "/dashboard/instructor-leaderboard",
+    type: ACCOUNT_TYPE.INSTRUCTOR,
+    icon: "VscFlame",
+  },
+
+  // STUDENT LINKS
+  {
     id: 5,
     name: "Enrolled Courses",
     path: "/dashboard/enrolled-courses",
@@ -56,6 +73,22 @@ export const sidebarLinks = [
     type: ACCOUNT_TYPE.STUDENT,
     icon: "VscTasklist",
   },
+  {
+    id: 18,
+    name: "My Certificates",
+    path: "/dashboard/my-certificates",
+    type: ACCOUNT_TYPE.STUDENT,
+    icon: "VscWorkspaceTrusted",
+  },
+  {
+    id: 19,
+    name: "Leaderboard",
+    path: "/dashboard/leaderboard",
+    type: ACCOUNT_TYPE.STUDENT,
+    icon: "VscFlame",
+  },
+
+  // ADMIN LINKS
   {
     id: 8,
     name: "All Students",
@@ -97,5 +130,19 @@ export const sidebarLinks = [
     path: "/dashboard/categories",
     type: ACCOUNT_TYPE.ADMIN,
     icon: "VscFolder",
+  },
+  {
+    id: 20,
+    name: "All Certificates",
+    path: "/dashboard/all-certificates",
+    type: ACCOUNT_TYPE.ADMIN,
+    icon: "VscWorkspaceTrusted",
+  },
+  {
+    id: 21,
+    name: "Leaderboard",
+    path: "/dashboard/admin-leaderboard",
+    type: ACCOUNT_TYPE.ADMIN,
+    icon: "VscFlame",
   },
 ]

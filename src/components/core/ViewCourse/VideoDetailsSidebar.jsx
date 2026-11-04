@@ -1,17 +1,25 @@
 import { useEffect, useState } from "react"
 import { BsChevronDown } from "react-icons/bs"
 import { IoIosArrowBack } from "react-icons/io"
+import { FiAward } from "react-icons/fi"
 import { useSelector } from "react-redux"
 import { useLocation, useNavigate, useParams } from "react-router-dom"
 
 import IconBtn from "../../Common/IconBtn"
+import { getCourseCertificate } from "../../../services/operations/certificateAPI"
+import CertificateModal from "../Course/CertificateModal"
 
 export default function VideoDetailsSidebar({ setReviewModal }) {
   const [activeStatus, setActiveStatus] = useState("")
   const [videoBarActive, setVideoBarActive] = useState("")
+  const [showCertModal, setShowCertModal] = useState(false)
+  const [certData, setCertData] = useState(null)
+  const [certLoading, setCertLoading] = useState(false)
+
   const navigate = useNavigate()
   const location = useLocation()
   const { sectionId, subSectionId } = useParams()
+  const { token } = useSelector((state) => state.auth)
   const { user } = useSelector((state) => state.profile)
   const {
     courseSectionData,
@@ -23,6 +31,22 @@ export default function VideoDetailsSidebar({ setReviewModal }) {
   const alreadyReviewed = courseEntireData?.ratingAndReviews?.some(
     (review) => review.userId === user?.id || review.userId === user?._id
   )
+
+  const isCourseComplete =
+    totalNoOfLectures > 0 && completedLectures?.length >= totalNoOfLectures
+
+  const handleOpenCert = async () => {
+    const courseId = courseEntireData?.id || courseEntireData?._id
+    if (!courseId) return
+
+    setCertLoading(true)
+    const cert = await getCourseCertificate(courseId, token)
+    if (cert) {
+      setCertData(cert)
+      setShowCertModal(true)
+    }
+    setCertLoading(false)
+  }
 
   useEffect(() => {
     ;(() => {
@@ -42,7 +66,6 @@ export default function VideoDetailsSidebar({ setReviewModal }) {
         ]?._id
       setActiveStatus(courseSectionData?.[currentSectionIndx]?.id || courseSectionData?.[currentSectionIndx]?._id)
       setVideoBarActive(activeSubSectionId)
-      
     })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseSectionData, courseEntireData, location.pathname])
@@ -50,14 +73,14 @@ export default function VideoDetailsSidebar({ setReviewModal }) {
   return (
     <>
       <div className="flex h-[calc(100vh-3.5rem)] w-full lg:w-[320px] lg:max-w-[350px] flex-col border-r-[1px] border-r-richblack-700 bg-richblack-800">
-        <div className="mx-5 flex flex-col items-start justify-between gap-2 gap-y-4 border-b border-richblack-600 py-5 text-lg font-bold text-richblack-25">
+        <div className="mx-5 flex flex-col items-start justify-between gap-2 gap-y-3 border-b border-richblack-600 py-5 text-lg font-bold text-richblack-25">
           <div className="flex w-full items-center justify-between ">
             <div
               onClick={() => {
                 navigate(`/dashboard/enrolled-courses`)
               }}
-              className="flex h-[35px] w-[35px] items-center justify-center rounded-full bg-richblack-100 p-1 text-richblack-700 hover:scale-90"
-              title="back"
+              className="flex h-[35px] w-[35px] items-center justify-center rounded-full bg-richblack-100 p-1 text-richblack-700 hover:scale-90 cursor-pointer"
+              title="Back to enrolled courses"
             >
               <IoIosArrowBack size={30} />
             </div>
@@ -79,11 +102,30 @@ export default function VideoDetailsSidebar({ setReviewModal }) {
               />
             )}
           </div>
-          <div className="flex flex-col">
-            <p>{courseEntireData?.courseName}</p>
-            <p className="text-sm font-semibold text-richblack-500">
-              {completedLectures?.length} / {totalNoOfLectures}
-            </p>
+
+          <div className="flex flex-col w-full">
+            <p className="truncate text-base">{courseEntireData?.courseName}</p>
+            <div className="flex items-center justify-between mt-1">
+              <p className="text-xs font-semibold text-richblack-400">
+                {completedLectures?.length} / {totalNoOfLectures} Completed
+              </p>
+              {isCourseComplete && (
+                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                  100% Done
+                </span>
+              )}
+            </div>
+
+            {/* Claim Certificate Button */}
+            {isCourseComplete && (
+              <button
+                onClick={handleOpenCert}
+                disabled={certLoading}
+                className="mt-3 w-full flex items-center justify-center gap-1.5 rounded-lg bg-yellow-50 px-3 py-2 text-xs font-bold text-richblack-900 hover:bg-yellow-100 transition shadow animate-pulse"
+              >
+                <FiAward className="text-base" /> {certLoading ? "Loading..." : "Claim Certificate 🎓"}
+              </button>
+            )}
           </div>
         </div>
 
@@ -108,8 +150,8 @@ export default function VideoDetailsSidebar({ setReviewModal }) {
                   <span
                     className={`${
                       activeStatus === (course?.id || course?._id)
-                        ? "rotate-180"
-                        : "rotate-0"
+                        ? "rotate-0"
+                        : "rotate-180"
                     } transition-all duration-500`}
                   >
                     <BsChevronDown />
@@ -122,7 +164,7 @@ export default function VideoDetailsSidebar({ setReviewModal }) {
                 <div className="transition-[height] duration-500 ease-in-out">
                   {course.subSection.map((topic, i) => (
                     <div
-                      className={`flex gap-3  px-5 py-2 ${
+                      className={`flex gap-3 px-5 py-2 ${
                         videoBarActive === (topic?.id || topic?._id)
                           ? "bg-yellow-200 font-semibold text-richblack-800"
                           : "hover:bg-richblack-900"
@@ -152,9 +194,14 @@ export default function VideoDetailsSidebar({ setReviewModal }) {
           ))}
         </div>
       </div>
+
+      {/* Certificate Modal */}
+      {showCertModal && certData && (
+        <CertificateModal
+          certificate={certData}
+          onClose={() => setShowCertModal(false)}
+        />
+      )}
     </>
   )
 }
-
-
-

@@ -181,3 +181,19 @@ CREATE INDEX IF NOT EXISTS "idx_exam_subSectionId" ON "Exam"("subSectionId");
 CREATE INDEX IF NOT EXISTS "idx_question_examId" ON "Question"("examId");
 CREATE INDEX IF NOT EXISTS "idx_submission_examId" ON "ExamSubmission"("examId");
 CREATE INDEX IF NOT EXISTS "idx_submission_studentId" ON "ExamSubmission"("studentId");
+
+
+-- Certificate Table
+CREATE TABLE IF NOT EXISTS "Certificate" (
+  "id" TEXT NOT NULL PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  "certificateId" TEXT NOT NULL UNIQUE,
+  "userId" TEXT NOT NULL REFERENCES "User"("id") ON DELETE CASCADE,
+  "courseId" TEXT NOT NULL REFERENCES "Course"("id") ON DELETE CASCADE,
+  "issueDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT "Certificate_userId_courseId_key" UNIQUE ("userId", "courseId")
+);
+
+-- Indexes for Certificates
+CREATE INDEX IF NOT EXISTS "idx_certificate_certificateId" ON "Certificate"("certificateId");
+CREATE INDEX IF NOT EXISTS "idx_certificate_userId" ON "Certificate"("userId");
+CREATE INDEX IF NOT EXISTS "idx_certificate_courseId" ON "Certificate"("courseId");

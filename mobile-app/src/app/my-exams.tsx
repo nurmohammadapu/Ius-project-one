@@ -21,6 +21,7 @@ export default function MyExamsScreen() {
 
   // Player state
   const [activeExam, setActiveExam] = useState<any>(null);
+  const [isPracticeMode, setIsPracticeMode] = useState<boolean>(false);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -33,6 +34,7 @@ export default function MyExamsScreen() {
       if (autoTakeExamId) {
         const found = res.find((e: any) => e.id === autoTakeExamId);
         if (found) {
+          setIsPracticeMode(!!found.submission);
           setActiveExam(found);
         }
       }
@@ -64,6 +66,7 @@ export default function MyExamsScreen() {
 
   const handleClosePlayer = () => {
     setActiveExam(null);
+    setIsPracticeMode(false);
     setSelectedAnswers({});
     setSelectedImage(null);
     fetchExams();
@@ -86,8 +89,10 @@ export default function MyExamsScreen() {
               setSubmitting(false);
               if (res) {
                 Alert.alert(
-                  "Exam Graded 🏆",
-                  `Obtained Marks: ${res.obtainedMarks}/${activeExam.totalMarks}\nStatus: ${res.status}`
+                  isPracticeMode ? "Practice Completed 🎯" : "Exam Graded 🏆",
+                  `Obtained Marks: ${res.obtainedMarks}/${activeExam.totalMarks}\nStatus: ${res.status}${
+                    isPracticeMode ? "\n(Note: Practice mode did not affect your official leaderboard rank.)" : ""
+                  }`
                 );
                 handleClosePlayer();
               }
@@ -101,8 +106,10 @@ export default function MyExamsScreen() {
       setSubmitting(false);
       if (res) {
         Alert.alert(
-          "Exam Graded 🏆",
-          `Obtained Marks: ${res.obtainedMarks}/${activeExam.totalMarks}\nStatus: ${res.status}`
+          isPracticeMode ? "Practice Completed 🎯" : "Exam Graded 🏆",
+          `Obtained Marks: ${res.obtainedMarks}/${activeExam.totalMarks}\nStatus: ${res.status}${
+            isPracticeMode ? "\n(Note: Practice mode did not affect your official leaderboard rank.)" : ""
+          }`
         );
         handleClosePlayer();
       }
@@ -252,34 +259,74 @@ export default function MyExamsScreen() {
                     Total Marks: <Text className="font-bold dark:text-white">{exam.totalMarks}</Text>
                   </Text>
 
-                  {hasSubmitted ? (
+                  {hasSubmitted && (
                     isPending ? (
-                      <View className="bg-yellow-500/10 border border-yellow-50/20 px-3 py-1.5 rounded-lg">
-                        <Text className="text-yellow-50 text-xs font-bold">Pending Grading</Text>
+                      <View className="bg-yellow-500/10 border border-yellow-50/20 px-2.5 py-1 rounded-lg">
+                        <Text className="text-yellow-50 text-xxs font-bold">Pending Grading</Text>
                       </View>
                     ) : (
                       <View
-                        className={`px-3 py-1.5 rounded-lg flex-row items-center ${
+                        className={`px-2.5 py-1 rounded-lg flex-row items-center ${
                           isPassed ? "bg-emerald-500/10 border border-emerald-500/20" : "bg-pink-500/10 border border-pink-500/20"
                         }`}
                       >
                         <Ionicons
                           name={isPassed ? "checkmark-circle" : "alert-circle"}
-                          size={14}
+                          size={12}
                           color={isPassed ? "#10B981" : "#EF4444"}
                         />
-                        <Text className={`text-xs font-bold ml-1 ${isPassed ? "text-emerald-400" : "text-pink-400"}`}>
-                          Result: {submission.obtainedMarks}/{exam.totalMarks}
+                        <Text className={`text-xxs font-bold ml-1 ${isPassed ? "text-emerald-400" : "text-pink-400"}`}>
+                          Score: {submission.obtainedMarks}/{exam.totalMarks}
                         </Text>
                       </View>
                     )
+                  )}
+                </View>
+
+                {/* Bottom Action Buttons (Leaderboard & Take/Retake Exam) */}
+                <View className="flex-row items-center space-x-2 mt-3 pt-3 border-t border-pure-greys-25 dark:border-richblack-700/60">
+                  {/* View Leaderboard Button */}
+                  <TouchableOpacity
+                    onPress={() =>
+                      router.push({
+                        pathname: "/leaderboard",
+                        params: { initialExamId: exam.id },
+                      })
+                    }
+                    className="flex-1 bg-white dark:bg-richblack-900 border border-pure-greys-50 dark:border-richblack-700 py-2 rounded-lg flex-row items-center justify-center mr-2"
+                  >
+                    <Ionicons name="trophy-outline" size={14} color="#FFD60A" />
+                    <Text className="text-richblack-900 dark:text-richblack-100 font-bold text-xs ml-1">
+                      Leaderboard
+                    </Text>
+                  </TouchableOpacity>
+
+                  {/* Take or Retake Exam Button */}
+                  {hasSubmitted ? (
+                    <TouchableOpacity
+                      onPress={() => {
+                        setIsPracticeMode(true);
+                        setActiveExam(exam);
+                      }}
+                      className="flex-1 bg-yellow-50/15 border border-yellow-50/30 py-2 rounded-lg flex-row items-center justify-center"
+                    >
+                      <Ionicons name="refresh-outline" size={14} color="#FFD60A" />
+                      <Text className="text-yellow-50 font-bold text-xs ml-1">
+                        Practice Retake
+                      </Text>
+                    </TouchableOpacity>
                   ) : (
                     <TouchableOpacity
-                      onPress={() => setActiveExam(exam)}
-                      className="bg-yellow-50 px-4 py-1.5 rounded-lg flex-row items-center"
+                      onPress={() => {
+                        setIsPracticeMode(false);
+                        setActiveExam(exam);
+                      }}
+                      className="flex-1 bg-yellow-50 py-2 rounded-lg flex-row items-center justify-center"
                     >
                       <Ionicons name="create-outline" size={14} color="#000" />
-                      <Text className="text-richblack-900 font-bold text-xs ml-1">Take Exam</Text>
+                      <Text className="text-richblack-900 font-bold text-xs ml-1">
+                        Take Exam
+                      </Text>
                     </TouchableOpacity>
                   )}
                 </View>
@@ -295,15 +342,32 @@ export default function MyExamsScreen() {
           <SafeAreaView className="flex-1 bg-pure-greys-5 dark:bg-richblack-900">
             {/* Player Header */}
             <View className="px-4 py-3 border-b border-pure-greys-25 dark:border-richblack-800 flex-row items-center justify-between bg-white dark:bg-richblack-900">
-              <Text className="text-lg font-bold text-richblack-900 dark:text-richblack-5 flex-1" numberOfLines={1}>
-                {activeExam.title}
-              </Text>
+              <View className="flex-1 mr-2">
+                <Text className="text-lg font-bold text-richblack-900 dark:text-richblack-5" numberOfLines={1}>
+                  {activeExam.title}
+                </Text>
+                {isPracticeMode && (
+                  <Text className="text-[10px] text-yellow-50 font-semibold">
+                    📝 Practice Mode (Self-Assessment)
+                  </Text>
+                )}
+              </View>
               <TouchableOpacity onPress={handleClosePlayer} className="p-1">
                 <Ionicons name="close" size={24} color={isDark ? "#F1F2FF" : "#000814"} />
               </TouchableOpacity>
             </View>
 
             <ScrollView className="flex-1 px-4 py-4" showsVerticalScrollIndicator={false}>
+              {/* Practice Mode Callout */}
+              {isPracticeMode && (
+                <View className="bg-yellow-500/10 border border-yellow-500/30 p-3 rounded-xl mb-4 flex-row items-center">
+                  <Ionicons name="information-circle-outline" size={18} color="#FFD60A" />
+                  <Text className="text-xs text-yellow-100 ml-2 flex-1">
+                    You are in <strong>Practice Mode</strong>. You will receive immediate score feedback, but your official leaderboard ranking will remain unchanged.
+                  </Text>
+                </View>
+              )}
+
               <View className="mb-4">
                 <Text className="text-xxs font-semibold uppercase text-yellow-50 bg-yellow-500/10 px-2 py-0.5 rounded self-start">
                   {activeExam.examType} Exam
@@ -340,12 +404,15 @@ export default function MyExamsScreen() {
                               <TouchableOpacity
                                 key={oIdx}
                                 onPress={() =>
-                                  setSelectedAnswers((prev) => ({ ...prev, [q.id]: String(oIdx) }))
+                                  setSelectedAnswers((prev) => ({
+                                    ...prev,
+                                    [q.id]: String(oIdx),
+                                  }))
                                 }
-                                className={`flex-row items-center p-3 rounded-lg border mb-2 ${
+                                className={`p-3 rounded-xl border flex-row items-center mb-2 ${
                                   isSelected
-                                    ? "bg-yellow-50/10 border-yellow-50"
-                                    : "bg-pure-greys-5 border-pure-greys-50 dark:bg-richblack-900 dark:border-richblack-800"
+                                    ? "bg-yellow-500/15 border-yellow-50"
+                                    : "bg-pure-greys-5 dark:bg-richblack-900 border-pure-greys-50 dark:border-richblack-700"
                                 }`}
                               >
                                 <View
@@ -422,7 +489,9 @@ export default function MyExamsScreen() {
                 ) : (
                   <>
                     <Ionicons name="cloud-upload" size={18} color="#000" />
-                    <Text className="text-richblack-900 font-bold text-sm ml-2">Submit Answers</Text>
+                    <Text className="text-richblack-900 font-bold text-sm ml-2">
+                      {isPracticeMode ? "Submit Practice Attempt" : "Submit Official Exam"}
+                    </Text>
                   </>
                 )}
               </TouchableOpacity>

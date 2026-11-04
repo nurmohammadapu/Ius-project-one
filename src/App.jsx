@@ -40,16 +40,15 @@ import FinancialReport from './components/core/Dashboard/Admin/FinancialReport';
 import CategoryManage from './components/core/Dashboard/Admin/CategoryManage';
 import InstructorEvaluationDashboard from './components/core/Dashboard/Exam/InstructorEvaluationDashboard';
 import StudentExamsList from './components/core/Dashboard/Exam/StudentExamsList';
-
-
-
-
-
-
+import VerifyCertificate from './pages/VerifyCertificate';
+import MyCertificates from './components/core/Dashboard/MyCertificates';
+import LeaderboardPage from './components/core/Dashboard/Exam/LeaderboardPage';
+import InstructorCertificates from './components/core/Dashboard/InstructorCertificates';
+import InstructorLeaderboardPage from './components/core/Dashboard/Exam/InstructorLeaderboardPage';
+import AdminCertificates from './components/core/Dashboard/Admin/AdminCertificates';
+import AdminLeaderboardPage from './components/core/Dashboard/Admin/AdminLeaderboardPage';
 
 function App() {
-  
-  
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { user } = useSelector((state) => state.profile)
@@ -70,7 +69,8 @@ function App() {
         <Route path="catalog/:catalogName" element={<Catalog />} />
         <Route path="courses/:courseId" element={<CourseDetails />} />
 
-
+        {/* Public Certificate Verification Page (QR code link) */}
+        <Route path="verify-certificate/:certificateId" element={<VerifyCertificate />} />
 
         <Route path='/login' 
         element={
@@ -128,7 +128,6 @@ function App() {
           }
         />
 
-
         <Route
           path="contact"
           element={
@@ -144,9 +143,7 @@ function App() {
       }
     >
       <Route path="dashboard/my-profile" element={<MyProfile />} />
-      
       <Route path="dashboard/Settings" element={<Settings />} />
-      
 
       {
         user?.accountType === ACCOUNT_TYPE.STUDENT && (
@@ -154,6 +151,8 @@ function App() {
           <Route path="dashboard/cart" element={<Cart />} />
           <Route path="dashboard/enrolled-courses" element={<EnrolledCourses />} />
           <Route path="dashboard/my-exams" element={<StudentExamsList />} />
+          <Route path="dashboard/my-certificates" element={<MyCertificates />} />
+          <Route path="dashboard/leaderboard" element={<LeaderboardPage />} />
           </>
         )
       }
@@ -166,7 +165,8 @@ function App() {
           <Route path="dashboard/my-courses" element={<MyCourses />} />
           <Route path="dashboard/edit-course/:courseId" element={<EditCourse />} />
           <Route path="dashboard/evaluate-exams" element={<InstructorEvaluationDashboard />} />
-          
+          <Route path="dashboard/instructor-certificates" element={<InstructorCertificates />} />
+          <Route path="dashboard/instructor-leaderboard" element={<InstructorLeaderboardPage />} />
           </>
         )
       }
@@ -180,10 +180,11 @@ function App() {
           <Route path="dashboard/all-courses" element={<AllCourses />} />
           <Route path="dashboard/financial-report" element={<FinancialReport />} />
           <Route path="dashboard/categories" element={<CategoryManage />} />
+          <Route path="dashboard/all-certificates" element={<AdminCertificates />} />
+          <Route path="dashboard/admin-leaderboard" element={<AdminLeaderboardPage />} />
           </>
         )
       }
-
 
     </Route>
 
@@ -205,15 +206,10 @@ function App() {
           )}
     </Route>
 
-
-
     {/* 404 Page */}
     <Route path="*" element={<Error />} />
 
-
     </Routes>
-
-
 
     </div>
   )

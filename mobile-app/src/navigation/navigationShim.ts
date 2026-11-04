@@ -81,6 +81,18 @@ export function parseRouteString(routeInput: string | { pathname: string; params
     case "payment-success":
       screenName = "PaymentSuccess";
       break;
+    case "my-certificates":
+      screenName = "MyCertificates";
+      break;
+    case "leaderboard":
+      screenName = "Leaderboard";
+      break;
+    case "instructor-certificates":
+      screenName = "InstructorCertificates";
+      break;
+    case "instructor-leaderboard":
+      screenName = "InstructorLeaderboard";
+      break;
     case "admin/all-students":
       screenName = "AdminAllStudents";
       break;
@@ -95,6 +107,12 @@ export function parseRouteString(routeInput: string | { pathname: string; params
       break;
     case "admin/financial-report":
       screenName = "AdminFinancialReport";
+      break;
+    case "admin/all-certificates":
+      screenName = "AdminAllCertificates";
+      break;
+    case "admin/leaderboard":
+      screenName = "AdminLeaderboard";
       break;
     default:
       // In case path was already screen name
@@ -157,4 +175,3 @@ export function useLocalSearchParams<T = any>(): T {
 }
 
 export const useFocusEffect = useNavFocusEffect;
-

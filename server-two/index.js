@@ -7,6 +7,7 @@ const paymentRoutes = require("./routes/Payments");
 const courseRoutes = require("./routes/Course");
 const contactUsRoute = require("./routes/Contact");
 const examRoutes = require("./routes/Exam");
+const certificateRoutes = require("./routes/Certificate");
 
 const database = require("./config/database");
 const { cloudinaryConnect } = require("./config/cloudinary");
@@ -18,7 +19,7 @@ const PORT = process.env.PORT || 5001;
 // Database connection
 database.connect();
 
-// 💡 Simple Custom CORS Middleware
+// Simple Custom CORS Middleware
 app.use((req, res, next) => {
     const origin = req.headers.origin || "*";
     res.setHeader("Access-Control-Allow-Origin", origin);
@@ -47,6 +48,7 @@ app.use("/api/v1/course", courseRoutes);
 app.use("/api/v1/payment", paymentRoutes);
 app.use("/api/v1/reach", contactUsRoute);
 app.use("/api/v1/exam", examRoutes);
+app.use("/api/v1/certificate", certificateRoutes);
 
 // Default route
 app.get("/", (req, res) => {

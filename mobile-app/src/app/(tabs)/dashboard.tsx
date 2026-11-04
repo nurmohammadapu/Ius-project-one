@@ -137,6 +137,8 @@ export default function DashboardScreen() {
                 { name: "Pending Approvals", route: "/admin/pending-approvals", icon: "checkmark-done-circle", color: "#06D6A0" },
                 { name: "All Courses", route: "/admin/all-courses", icon: "book", color: "#EF476F" },
                 { name: "Financial Report", route: "/admin/financial-report", icon: "analytics", color: "#118AB2" },
+                { name: "All Certificates 🎓", route: "/admin/all-certificates", icon: "ribbon", color: "#FFD60A" },
+                { name: "Platform Leaderboards 🏆", route: "/admin/leaderboard", icon: "trophy", color: "#FFA116" },
               ].map((item, idx) => (
                 <TouchableOpacity
                   key={idx}
@@ -180,12 +182,30 @@ export default function DashboardScreen() {
                   <Text className="text-richblack-900 dark:text-richblack-5 font-bold text-sm ml-2">My Courses</Text>
                 </TouchableOpacity>
               </View>
+
+              <View className="flex-row justify-between space-x-3 mb-3">
+                <TouchableOpacity
+                  onPress={() => router.push("/evaluate-exams")}
+                  className="flex-1 bg-white dark:bg-richblack-800 border border-pure-greys-25 dark:border-richblack-700 py-3.5 rounded-xl flex-row justify-center items-center"
+                >
+                  <Ionicons name="shield-checkmark-outline" size={20} color={isDark ? "#FFD60A" : "#000814"} />
+                  <Text className="text-richblack-900 dark:text-richblack-5 font-bold text-sm ml-2">Evaluate</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => router.push("/instructor-certificates")}
+                  className="flex-1 bg-white dark:bg-richblack-800 border border-pure-greys-25 dark:border-richblack-700 py-3.5 rounded-xl flex-row justify-center items-center"
+                >
+                  <Ionicons name="ribbon-outline" size={20} color="#FFD60A" />
+                  <Text className="text-richblack-900 dark:text-richblack-5 font-bold text-sm ml-2">Certificates</Text>
+                </TouchableOpacity>
+              </View>
+
               <TouchableOpacity
-                onPress={() => router.push("/evaluate-exams")}
+                onPress={() => router.push("/instructor-leaderboard")}
                 className="w-full bg-white dark:bg-richblack-800 border border-pure-greys-25 dark:border-richblack-700 py-3.5 rounded-xl flex-row justify-center items-center"
               >
-                <Ionicons name="shield-checkmark-outline" size={20} color={isDark ? "#FFD60A" : "#000814"} />
-                <Text className="text-richblack-900 dark:text-richblack-5 font-bold text-sm ml-2">Evaluate Exams</Text>
+                <Ionicons name="trophy-outline" size={20} color="#FFD60A" />
+                <Text className="text-richblack-900 dark:text-richblack-5 font-bold text-sm ml-2">Exam Leaderboards 🏆</Text>
               </TouchableOpacity>
             </View>
 
@@ -260,13 +280,6 @@ export default function DashboardScreen() {
                   })}
                 </View>
               </View>
-            ) : instructorCourses.length > 0 ? (
-              <View className="bg-white dark:bg-richblack-800 p-6 rounded-xl border border-pure-greys-25 dark:border-richblack-700 items-center mb-6">
-                <Ionicons name="stats-chart-outline" size={32} color="#AFB2BF" />
-                <Text className="text-richblack-600 dark:text-richblack-200 text-sm mt-3 text-center">
-                  No sales data yet to visualize.
-                </Text>
-              </View>
             ) : null}
 
             {/* Courses list */}
@@ -330,13 +343,31 @@ export default function DashboardScreen() {
              ========================================================================= */
           <View className="mt-6 mb-8">
             {/* Quick Actions */}
-            <View className="mb-6">
+            <View className="mb-6 space-y-3">
+              <View className="flex-row justify-between space-x-3 mb-3">
+                <TouchableOpacity
+                  onPress={() => router.push("/my-exams")}
+                  className="flex-1 bg-yellow-50 py-3.5 rounded-xl flex-row justify-center items-center"
+                >
+                  <Ionicons name="clipboard-outline" size={18} color="#000" />
+                  <Text className="text-richblack-900 font-bold text-sm ml-1.5">My Exams</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => router.push("/leaderboard")}
+                  className="flex-1 bg-white dark:bg-richblack-800 border border-pure-greys-25 dark:border-richblack-700 py-3.5 rounded-xl flex-row justify-center items-center"
+                >
+                  <Ionicons name="trophy-outline" size={18} color="#FFD60A" />
+                  <Text className="text-richblack-900 dark:text-richblack-5 font-bold text-sm ml-1.5">Leaderboard</Text>
+                </TouchableOpacity>
+              </View>
+
               <TouchableOpacity
-                onPress={() => router.push("/my-exams")}
-                className="w-full bg-yellow-50 py-3.5 rounded-xl flex-row justify-center items-center"
+                onPress={() => router.push("/my-certificates")}
+                className="w-full bg-white dark:bg-richblack-800 border border-pure-greys-25 dark:border-richblack-700 py-3.5 rounded-xl flex-row justify-center items-center"
               >
-                <Ionicons name="clipboard-outline" size={20} color="#000" />
-                <Text className="text-richblack-900 font-bold text-sm ml-2">My Exams</Text>
+                <Ionicons name="ribbon-outline" size={18} color="#FFD60A" />
+                <Text className="text-richblack-900 dark:text-richblack-5 font-bold text-sm ml-2">My Certificates 🎓</Text>
               </TouchableOpacity>
             </View>
 
@@ -393,6 +424,17 @@ export default function DashboardScreen() {
                             />
                           </View>
                         </View>
+
+                        {/* Claim Certificate Button if 100% */}
+                        {progressPercentage >= 100 && (
+                          <TouchableOpacity
+                            onPress={() => router.push("/my-certificates")}
+                            className="bg-yellow-50/15 border border-yellow-50/40 py-2 rounded-lg mt-3 flex-row items-center justify-center"
+                          >
+                            <Ionicons name="ribbon-outline" size={15} color="#FFD60A" />
+                            <Text className="text-yellow-50 font-bold text-xs ml-1.5">View Certificate 🎓</Text>
+                          </TouchableOpacity>
+                        )}
                       </View>
                     </TouchableOpacity>
                   );

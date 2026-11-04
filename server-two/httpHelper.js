@@ -37,12 +37,12 @@ async function runMiddlewareChain(req, res, handlers) {
   await next();
 }
 
-//  Router  
+// Router
 function createRouter() {
   const routes = [];
 
   return {
-    isRouter: true, // Marker property instead of instanceof
+    isRouter: true,
     get: function (path, ...handlers) { routes.push({ method: "GET", path, handlers }); },
     post: function (path, ...handlers) { routes.push({ method: "POST", path, handlers }); },
     put: function (path, ...handlers) { routes.push({ method: "PUT", path, handlers }); },
@@ -51,11 +51,37 @@ function createRouter() {
 
     handle: async function (req, res, subPath) {
       const method = req.method.toUpperCase();
+      req.params = req.params || {};
 
       for (const route of routes) {
-        if (route.method === method && route.path === subPath) {
-          await runMiddlewareChain(req, res, route.handlers);
-          return true;
+        if (route.method === method) {
+          if (route.path === subPath) {
+            await runMiddlewareChain(req, res, route.handlers);
+            return true;
+          }
+
+          // Support parameterized routes e.g. /verify/:certificateId
+          if (route.path.includes(":")) {
+            const rSegments = route.path.split("/").filter(Boolean);
+            const sSegments = subPath.split("/").filter(Boolean);
+            if (rSegments.length === sSegments.length) {
+              const params = {};
+              let match = true;
+              for (let i = 0; i < rSegments.length; i++) {
+                if (rSegments[i].startsWith(":")) {
+                  params[rSegments[i].slice(1)] = decodeURIComponent(sSegments[i]);
+                } else if (rSegments[i] !== sSegments[i]) {
+                  match = false;
+                  break;
+                }
+              }
+              if (match) {
+                req.params = { ...req.params, ...params };
+                await runMiddlewareChain(req, res, route.handlers);
+                return true;
+              }
+            }
+          }
         }
       }
       return false;
@@ -99,6 +125,7 @@ function createHttpApp() {
         };
 
         req.cookies = parseCookies(req.headers.cookie);
+        req.params = {};
 
         // 2. Response Utility Bindings
         res.status = function (code) {
@@ -144,7 +171,7 @@ function createHttpApp() {
           return res;
         };
 
-        //   3. Cookie Clear Method (Required for Logout)
+        // 3. Cookie Clear Method (Required for Logout)
         res.clearCookie = function (name, options = {}) {
           return res.cookie(name, "", {
             ...options,
@@ -153,7 +180,7 @@ function createHttpApp() {
           });
         };
 
-        //   Request Parsing (Handling JSON Body & Files)
+        // Request Parsing (Handling JSON Body & Files)
         const contentType = req.headers["content-type"] || "";
 
         if (contentType.includes("multipart/form-data")) {
@@ -234,7 +261,6 @@ function createHttpApp() {
           if (!route.method && reqPath.startsWith(route.prefix)) {
             const subPath = reqPath.replace(route.prefix, "") || "/";
 
-            // Check using marker property instead of instanceof
             if (route.handler && route.handler.isRouter) {
               handled = await route.handler.handle(req, res, subPath);
               if (handled) break;

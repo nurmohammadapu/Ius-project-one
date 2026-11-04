@@ -166,6 +166,8 @@ exports.getExamByTarget = async (req, res) => {
 };
 
 // 3. Submit an exam submission (Student only)
+// 1st attempt = Official submission recorded for Leaderboard
+// Subsequent attempts = Practice Mode (gives instant test score, never overwrites Leaderboard)
 exports.submitExam = async (req, res) => {
   try {
     const { examId, answers } = req.body;
@@ -182,13 +184,7 @@ exports.submitExam = async (req, res) => {
     const existingSubmissionResult = await db.$query`
       SELECT * FROM "ExamSubmission" WHERE "examId" = ${examId} AND "studentId" = ${studentId}
     `;
-
-    if (existingSubmissionResult && existingSubmissionResult.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message: "You have already submitted this exam.",
-      });
-    }
+    const isPracticeAttempt = existingSubmissionResult && existingSubmissionResult.length > 0;
 
     const examResult = await db.$query`
       SELECT * FROM "Exam" WHERE id = ${examId}
@@ -230,6 +226,34 @@ exports.submitExam = async (req, res) => {
         : 0;
 
       const status = obtainedMarks >= (exam.totalMarks * 0.5) ? "PASSED" : "FAILED";
+
+      // If user has already taken the exam, this is a PRACTICE attempt
+      // Do not overwrite official ExamSubmission or change Leaderboard rank
+      if (isPracticeAttempt) {
+        return res.status(200).json({
+          success: true,
+          isPractice: true,
+          message: "Practice exam completed! Your official score on the leaderboard remains your 1st attempt.",
+          data: {
+            id: "practice-" + require("crypto").randomUUID(),
+            examId,
+            studentId,
+            obtainedMarks,
+            answers: parsedAnswers,
+            status,
+            createdAt: new Date().toISOString(),
+            isPractice: true,
+            officialMarks: existingSubmissionResult[0].obtainedMarks,
+            officialStatus: existingSubmissionResult[0].status,
+            exam: {
+              ...exam,
+              questions,
+            },
+          },
+        });
+      }
+
+      // First attempt: Save Official Submission
       const submissionId = require("crypto").randomUUID();
 
       await db.$execute`
@@ -257,7 +281,8 @@ exports.submitExam = async (req, res) => {
 
       return res.status(201).json({
         success: true,
-        message: "MCQ Exam submitted successfully.",
+        isPractice: false,
+        message: "MCQ Exam submitted successfully. Score recorded for Leaderboard!",
         data: submission,
       });
     } else {
@@ -277,6 +302,19 @@ exports.submitExam = async (req, res) => {
         return res.status(400).json({
           success: false,
           message: "A submission PDF/image file or URL is required for written exams.",
+        });
+      }
+
+      if (isPracticeAttempt) {
+        return res.status(200).json({
+          success: true,
+          isPractice: true,
+          message: "Practice assignment received! Your official submission remains on record.",
+          data: {
+            ...existingSubmissionResult[0],
+            isPractice: true,
+            submissionUrl,
+          },
         });
       }
 
@@ -301,6 +339,7 @@ exports.submitExam = async (req, res) => {
 
       return res.status(201).json({
         success: true,
+        isPractice: false,
         message: "Written exam submitted successfully.",
         data: submission,
       });
@@ -558,3 +597,172 @@ exports.getStudentExams = async (req, res) => {
     });
   }
 };
+
+// 7. Get Exam Leaderboard
+exports.getExamLeaderboard = async (req, res) => {
+  try {
+    const examId = req.query.examId || req.params.examId;
+    const currentUserId = req.user?.id;
+
+    if (!examId) {
+      return res.status(400).json({
+        success: false,
+        message: "Exam ID is required.",
+      });
+    }
+
+    const examResult = await db.$query`
+      SELECT id, title, description, "examType", "totalMarks" FROM "Exam" WHERE id = ${examId}
+    `;
+    const exam = examResult[0];
+
+    if (!exam) {
+      return res.status(404).json({
+        success: false,
+        message: "Exam not found.",
+      });
+    }
+
+    const leaderboard = await db.$query`
+      SELECT 
+        es.id,
+        es."obtainedMarks",
+        es.status,
+        es."createdAt" AS "submittedAt",
+        u.id AS "studentId",
+        u."firstName",
+        u."lastName",
+        u.image,
+        RANK() OVER (ORDER BY es."obtainedMarks" DESC, es."createdAt" ASC)::int AS rank
+      FROM "ExamSubmission" es
+      JOIN "User" u ON u.id = es."studentId"
+      WHERE es."examId" = ${examId}
+      ORDER BY es."obtainedMarks" DESC, es."createdAt" ASC
+    `;
+
+    const currentUserRank = leaderboard.find((item) => item.studentId === currentUserId);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        exam,
+        leaderboard,
+        totalParticipants: leaderboard.length,
+        userRank: currentUserRank ? currentUserRank.rank : null,
+      },
+    });
+  } catch (error) {
+    console.error("Error in getExamLeaderboard:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Could not fetch exam leaderboard.",
+      error: error.message,
+    });
+  }
+};
+
+// 8. Get Instructor Exams (with submission stats)
+exports.getInstructorExams = async (req, res) => {
+  try {
+    const instructorId = req.user.id;
+
+    // Fetch all courses owned by instructor
+    const instructorCourses = await db.$query`
+      SELECT id, "courseName" FROM "Course" WHERE "instructorId" = ${instructorId}
+    `;
+
+    if (!instructorCourses || instructorCourses.length === 0) {
+      return res.status(200).json({ success: true, data: [] });
+    }
+
+    const courseIds = instructorCourses.map((c) => c.id);
+
+    const exams = await db.$query`
+      SELECT 
+        e.id, 
+        e.title, 
+        e.description, 
+        e."examType", 
+        e."totalMarks", 
+        e."createdAt",
+        COALESCE(c."courseName", secCourse."courseName", subCourse."courseName") AS "courseName",
+        COALESCE(c.id, secCourse.id, subCourse.id) AS "courseId",
+        COUNT(DISTINCT es.id)::int AS "submissionCount",
+        COALESCE(ROUND(AVG(es."obtainedMarks")::numeric, 1)::float, 0) AS "avgMarks",
+        COALESCE(MAX(es."obtainedMarks")::float, 0) AS "highestMarks"
+      FROM "Exam" e
+      LEFT JOIN "Course" c ON c.id = e."courseId"
+      LEFT JOIN "Section" sec ON sec.id = e."sectionId"
+      LEFT JOIN "Course" secCourse ON secCourse.id = sec."courseId"
+      LEFT JOIN "SubSection" sub ON sub.id = e."subSectionId"
+      LEFT JOIN "Section" subSec ON subSec.id = sub."sectionId"
+      LEFT JOIN "Course" subCourse ON subCourse.id = subSec."courseId"
+      LEFT JOIN "ExamSubmission" es ON es."examId" = e.id
+      WHERE (e."courseId" = ANY(${courseIds}) OR sec."courseId" = ANY(${courseIds}) OR subSec."courseId" = ANY(${courseIds}))
+      GROUP BY e.id, e.title, e.description, e."examType", e."totalMarks", e."createdAt", c."courseName", secCourse."courseName", subCourse."courseName", c.id, secCourse.id, subCourse.id
+      ORDER BY e."createdAt" DESC
+    `;
+
+    return res.status(200).json({
+      success: true,
+      data: exams,
+    });
+  } catch (error) {
+    console.error("Error in getInstructorExams:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Could not fetch instructor exams.",
+      error: error.message,
+    });
+  }
+};
+
+// 9. Get All Platform Exams (Admin only)
+exports.getAllExamsAdmin = async (req, res) => {
+  try {
+    const exams = await db.$query`
+      SELECT 
+        e.id, 
+        e.title, 
+        e.description, 
+        e."examType", 
+        e."totalMarks", 
+        e."createdAt",
+        COALESCE(c."courseName", secCourse."courseName", subCourse."courseName") AS "courseName",
+        COALESCE(inst."firstName", instSec."firstName", instSub."firstName") AS "instructorFirstName",
+        COALESCE(inst."lastName", instSec."lastName", instSub."lastName") AS "instructorLastName",
+        COUNT(DISTINCT es.id)::int AS "submissionCount",
+        COALESCE(ROUND(AVG(es."obtainedMarks")::numeric, 1)::float, 0) AS "avgMarks",
+        COALESCE(MAX(es."obtainedMarks")::float, 0) AS "highestMarks"
+      FROM "Exam" e
+      LEFT JOIN "Course" c ON c.id = e."courseId"
+      LEFT JOIN "User" inst ON inst.id = c."instructorId"
+      LEFT JOIN "Section" sec ON sec.id = e."sectionId"
+      LEFT JOIN "Course" secCourse ON secCourse.id = sec."courseId"
+      LEFT JOIN "User" instSec ON instSec.id = secCourse."instructorId"
+      LEFT JOIN "SubSection" sub ON sub.id = e."subSectionId"
+      LEFT JOIN "Section" subSec ON subSec.id = sub."sectionId"
+      LEFT JOIN "Course" subCourse ON subCourse.id = subSec."courseId"
+      LEFT JOIN "User" instSub ON instSub.id = subCourse."instructorId"
+      LEFT JOIN "ExamSubmission" es ON es."examId" = e.id
+      GROUP BY e.id, e.title, e.description, e."examType", e."totalMarks", e."createdAt",
+               c."courseName", secCourse."courseName", subCourse."courseName",
+               inst."firstName", instSec."firstName", instSub."firstName",
+               inst."lastName", instSec."lastName", instSub."lastName"
+      ORDER BY e."createdAt" DESC
+    `;
+
+    return res.status(200).json({
+      success: true,
+      data: exams,
+    });
+  } catch (error) {
+    console.error("Error in getAllExamsAdmin:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Could not fetch admin exams.",
+      error: error.message,
+    });
+  }
+};
+

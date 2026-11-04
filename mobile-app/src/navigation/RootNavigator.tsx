@@ -25,11 +25,20 @@ import CreateExamScreen from "../app/create-exam";
 import EvaluateExamsScreen from "../app/evaluate-exams";
 import PaymentSuccessScreen from "../app/payment-success";
 
+// Certificates & Leaderboards
+import MyCertificatesScreen from "../app/my-certificates";
+import StudentLeaderboardScreen from "../app/leaderboard";
+import InstructorCertificatesScreen from "../app/instructor-certificates";
+import InstructorLeaderboardScreen from "../app/instructor-leaderboard";
+
+// Admin Screens
 import AdminAllStudentsScreen from "../app/admin/all-students";
 import AdminAllInstructorsScreen from "../app/admin/all-instructors";
 import AdminPendingApprovalsScreen from "../app/admin/pending-approvals";
 import AdminAllCoursesScreen from "../app/admin/all-courses";
 import AdminFinancialReportScreen from "../app/admin/financial-report";
+import AdminAllCertificatesScreen from "../app/admin/all-certificates";
+import AdminLeaderboardScreen from "../app/admin/leaderboard";
 
 const Stack = createNativeStackNavigator();
 
@@ -96,14 +105,21 @@ export default function RootNavigator() {
         <Stack.Screen name="EvaluateExams" component={EvaluateExamsScreen} />
         <Stack.Screen name="PaymentSuccess" component={PaymentSuccessScreen} />
 
+        {/* New Certificates & Leaderboard Screens */}
+        <Stack.Screen name="MyCertificates" component={MyCertificatesScreen} />
+        <Stack.Screen name="Leaderboard" component={StudentLeaderboardScreen} />
+        <Stack.Screen name="InstructorCertificates" component={InstructorCertificatesScreen} />
+        <Stack.Screen name="InstructorLeaderboard" component={InstructorLeaderboardScreen} />
+
         {/* Admin Screens */}
         <Stack.Screen name="AdminAllStudents" component={AdminAllStudentsScreen} />
         <Stack.Screen name="AdminAllInstructors" component={AdminAllInstructorsScreen} />
         <Stack.Screen name="AdminPendingApprovals" component={AdminPendingApprovalsScreen} />
         <Stack.Screen name="AdminAllCourses" component={AdminAllCoursesScreen} />
         <Stack.Screen name="AdminFinancialReport" component={AdminFinancialReportScreen} />
+        <Stack.Screen name="AdminAllCertificates" component={AdminAllCertificatesScreen} />
+        <Stack.Screen name="AdminLeaderboard" component={AdminLeaderboardScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
-

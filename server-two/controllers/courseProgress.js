@@ -1,6 +1,7 @@
 const { db } = require("../config/database");
+const crypto = require("crypto");
 
-// 1. updateCourseProgress (Pure Raw Query - Fixed Junction Table)
+// 1. updateCourseProgress (Pure Raw Query - Fixed Junction Table + Auto Certificate)
 exports.updateCourseProgress = async (req, res) => {
   const { courseId, subsectionId, subSectionId } = req.body;
   const targetSubId = subsectionId || subSectionId;
@@ -50,17 +51,60 @@ exports.updateCourseProgress = async (req, res) => {
       WHERE "courseProgressId" = ${courseProgressId} AND "subSectionId" = ${targetSubId}
     `;
 
-    if (isCompletedResult && isCompletedResult.length > 0) {
-      return res.status(200).json({ success: true, message: "Subsection already completed" });
+    if (!isCompletedResult || isCompletedResult.length === 0) {
+      // Insert into Many-to-Many Junction Table "CompletedSubSection"
+      await db.$execute`
+        INSERT INTO "CompletedSubSection" ("courseProgressId", "subSectionId")
+        VALUES (${courseProgressId}, ${targetSubId})
+      `;
     }
 
-    // Insert into Many-to-Many Junction Table "CompletedSubSection"
-    await db.$execute`
-      INSERT INTO "CompletedSubSection" ("courseProgressId", "subSectionId")
-      VALUES (${courseProgressId}, ${targetSubId})
+    // Check if course is now 100% completed to auto-issue certificate
+    const lecturesResult = await db.$query`
+      SELECT COUNT(subsec.id)::int AS "totalLectures"
+      FROM "Section" sec
+      JOIN "SubSection" subsec ON subsec."sectionId" = sec.id
+      WHERE sec."courseId" = ${courseId}
     `;
+    const totalLectures = Number(lecturesResult[0]?.totalLectures) || 0;
 
-    return res.status(200).json({ success: true, message: "Course progress updated" });
+    const progressCountResult = await db.$query`
+      SELECT COUNT(cv."subSectionId")::int AS "completedCount"
+      FROM "CourseProgress" cp
+      JOIN "CompletedSubSection" cv ON cv."courseProgressId" = cp.id
+      WHERE cp."courseID" = ${courseId} AND cp."userId" = ${userId}
+    `;
+    const completedCount = Number(progressCountResult[0]?.completedCount) || 0;
+
+    let certificateGenerated = false;
+    let certificateId = null;
+
+    if (totalLectures > 0 && completedCount >= totalLectures) {
+      const existingCert = await db.$query`
+        SELECT "certificateId" FROM "Certificate"
+        WHERE "courseId" = ${courseId} AND "userId" = ${userId}
+        LIMIT 1
+      `;
+      if (!existingCert || existingCert.length === 0) {
+        const randomSuffix = crypto.randomBytes(3).toString("hex").toUpperCase();
+        certificateId = `SN-${new Date().getFullYear()}-${randomSuffix}`;
+        await db.$execute`
+          INSERT INTO "Certificate" (id, "certificateId", "userId", "courseId", "issueDate")
+          VALUES (${crypto.randomUUID()}, ${certificateId}, ${userId}, ${courseId}, NOW())
+        `;
+        certificateGenerated = true;
+      } else {
+        certificateId = existingCert[0].certificateId;
+      }
+    }
+
+    return res.status(200).json({ 
+      success: true, 
+      message: "Course progress updated",
+      courseCompleted: totalLectures > 0 && completedCount >= totalLectures,
+      certificateGenerated,
+      certificateId,
+    });
   } catch (error) {
     console.error("UPDATE COURSE PROGRESS ERROR:", error);
     return res.status(500).json({ success: false, error: error.message || "Internal server error" });

@@ -9,6 +9,9 @@ const {
   GET_SUBMISSIONS_BY_EXAM_API,
   GRADE_SUBMISSION_API,
   GET_STUDENT_EXAMS_API,
+  GET_EXAM_LEADERBOARD_API,
+  GET_INSTRUCTOR_EXAMS_API,
+  GET_ALL_EXAMS_ADMIN_API,
 } = examEndpoints;
 
 // 1. Create Exam (Instructor)
@@ -54,7 +57,6 @@ export async function getExamByTarget(targetParams, token) {
     result = response.data.data;
   } catch (error) {
     console.log("GET EXAM BY TARGET API ERROR:", error);
-    // Don't show Alert here as it's called passively in screen renders
   }
   return result;
 }
@@ -76,7 +78,7 @@ export async function submitExam(submitData, token, isMultipart = false) {
       throw new Error(response?.data?.message || "Could not submit exam");
     }
 
-    Alert.alert("Success 🎉", "Exam submitted successfully!");
+    Alert.alert("Success 🎉", response.data.message || "Exam submitted successfully!");
     result = response.data.data;
   } catch (error) {
     console.log("SUBMIT EXAM API ERROR:", error);
@@ -157,6 +159,66 @@ export async function getStudentExams(token) {
       "Error",
       error.response?.data?.message || error.message || "Failed to load exams"
     );
+  }
+  return result;
+}
+
+// 7. Get Exam Leaderboard
+export async function getExamLeaderboard(examId, token) {
+  let result = null;
+  try {
+    const response = await apiConnector(
+      "GET",
+      `${GET_EXAM_LEADERBOARD_API}?examId=${examId}`,
+      null,
+      {
+        Authorization: `Bearer ${token}`,
+      }
+    );
+
+    if (!response?.data?.success) {
+      throw new Error(response?.data?.message || "Could not fetch leaderboard");
+    }
+    result = response.data.data;
+  } catch (error) {
+    console.log("GET EXAM LEADERBOARD API ERROR:", error);
+    Alert.alert("Error", error.response?.data?.message || "Failed to load leaderboard");
+  }
+  return result;
+}
+
+// 8. Get Instructor Exams (Instructor)
+export async function getInstructorExams(token) {
+  let result = [];
+  try {
+    const response = await apiConnector("GET", GET_INSTRUCTOR_EXAMS_API, null, {
+      Authorization: `Bearer ${token}`,
+    });
+
+    if (!response?.data?.success) {
+      throw new Error(response?.data?.message || "Could not fetch exams");
+    }
+    result = response.data.data;
+  } catch (error) {
+    console.log("GET INSTRUCTOR EXAMS API ERROR:", error);
+  }
+  return result;
+}
+
+// 9. Get All Platform Exams (Admin)
+export async function getAllExamsAdmin(token) {
+  let result = [];
+  try {
+    const response = await apiConnector("GET", GET_ALL_EXAMS_ADMIN_API, null, {
+      Authorization: `Bearer ${token}`,
+    });
+
+    if (!response?.data?.success) {
+      throw new Error(response?.data?.message || "Could not fetch platform exams");
+    }
+    result = response.data.data;
+  } catch (error) {
+    console.log("GET ALL EXAMS ADMIN API ERROR:", error);
   }
   return result;
 }

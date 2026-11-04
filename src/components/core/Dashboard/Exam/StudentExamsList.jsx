@@ -3,12 +3,14 @@ import { useSelector } from "react-redux"
 import { FiAward, FiBookOpen, FiEdit3, FiX, FiCheckCircle } from "react-icons/fi"
 import { getStudentExams } from "../../../../services/operations/examAPI"
 import StudentExamPlayer from "../../../core/ViewCourse/StudentExamPlayer"
+import LeaderboardModal from "./LeaderboardModal"
 
 export default function StudentExamsList() {
   const { token } = useSelector((state) => state.auth)
   const [exams, setExams] = useState([])
   const [loading, setLoading] = useState(false)
   const [activeExam, setActiveExam] = useState(null)
+  const [leaderboardExam, setLeaderboardExam] = useState(null)
   const [filter, setFilter] = useState("all") // "all", "not-taken", "pending-grading", "completed"
 
   const fetchExams = async () => {
@@ -58,63 +60,65 @@ export default function StudentExamsList() {
       <div className="flex border-b border-richblack-700 mb-6 gap-x-6 text-sm font-semibold overflow-x-auto pb-1">
         <button
           onClick={() => setFilter("all")}
-          className={`pb-2.5 whitespace-nowrap transition-all ${
+          className={`pb-2 px-1 border-b-2 transition-all ${
             filter === "all"
-              ? "text-yellow-50 border-b-2 border-b-yellow-50"
-              : "text-richblack-400 hover:text-richblack-200"
+              ? "border-yellow-50 text-yellow-50"
+              : "border-transparent text-richblack-400 hover:text-richblack-200"
           }`}
         >
           All Exams ({exams.length})
         </button>
         <button
           onClick={() => setFilter("not-taken")}
-          className={`pb-2.5 whitespace-nowrap transition-all ${
+          className={`pb-2 px-1 border-b-2 transition-all ${
             filter === "not-taken"
-              ? "text-yellow-50 border-b-2 border-b-yellow-50"
-              : "text-richblack-400 hover:text-richblack-200"
+              ? "border-yellow-50 text-yellow-50"
+              : "border-transparent text-richblack-400 hover:text-richblack-200"
           }`}
         >
           Not Taken ({exams.filter((e) => !e.submission).length})
         </button>
         <button
           onClick={() => setFilter("pending-grading")}
-          className={`pb-2.5 whitespace-nowrap transition-all ${
+          className={`pb-2 px-1 border-b-2 transition-all ${
             filter === "pending-grading"
-              ? "text-yellow-50 border-b-2 border-b-yellow-50"
-              : "text-richblack-400 hover:text-richblack-200"
+              ? "border-yellow-50 text-yellow-50"
+              : "border-transparent text-richblack-400 hover:text-richblack-200"
           }`}
         >
           Pending Grading ({exams.filter((e) => e.submission?.status === "PENDING").length})
         </button>
         <button
           onClick={() => setFilter("completed")}
-          className={`pb-2.5 whitespace-nowrap transition-all ${
+          className={`pb-2 px-1 border-b-2 transition-all ${
             filter === "completed"
-              ? "text-yellow-50 border-b-2 border-b-yellow-50"
-              : "text-richblack-400 hover:text-richblack-200"
+              ? "border-yellow-50 text-yellow-50"
+              : "border-transparent text-richblack-400 hover:text-richblack-200"
           }`}
         >
-          Completed/Graded ({exams.filter((e) => e.submission && e.submission?.status !== "PENDING").length})
+          Completed ({exams.filter((e) => e.submission && e.submission?.status !== "PENDING").length})
         </button>
       </div>
 
       {loading ? (
-        <div className="py-10 text-center text-richblack-300">Loading exams list...</div>
-      ) : exams.length === 0 ? (
-        <div className="rounded-md border border-richblack-700 bg-richblack-800 p-8 text-center text-richblack-400">
-          You are not enrolled in any courses with exams, or no exams have been created yet.
+        <div className="flex min-h-[300px] items-center justify-center text-richblack-300">
+          <div className="spinner">Loading your exams...</div>
         </div>
       ) : filteredExams.length === 0 ? (
-        <div className="rounded-md border border-richblack-700 bg-richblack-800 p-8 text-center text-richblack-400">
-          No exams match the selected filter.
+        <div className="rounded-md border border-dashed border-richblack-700 p-8 text-center bg-richblack-800/40 my-6">
+          <FiBookOpen className="text-4xl text-richblack-500 mx-auto mb-3" />
+          <h3 className="text-base font-semibold text-richblack-300">No exams match this filter</h3>
+          <p className="text-xs text-richblack-400 mt-1">
+            Check other tabs or ask your instructor to publish quizzes.
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {filteredExams.map((exam) => {
-            const hasSubmitted = !!exam.submission
             const submission = exam.submission
-            const isPassed = submission?.status === "PASSED"
+            const hasSubmitted = !!submission
             const isPending = submission?.status === "PENDING"
+            const isPassed = submission?.status === "PASSED"
 
             return (
               <div
@@ -140,20 +144,28 @@ export default function StudentExamsList() {
                   )}
                 </div>
 
-                <div className="mt-6 border-t border-richblack-700 pt-4 flex items-center justify-between gap-4">
+                <div className="mt-6 border-t border-richblack-700 pt-4 flex items-center justify-between gap-2">
                   <div className="text-xs text-richblack-300">
                     Total Marks: <strong className="text-white">{exam.totalMarks}</strong>
                   </div>
 
-                  <div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setLeaderboardExam(exam)}
+                      className="rounded-md border border-richblack-600 bg-richblack-700/80 py-1.5 px-2.5 text-xs font-semibold text-yellow-50 hover:bg-richblack-600 transition-all inline-flex items-center gap-1"
+                      title="View Exam Leaderboard"
+                    >
+                      <FiAward size={13} /> Leaderboard
+                    </button>
+
                     {hasSubmitted ? (
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center">
                         {isPending ? (
                           <button
                             onClick={() => setActiveExam(exam)}
                             className="text-xs font-semibold text-yellow-50 bg-yellow-500/10 px-3 py-1.5 rounded hover:bg-yellow-500/20 transition-all"
                           >
-                            Pending Grading
+                            Pending
                           </button>
                         ) : (
                           <button
@@ -165,16 +177,16 @@ export default function StudentExamsList() {
                             }`}
                           >
                             <FiCheckCircle />
-                            Result: {submission.obtainedMarks}/{exam.totalMarks}
+                            {submission.obtainedMarks}/{exam.totalMarks}
                           </button>
                         )}
                       </div>
                     ) : (
                       <button
                         onClick={() => setActiveExam(exam)}
-                        className="rounded-md bg-yellow-50 py-1.5 px-4 text-xs font-semibold text-richblack-900 hover:scale-95 transition-all inline-flex items-center gap-1"
+                        className="rounded-md bg-yellow-50 py-1.5 px-3.5 text-xs font-semibold text-richblack-900 hover:scale-95 transition-all inline-flex items-center gap-1"
                       >
-                        <FiEdit3 size={13} /> Take Exam
+                        <FiEdit3 size={13} /> Take
                       </button>
                     )}
                   </div>
@@ -188,25 +200,29 @@ export default function StudentExamsList() {
       {/* Exam Player Overlay Modal */}
       {activeExam && (
         <div className="fixed inset-0 z-[1000] !mt-0 grid place-items-center bg-white bg-opacity-10 backdrop-blur-sm overflow-y-auto py-10">
-          <div className="w-11/12 max-w-[750px] rounded-lg border border-richblack-700 bg-richblack-800 p-6 relative">
+          <div className="w-11/12 max-w-[850px] relative">
             <button
               onClick={handleClosePlayer}
-              className="absolute top-4 right-4 text-richblack-200 hover:text-white transition-colors"
+              className="absolute -top-4 -right-4 z-50 bg-richblack-800 p-2 rounded-full border border-richblack-600 text-richblack-200 hover:text-white hover:scale-105 transition-all"
             >
-              <FiX size={24} />
+              <FiX className="text-xl" />
             </button>
-            <div className="mt-4">
-              {/* Reuse the StudentExamPlayer by scoping to specific targets */}
-              {activeExam.level === "Course Final" ? (
-                <StudentExamPlayer courseId={activeExam.courseId} />
-              ) : activeExam.level.startsWith("Section:") ? (
-                <StudentExamPlayer sectionId={activeExam.sectionId} />
-              ) : (
-                <StudentExamPlayer subSectionId={activeExam.subSectionId} />
-              )}
-            </div>
+            <StudentExamPlayer
+              courseId={activeExam.courseId}
+              sectionId={activeExam.sectionId}
+              subSectionId={activeExam.subSectionId}
+            />
           </div>
         </div>
+      )}
+
+      {/* Leaderboard Modal */}
+      {leaderboardExam && (
+        <LeaderboardModal
+          examId={leaderboardExam.id}
+          examTitle={leaderboardExam.title}
+          onClose={() => setLeaderboardExam(null)}
+        />
       )}
     </div>
   )

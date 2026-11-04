@@ -98,4 +98,16 @@ export const examEndpoints = {
   GET_SUBMISSIONS_BY_EXAM_API: BASE_URL + "/exam/getSubmissionsByExam",
   GRADE_SUBMISSION_API: BASE_URL + "/exam/gradeSubmission",
   GET_STUDENT_EXAMS_API: BASE_URL + "/exam/getStudentExams",
+  GET_EXAM_LEADERBOARD_API: BASE_URL + "/exam/getLeaderboard",
+  GET_INSTRUCTOR_EXAMS_API: BASE_URL + "/exam/getInstructorExams",
+  GET_ALL_EXAMS_ADMIN_API: BASE_URL + "/exam/getAllExamsAdmin",
+};
+
+// CERTIFICATE ENDPOINTS
+export const certificateEndpoints = {
+  GET_CERTIFICATE_API: BASE_URL + "/certificate/getCertificate",
+  GET_MY_CERTIFICATES_API: BASE_URL + "/certificate/myCertificates",
+  GET_INSTRUCTOR_CERTIFICATES_API: BASE_URL + "/certificate/instructorCertificates",
+  GET_ADMIN_ALL_CERTIFICATES_API: BASE_URL + "/certificate/adminAllCertificates",
+  VERIFY_CERTIFICATE_API: BASE_URL + "/certificate/verify",
 };
