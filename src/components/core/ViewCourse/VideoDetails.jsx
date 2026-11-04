@@ -10,6 +10,7 @@ import { markLectureAsComplete } from "../../../services/operations/courseDetail
 import { updateCompletedLectures } from "../../../redux/Slices/viewCourseSlice"
 import IconBtn from "../../Common/IconBtn"
 import StudentExamPlayer from "./StudentExamPlayer"
+import LectureNotes from "./LectureNotes"
 
 const VideoDetails = () => {
   const { courseId, sectionId, subSectionId } = useParams()
@@ -32,15 +33,12 @@ const VideoDetails = () => {
       if (!courseId && !sectionId && !subSectionId) {
         navigate(`/dashboard/enrolled-courses`)
       } else {
-        // console.log("courseSectionData", courseSectionData)
         const filteredData = courseSectionData.filter(
           (course) => (course?.id || course?._id) === sectionId
         )
-        // console.log("filteredData", filteredData)
         const filteredVideoData = filteredData?.[0]?.subSection.filter(
           (data) => (data?.id || data?._id) === subSectionId
         )
-        // console.log("filteredVideoData", filteredVideoData)
         setVideoData(filteredVideoData[0])
         setPreviewSource(courseEntireData.thumbnail)
         setVideoEnded(false)
@@ -67,8 +65,6 @@ const VideoDetails = () => {
 
   // go to the next video
   const goToNextVideo = () => {
-    // console.log(courseSectionData)
-
     const currentSectionIndx = courseSectionData.findIndex(
       (data) => (data?.id || data?._id) === sectionId
     )
@@ -79,8 +75,6 @@ const VideoDetails = () => {
     const currentSubSectionIndx = courseSectionData[
       currentSectionIndx
     ].subSection.findIndex((data) => (data?.id || data?._id) === subSectionId)
-
-    // console.log("no of subsections", noOfSubsections)
 
     if (currentSubSectionIndx !== noOfSubsections - 1) {
       const nextSubSection =
@@ -127,8 +121,6 @@ const VideoDetails = () => {
 
   // go to the previous video
   const goToPrevVideo = () => {
-    // console.log(courseSectionData)
-
     const currentSectionIndx = courseSectionData.findIndex(
       (data) => (data?.id || data?._id) === sectionId
     )
@@ -187,7 +179,6 @@ const VideoDetails = () => {
           src={videoData?.videoUrl}
         >
           <BigPlayButton position="center" />
-          {/* Render When Video Ends */}
           {videoEnded && (
             <div
               style={{
@@ -208,7 +199,6 @@ const VideoDetails = () => {
                 disabled={loading}
                 onclick={() => {
                   if (playerRef?.current) {
-                    // set the current time of the video to 0
                     playerRef?.current?.seek(0)
                     setVideoEnded(false)
                   }
@@ -242,7 +232,10 @@ const VideoDetails = () => {
       )}
 
       <h1 className="mt-4 text-3xl font-semibold">{videoData?.title}</h1>
-      <p className="pt-2 pb-6">{videoData?.description}</p>
+      <p className="pt-2 pb-2 text-richblack-200">{videoData?.description}</p>
+
+      {/* Personal Lecture Notes Text Area */}
+      <LectureNotes subSectionId={subSectionId} />
 
       {/* Student Exam Center */}
       <div className="mt-4 space-y-4">
@@ -255,4 +248,3 @@ const VideoDetails = () => {
 }
 
 export default VideoDetails
-// video

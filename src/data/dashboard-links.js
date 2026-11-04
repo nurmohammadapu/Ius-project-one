@@ -7,6 +7,13 @@ export const sidebarLinks = [
     path: "/dashboard/my-profile",
     icon: "VscAccount",
   },
+  {
+    id: 22,
+    name: "Doubt Forum",
+    path: "/dashboard/doubt-forum",
+    icon: "VscCommentDiscussion",
+  },
+
   // INSTRUCTOR LINKS
   {
     id: 2,

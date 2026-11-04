@@ -7,6 +7,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { useSelector } from "react-redux";
 import { Video, ResizeMode } from "../utils/videoShim";
 import { useColorScheme } from "nativewind";
+import LectureNotesBox from "../components/LectureNotesBox";
 
 export default function ViewCourseScreen() {
   const { courseId, sectionId: initialSectionId, subSectionId: initialSubSectionId } = useLocalSearchParams();
@@ -397,6 +398,9 @@ export default function ViewCourseScreen() {
               </View>
             );
           })()}
+
+          {/* Simple Personal Lecture Notes */}
+          <LectureNotesBox subSectionId={currentSubSectionId} />
         </View>
 
         {/* Section List Accordion */}

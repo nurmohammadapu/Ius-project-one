@@ -30,6 +30,7 @@ import MyCertificatesScreen from "../app/my-certificates";
 import StudentLeaderboardScreen from "../app/leaderboard";
 import InstructorCertificatesScreen from "../app/instructor-certificates";
 import InstructorLeaderboardScreen from "../app/instructor-leaderboard";
+import DoubtForumScreen from "../app/doubt-forum";
 
 // Admin Screens
 import AdminAllStudentsScreen from "../app/admin/all-students";
@@ -105,11 +106,12 @@ export default function RootNavigator() {
         <Stack.Screen name="EvaluateExams" component={EvaluateExamsScreen} />
         <Stack.Screen name="PaymentSuccess" component={PaymentSuccessScreen} />
 
-        {/* New Certificates & Leaderboard Screens */}
+        {/* New Certificates, Leaderboard & Doubt Forum Screens */}
         <Stack.Screen name="MyCertificates" component={MyCertificatesScreen} />
         <Stack.Screen name="Leaderboard" component={StudentLeaderboardScreen} />
         <Stack.Screen name="InstructorCertificates" component={InstructorCertificatesScreen} />
         <Stack.Screen name="InstructorLeaderboard" component={InstructorLeaderboardScreen} />
+        <Stack.Screen name="DoubtForum" component={DoubtForumScreen} />
 
         {/* Admin Screens */}
         <Stack.Screen name="AdminAllStudents" component={AdminAllStudentsScreen} />

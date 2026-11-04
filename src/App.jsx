@@ -47,6 +47,7 @@ import InstructorCertificates from './components/core/Dashboard/InstructorCertif
 import InstructorLeaderboardPage from './components/core/Dashboard/Exam/InstructorLeaderboardPage';
 import AdminCertificates from './components/core/Dashboard/Admin/AdminCertificates';
 import AdminLeaderboardPage from './components/core/Dashboard/Admin/AdminLeaderboardPage';
+import DoubtForum from './components/core/Dashboard/DoubtForum/DoubtForum';
 
 function App() {
   const dispatch = useDispatch()
@@ -144,6 +145,7 @@ function App() {
     >
       <Route path="dashboard/my-profile" element={<MyProfile />} />
       <Route path="dashboard/Settings" element={<Settings />} />
+      <Route path="dashboard/doubt-forum" element={<DoubtForum />} />
 
       {
         user?.accountType === ACCOUNT_TYPE.STUDENT && (

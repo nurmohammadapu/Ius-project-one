@@ -122,3 +122,20 @@ export const certificateEndpoints = {
   GET_ADMIN_ALL_CERTIFICATES_API: BASE_URL + "/certificate/adminAllCertificates",
   VERIFY_CERTIFICATE_API: BASE_URL + "/certificate/verify",
 }
+
+
+// LECTURE NOTES ENDPOINTS
+export const notesEndpoints = {
+  GET_NOTE_API: BASE_URL + "/notes/getNote",
+  SAVE_NOTE_API: BASE_URL + "/notes/saveNote",
+}
+
+// DOUBT FORUM ENDPOINTS
+export const doubtEndpoints = {
+  GET_ALL_DOUBTS_API: BASE_URL + "/doubt/getAllDoubts",
+  GET_DOUBT_DETAILS_API: BASE_URL + "/doubt/getDoubtDetails",
+  CREATE_DOUBT_API: BASE_URL + "/doubt/createDoubt",
+  ADD_COMMENT_API: BASE_URL + "/doubt/addComment",
+  TOGGLE_RESOLVE_API: BASE_URL + "/doubt/toggleResolve",
+  DELETE_DOUBT_API: BASE_URL + "/doubt/deleteDoubt",
+}

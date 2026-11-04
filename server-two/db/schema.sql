@@ -197,3 +197,42 @@ CREATE TABLE IF NOT EXISTS "Certificate" (
 CREATE INDEX IF NOT EXISTS "idx_certificate_certificateId" ON "Certificate"("certificateId");
 CREATE INDEX IF NOT EXISTS "idx_certificate_userId" ON "Certificate"("userId");
 CREATE INDEX IF NOT EXISTS "idx_certificate_courseId" ON "Certificate"("courseId");
+
+
+-- LectureNote Table
+CREATE TABLE IF NOT EXISTS "LectureNote" (
+  "id" TEXT NOT NULL PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  "userId" TEXT NOT NULL REFERENCES "User"("id") ON DELETE CASCADE,
+  "subSectionId" TEXT NOT NULL REFERENCES "SubSection"("id") ON DELETE CASCADE,
+  "notes" TEXT NOT NULL DEFAULT '',
+  "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT "LectureNote_userId_subSectionId_key" UNIQUE ("userId", "subSectionId")
+);
+CREATE INDEX IF NOT EXISTS "idx_lecturenote_user_subsec" ON "LectureNote"("userId", "subSectionId");
+
+-- DoubtPost Table
+CREATE TABLE IF NOT EXISTS "DoubtPost" (
+  "id" TEXT NOT NULL PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  "userId" TEXT NOT NULL REFERENCES "User"("id") ON DELETE CASCADE,
+  "courseId" TEXT REFERENCES "Course"("id") ON DELETE SET NULL,
+  "title" TEXT NOT NULL,
+  "description" TEXT NOT NULL,
+  "status" TEXT NOT NULL DEFAULT 'OPEN',
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS "idx_doubtpost_user" ON "DoubtPost"("userId");
+CREATE INDEX IF NOT EXISTS "idx_doubtpost_course" ON "DoubtPost"("courseId");
+CREATE INDEX IF NOT EXISTS "idx_doubtpost_created" ON "DoubtPost"("createdAt" DESC);
+
+-- DoubtComment Table
+CREATE TABLE IF NOT EXISTS "DoubtComment" (
+  "id" TEXT NOT NULL PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  "postId" TEXT NOT NULL REFERENCES "DoubtPost"("id") ON DELETE CASCADE,
+  "userId" TEXT NOT NULL REFERENCES "User"("id") ON DELETE CASCADE,
+  "commentText" TEXT NOT NULL,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS "idx_doubtcomment_post" ON "DoubtComment"("postId");
+CREATE INDEX IF NOT EXISTS "idx_doubtcomment_user" ON "DoubtComment"("userId");
+CREATE INDEX IF NOT EXISTS "idx_doubtcomment_created" ON "DoubtComment"("createdAt" ASC);

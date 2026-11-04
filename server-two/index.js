@@ -8,6 +8,8 @@ const courseRoutes = require("./routes/Course");
 const contactUsRoute = require("./routes/Contact");
 const examRoutes = require("./routes/Exam");
 const certificateRoutes = require("./routes/Certificate");
+const lectureNoteRoutes = require("./routes/LectureNote");
+const doubtRoutes = require("./routes/Doubt");
 
 const database = require("./config/database");
 const { cloudinaryConnect } = require("./config/cloudinary");
@@ -49,6 +51,8 @@ app.use("/api/v1/payment", paymentRoutes);
 app.use("/api/v1/reach", contactUsRoute);
 app.use("/api/v1/exam", examRoutes);
 app.use("/api/v1/certificate", certificateRoutes);
+app.use("/api/v1/notes", lectureNoteRoutes);
+app.use("/api/v1/doubt", doubtRoutes);
 
 // Default route
 app.get("/", (req, res) => {

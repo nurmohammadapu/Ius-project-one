@@ -139,6 +139,7 @@ export default function DashboardScreen() {
                 { name: "Financial Report", route: "/admin/financial-report", icon: "analytics", color: "#118AB2" },
                 { name: "All Certificates 🎓", route: "/admin/all-certificates", icon: "ribbon", color: "#FFD60A" },
                 { name: "Platform Leaderboards 🏆", route: "/admin/leaderboard", icon: "trophy", color: "#FFA116" },
+                { name: "Doubt Forum 💬", route: "/doubt-forum", icon: "chatbubbles", color: "#06D6A0" },
               ].map((item, idx) => (
                 <TouchableOpacity
                   key={idx}
@@ -200,13 +201,23 @@ export default function DashboardScreen() {
                 </TouchableOpacity>
               </View>
 
-              <TouchableOpacity
-                onPress={() => router.push("/instructor-leaderboard")}
-                className="w-full bg-white dark:bg-richblack-800 border border-pure-greys-25 dark:border-richblack-700 py-3.5 rounded-xl flex-row justify-center items-center"
-              >
-                <Ionicons name="trophy-outline" size={20} color="#FFD60A" />
-                <Text className="text-richblack-900 dark:text-richblack-5 font-bold text-sm ml-2">Exam Leaderboards 🏆</Text>
-              </TouchableOpacity>
+              <View className="flex-row justify-between space-x-3 mb-3">
+                <TouchableOpacity
+                  onPress={() => router.push("/instructor-leaderboard")}
+                  className="flex-1 bg-white dark:bg-richblack-800 border border-pure-greys-25 dark:border-richblack-700 py-3.5 rounded-xl flex-row justify-center items-center"
+                >
+                  <Ionicons name="trophy-outline" size={20} color="#FFD60A" />
+                  <Text className="text-richblack-900 dark:text-richblack-5 font-bold text-sm ml-2">Leaderboard 🏆</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => router.push("/doubt-forum")}
+                  className="flex-1 bg-white dark:bg-richblack-800 border border-pure-greys-25 dark:border-richblack-700 py-3.5 rounded-xl flex-row justify-center items-center"
+                >
+                  <Ionicons name="chatbubbles-outline" size={20} color="#06D6A0" />
+                  <Text className="text-richblack-900 dark:text-richblack-5 font-bold text-sm ml-2">Doubt Forum 💬</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             {/* Statistics */}
@@ -362,13 +373,23 @@ export default function DashboardScreen() {
                 </TouchableOpacity>
               </View>
 
-              <TouchableOpacity
-                onPress={() => router.push("/my-certificates")}
-                className="w-full bg-white dark:bg-richblack-800 border border-pure-greys-25 dark:border-richblack-700 py-3.5 rounded-xl flex-row justify-center items-center"
-              >
-                <Ionicons name="ribbon-outline" size={18} color="#FFD60A" />
-                <Text className="text-richblack-900 dark:text-richblack-5 font-bold text-sm ml-2">My Certificates 🎓</Text>
-              </TouchableOpacity>
+              <View className="flex-row justify-between space-x-3 mb-3">
+                <TouchableOpacity
+                  onPress={() => router.push("/my-certificates")}
+                  className="flex-1 bg-white dark:bg-richblack-800 border border-pure-greys-25 dark:border-richblack-700 py-3.5 rounded-xl flex-row justify-center items-center"
+                >
+                  <Ionicons name="ribbon-outline" size={18} color="#FFD60A" />
+                  <Text className="text-richblack-900 dark:text-richblack-5 font-bold text-sm ml-2">Certificates 🎓</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => router.push("/doubt-forum")}
+                  className="flex-1 bg-white dark:bg-richblack-800 border border-pure-greys-25 dark:border-richblack-700 py-3.5 rounded-xl flex-row justify-center items-center"
+                >
+                  <Ionicons name="chatbubbles-outline" size={18} color="#06D6A0" />
+                  <Text className="text-richblack-900 dark:text-richblack-5 font-bold text-sm ml-2">Doubt Forum 💬</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             <Text className="text-lg font-bold text-richblack-900 dark:text-richblack-5 mb-4">My Enrolled Courses</Text>

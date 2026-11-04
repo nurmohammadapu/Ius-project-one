@@ -93,6 +93,9 @@ export function parseRouteString(routeInput: string | { pathname: string; params
     case "instructor-leaderboard":
       screenName = "InstructorLeaderboard";
       break;
+    case "doubt-forum":
+      screenName = "DoubtForum";
+      break;
     case "admin/all-students":
       screenName = "AdminAllStudents";
       break;
