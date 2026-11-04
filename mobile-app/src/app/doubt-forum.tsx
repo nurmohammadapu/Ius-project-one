@@ -10,6 +10,7 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
@@ -26,7 +27,8 @@ import {
 } from "../services/operations/doubtAPI";
 
 export default function DoubtForumScreen() {
-  const { token, user } = useSelector((state: any) => state.auth);
+  const { token } = useSelector((state: any) => state.auth);
+  const { user } = useSelector((state: any) => state.profile);
   const router = useRouter();
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === "dark";
@@ -40,6 +42,7 @@ export default function DoubtForumScreen() {
   const [isAskModalVisible, setIsAskModalVisible] = useState(false);
   const [doubtTitle, setDoubtTitle] = useState("");
   const [doubtDesc, setDoubtDesc] = useState("");
+  const [doubtMediaUrl, setDoubtMediaUrl] = useState("");
   const [submittingDoubt, setSubmittingDoubt] = useState(false);
 
   // Discussion / Detail Modal State
@@ -47,7 +50,12 @@ export default function DoubtForumScreen() {
   const [comments, setComments] = useState<any[]>([]);
   const [loadingComments, setLoadingComments] = useState(false);
   const [newComment, setNewComment] = useState("");
+  const [commentMediaUrl, setCommentMediaUrl] = useState("");
+  const [showAttachInput, setShowAttachInput] = useState(false);
   const [submittingComment, setSubmittingComment] = useState(false);
+
+  // Fullscreen Image Lightbox
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   // 1. Fetch Doubts List
   const fetchDoubts = async () => {
@@ -79,7 +87,7 @@ export default function DoubtForumScreen() {
     setLoadingComments(true);
     const details = await getDoubtDetails(doubt.id, token);
     if (details) {
-      setActiveDoubt(details);
+      setActiveDoubt(details.post || details);
       setComments(details.comments || []);
     }
     setLoadingComments(false);
@@ -97,6 +105,7 @@ export default function DoubtForumScreen() {
       {
         title: doubtTitle.trim(),
         description: doubtDesc.trim(),
+        mediaUrl: doubtMediaUrl.trim() || undefined,
       },
       token
     );
@@ -105,6 +114,7 @@ export default function DoubtForumScreen() {
     if (res?.success) {
       setDoubtTitle("");
       setDoubtDesc("");
+      setDoubtMediaUrl("");
       setIsAskModalVisible(false);
       fetchDoubts();
     }
@@ -119,6 +129,7 @@ export default function DoubtForumScreen() {
       {
         postId: activeDoubt.id,
         commentText: newComment.trim(),
+        mediaUrl: commentMediaUrl.trim() || undefined,
       },
       token
     );
@@ -127,6 +138,8 @@ export default function DoubtForumScreen() {
     if (res?.success && res?.data) {
       setComments((prev) => [...prev, res.data]);
       setNewComment("");
+      setCommentMediaUrl("");
+      setShowAttachInput(false);
       // Update local count in doubts list
       setDoubts((prev) =>
         prev.map((d) =>
@@ -302,8 +315,8 @@ export default function DoubtForumScreen() {
           {doubts.map((doubt) => {
             const isAuthor =
               currentUserId &&
-              doubt.author &&
-              String(doubt.author.id) === String(currentUserId);
+              (String(doubt.userId) === String(currentUserId) ||
+                (doubt.author && String(doubt.author.id) === String(currentUserId)));
             const canManage = isAuthor || isInstructorOrAdmin;
             const isOpen = doubt.status === "OPEN";
 
@@ -370,12 +383,26 @@ export default function DoubtForumScreen() {
                     {doubt.title}
                   </Text>
                   <Text
-                    className="text-xs text-richblack-600 dark:text-richblack-300 mb-3"
+                    className="text-xs text-richblack-600 dark:text-richblack-300 mb-2"
                     numberOfLines={3}
                   >
                     {doubt.description}
                   </Text>
                 </TouchableOpacity>
+
+                {/* Attached Screenshot Image */}
+                {doubt.mediaUrl ? (
+                  <TouchableOpacity
+                    onPress={() => setPreviewImage(doubt.mediaUrl)}
+                    className="mb-3 rounded-xl overflow-hidden border border-pure-greys-25 dark:border-richblack-700 bg-pure-greys-5 dark:bg-richblack-900"
+                  >
+                    <Image
+                      source={{ uri: doubt.mediaUrl }}
+                      className="w-full h-36"
+                      resizeMode="cover"
+                    />
+                  </TouchableOpacity>
+                ) : null}
 
                 {/* Actions Row */}
                 <View className="flex-row items-center justify-between pt-2 border-t border-pure-greys-25 dark:border-richblack-700/60">
@@ -454,9 +481,20 @@ export default function DoubtForumScreen() {
                 value={doubtDesc}
                 onChangeText={setDoubtDesc}
                 multiline
-                numberOfLines={5}
+                numberOfLines={4}
                 style={{ textAlignVertical: "top" }}
-                className="w-full bg-pure-greys-5 text-richblack-900 p-3 rounded-xl border border-pure-greys-50 dark:bg-richblack-900 dark:text-richblack-5 dark:border-richblack-700 min-h-[120px] text-xs mb-4"
+                className="w-full bg-pure-greys-5 text-richblack-900 p-3 rounded-xl border border-pure-greys-50 dark:bg-richblack-900 dark:text-richblack-5 dark:border-richblack-700 min-h-[100px] text-xs mb-3"
+              />
+
+              <Text className="text-xs font-semibold text-richblack-700 dark:text-richblack-200 mb-1.5">
+                Screenshot / Image URL (Optional)
+              </Text>
+              <TextInput
+                placeholder="Paste an image or screenshot URL (e.g. Cloudinary link)..."
+                placeholderTextColor="#838894"
+                value={doubtMediaUrl}
+                onChangeText={setDoubtMediaUrl}
+                className="w-full bg-pure-greys-5 text-richblack-900 p-3 rounded-xl border border-pure-greys-50 dark:bg-richblack-900 dark:text-richblack-5 dark:border-richblack-700 text-xs mb-4"
               />
 
               <TouchableOpacity
@@ -526,6 +564,20 @@ export default function DoubtForumScreen() {
                     {activeDoubt.description}
                   </Text>
 
+                  {/* Attached Post Media Image */}
+                  {activeDoubt.mediaUrl ? (
+                    <TouchableOpacity
+                      onPress={() => setPreviewImage(activeDoubt.mediaUrl)}
+                      className="mb-3 rounded-xl overflow-hidden border border-pure-greys-25 dark:border-richblack-700"
+                    >
+                      <Image
+                        source={{ uri: activeDoubt.mediaUrl }}
+                        className="w-full h-48"
+                        resizeMode="cover"
+                      />
+                    </TouchableOpacity>
+                  ) : null}
+
                   {/* Status & Resolve Button */}
                   <View className="flex-row items-center justify-between">
                     <View
@@ -546,21 +598,37 @@ export default function DoubtForumScreen() {
                       </Text>
                     </View>
 
-                    {(currentUserId &&
-                      activeDoubt.author &&
-                      String(activeDoubt.author.id) === String(currentUserId)) ||
-                    isInstructorOrAdmin ? (
-                      <TouchableOpacity
-                        onPress={() => handleToggleResolve(activeDoubt.id)}
-                        className="px-2.5 py-1 bg-yellow-50/10 border border-yellow-50/30 rounded-lg"
-                      >
-                        <Text className="text-xxs font-bold text-yellow-50">
-                          {activeDoubt.status === "OPEN"
-                            ? "Mark Resolved ✅"
-                            : "Reopen Doubt 🔄"}
-                        </Text>
-                      </TouchableOpacity>
-                    ) : null}
+                    <View className="flex-row items-center space-x-2">
+                      {((currentUserId &&
+                        (String(activeDoubt.userId) === String(currentUserId) ||
+                          (activeDoubt.author &&
+                            String(activeDoubt.author.id) === String(currentUserId)))) ||
+                        isInstructorOrAdmin) ? (
+                        <TouchableOpacity
+                          onPress={() => handleToggleResolve(activeDoubt.id)}
+                          className="px-2.5 py-1 bg-yellow-50/10 border border-yellow-50/30 rounded-lg mr-2"
+                        >
+                          <Text className="text-xxs font-bold text-yellow-50">
+                            {activeDoubt.status === "OPEN"
+                              ? "Mark Resolved ✅"
+                              : "Reopen Doubt 🔄"}
+                          </Text>
+                        </TouchableOpacity>
+                      ) : null}
+
+                      {((currentUserId &&
+                        (String(activeDoubt.userId) === String(currentUserId) ||
+                          (activeDoubt.author &&
+                            String(activeDoubt.author.id) === String(currentUserId)))) ||
+                        user?.accountType === "Admin") ? (
+                        <TouchableOpacity
+                          onPress={() => handleDeleteDoubt(activeDoubt.id)}
+                          className="p-1.5 bg-pure-greys-5 dark:bg-richblack-900 border border-pure-greys-25 dark:border-richblack-700 rounded-lg"
+                        >
+                          <Ionicons name="trash-outline" size={15} color="#EF476F" />
+                        </TouchableOpacity>
+                      ) : null}
+                    </View>
                   </View>
                 </View>
               )}
@@ -605,10 +673,39 @@ export default function DoubtForumScreen() {
                     <Text className="text-xs text-richblack-700 dark:text-richblack-200">
                       {item.commentText}
                     </Text>
+
+                    {item.mediaUrl ? (
+                      <TouchableOpacity
+                        onPress={() => setPreviewImage(item.mediaUrl)}
+                        className="mt-2 rounded-lg overflow-hidden border border-pure-greys-25 dark:border-richblack-700"
+                      >
+                        <Image
+                          source={{ uri: item.mediaUrl }}
+                          className="w-full h-32"
+                          resizeMode="cover"
+                        />
+                      </TouchableOpacity>
+                    ) : null}
                   </View>
                 ))
               )}
             </ScrollView>
+
+            {/* Optional media attachment bar */}
+            {showAttachInput && (
+              <View className="px-3 pt-2 bg-white dark:bg-richblack-900 border-t border-pure-greys-25 dark:border-richblack-800 flex-row items-center">
+                <TextInput
+                  placeholder="Paste image/screenshot URL..."
+                  placeholderTextColor="#838894"
+                  value={commentMediaUrl}
+                  onChangeText={setCommentMediaUrl}
+                  className="flex-1 bg-pure-greys-5 text-richblack-900 px-3 py-1.5 rounded-lg border border-pure-greys-50 dark:bg-richblack-800 dark:text-richblack-5 dark:border-richblack-700 text-xxs mr-2"
+                />
+                <TouchableOpacity onPress={() => setShowAttachInput(false)}>
+                  <Ionicons name="close-circle" size={18} color="#838894" />
+                </TouchableOpacity>
+              </View>
+            )}
 
             {/* Comment Input Bar */}
             <View className="p-3 border-t border-pure-greys-25 dark:border-richblack-700 flex-row items-center bg-white dark:bg-richblack-900">
@@ -619,6 +716,20 @@ export default function DoubtForumScreen() {
                 onChangeText={setNewComment}
                 className="flex-1 bg-pure-greys-5 text-richblack-900 px-3 py-2 rounded-xl border border-pure-greys-50 dark:bg-richblack-800 dark:text-richblack-5 dark:border-richblack-700 text-xs mr-2"
               />
+
+              <TouchableOpacity
+                onPress={() => setShowAttachInput((prev) => !prev)}
+                className={`w-9 h-9 rounded-xl justify-center items-center mr-2 border border-pure-greys-50 dark:border-richblack-700 ${
+                  commentMediaUrl ? "bg-yellow-50/20" : "bg-pure-greys-5 dark:bg-richblack-800"
+                }`}
+              >
+                <Ionicons
+                  name="image-outline"
+                  size={16}
+                  color={commentMediaUrl ? "#FFD60A" : "#838894"}
+                />
+              </TouchableOpacity>
+
               <TouchableOpacity
                 onPress={handleAddComment}
                 disabled={submittingComment || !newComment.trim()}
@@ -640,7 +751,25 @@ export default function DoubtForumScreen() {
           </View>
         </KeyboardAvoidingView>
       </Modal>
+
+      {/* Lightbox Image Preview Modal */}
+      <Modal visible={!!previewImage} transparent animationType="fade">
+        <View className="flex-1 bg-black/90 justify-center items-center p-4">
+          <TouchableOpacity
+            onPress={() => setPreviewImage(null)}
+            className="absolute top-12 right-6 z-10 p-2"
+          >
+            <Ionicons name="close" size={28} color="#FFF" />
+          </TouchableOpacity>
+          {previewImage && (
+            <Image
+              source={{ uri: previewImage }}
+              className="w-full h-[70%]"
+              resizeMode="contain"
+            />
+          )}
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
-

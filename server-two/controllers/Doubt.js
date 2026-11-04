@@ -1,4 +1,5 @@
 const { db } = require("../config/database");
+const { uploadImageToCloudinary } = require("../utils/imageUploader");
 
 // 1. Get all doubts with optional filters
 exports.getAllDoubts = async (req, res) => {
@@ -10,6 +11,7 @@ exports.getAllDoubts = async (req, res) => {
         dp.id,
         dp.title,
         dp.description,
+        dp."mediaUrl",
         dp.status,
         dp."createdAt",
         dp."updatedAt",
@@ -57,6 +59,7 @@ exports.getDoubtDetails = async (req, res) => {
         dp.id,
         dp.title,
         dp.description,
+        dp."mediaUrl",
         dp.status,
         dp."createdAt",
         dp."updatedAt",
@@ -82,6 +85,7 @@ exports.getDoubtDetails = async (req, res) => {
       SELECT 
         dc.id,
         dc."commentText",
+        dc."mediaUrl",
         dc."createdAt",
         dc."userId",
         u."firstName",
@@ -117,17 +121,28 @@ exports.createDoubt = async (req, res) => {
       return res.status(400).json({ success: false, message: "Title and description are required" });
     }
 
+    let mediaUrl = req.body.mediaUrl || null;
+    const mediaFile = req.files?.media || req.files?.image;
+    if (mediaFile) {
+      const uploadRes = await uploadImageToCloudinary(
+        mediaFile,
+        process.env.FOLDER_NAME
+      );
+      mediaUrl = uploadRes.secure_url;
+    }
+
     const postId = require("crypto").randomUUID();
 
     await db.$execute`
-      INSERT INTO "DoubtPost" (id, "userId", "courseId", title, description, status, "createdAt", "updatedAt")
-      VALUES (${postId}, ${userId}, ${courseId || null}, ${title.trim()}, ${description.trim()}, 'OPEN', NOW(), NOW())
+      INSERT INTO "DoubtPost" (id, "userId", "courseId", title, description, "mediaUrl", status, "createdAt", "updatedAt")
+      VALUES (${postId}, ${userId}, ${courseId || null}, ${title.trim()}, ${description.trim()}, ${mediaUrl}, 'OPEN', NOW(), NOW())
     `;
 
     return res.status(201).json({
       success: true,
       message: "Doubt posted successfully!",
       postId,
+      mediaUrl,
     });
   } catch (error) {
     console.error("CREATE DOUBT ERROR:", error);
@@ -145,17 +160,41 @@ exports.addComment = async (req, res) => {
       return res.status(400).json({ success: false, message: "postId and commentText are required" });
     }
 
+    let mediaUrl = req.body.mediaUrl || null;
+    const mediaFile = req.files?.media || req.files?.image;
+    if (mediaFile) {
+      const uploadRes = await uploadImageToCloudinary(
+        mediaFile,
+        process.env.FOLDER_NAME
+      );
+      mediaUrl = uploadRes.secure_url;
+    }
+
     const commentId = require("crypto").randomUUID();
 
     await db.$execute`
-      INSERT INTO "DoubtComment" (id, "postId", "userId", "commentText", "createdAt")
-      VALUES (${commentId}, ${postId}, ${userId}, ${commentText.trim()}, NOW())
+      INSERT INTO "DoubtComment" (id, "postId", "userId", "commentText", "mediaUrl", "createdAt")
+      VALUES (${commentId}, ${postId}, ${userId}, ${commentText.trim()}, ${mediaUrl}, NOW())
+    `;
+
+    // Fetch user details to return full comment object
+    const userResult = await db.$query`
+      SELECT id, "firstName", "lastName", image, "accountType" FROM "User" WHERE id = ${userId} LIMIT 1
     `;
 
     return res.status(201).json({
       success: true,
       message: "Comment added successfully!",
       commentId,
+      data: {
+        id: commentId,
+        postId,
+        commentText: commentText.trim(),
+        mediaUrl,
+        createdAt: new Date().toISOString(),
+        userId,
+        author: userResult[0] || null,
+      },
     });
   } catch (error) {
     console.error("ADD COMMENT ERROR:", error);
@@ -235,4 +274,3 @@ exports.deleteDoubt = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message || "Failed to delete post" });
   }
 };
-

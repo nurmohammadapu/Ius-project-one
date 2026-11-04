@@ -39,10 +39,26 @@ exports.createSubSection = async (req, res) => {
 
     const timeDuration = uploadDetails.duration ? `${uploadDetails.duration}` : "0";
 
+    // Handle Optional Resource Upload (PDF, Slides, Code .zip, etc.)
+    let resourceUrl = null;
+    let resourceName = null;
+    const resourceFile = req.files?.resource || req.files?.resourceFile;
+    if (resourceFile) {
+      const resourceUpload = await uploadImageToCloudinary(
+        resourceFile,
+        process.env.FOLDER_NAME
+      );
+      resourceUrl = resourceUpload.secure_url;
+      resourceName = resourceFile.name || req.body.resourceName || "Lecture Resource";
+    } else if (req.body.resourceUrl) {
+      resourceUrl = req.body.resourceUrl;
+      resourceName = req.body.resourceName || "Lecture Resource";
+    }
+
     // Insert SubSection
     await db.$execute`
       INSERT INTO "SubSection" (
-        id, title, "timeDuration", description, "videoUrl", "sectionId"
+        id, title, "timeDuration", description, "videoUrl", "resourceUrl", "resourceName", "sectionId"
       )
       VALUES (
         gen_random_uuid()::text,
@@ -50,6 +66,8 @@ exports.createSubSection = async (req, res) => {
         ${timeDuration},
         ${description},
         ${uploadDetails.secure_url},
+        ${resourceUrl},
+        ${resourceName},
         ${sectionId}
       )
     `;
@@ -113,6 +131,22 @@ exports.updateSubSection = async (req, res) => {
       updatedTimeDuration = uploadDetails.duration ? `${uploadDetails.duration}` : "0";
     }
 
+    let updatedResourceUrl = subSection.resourceUrl;
+    let updatedResourceName = subSection.resourceName;
+
+    const resourceFile = req.files?.resource || req.files?.resourceFile;
+    if (resourceFile) {
+      const resourceUpload = await uploadImageToCloudinary(
+        resourceFile,
+        process.env.FOLDER_NAME
+      );
+      updatedResourceUrl = resourceUpload.secure_url;
+      updatedResourceName = resourceFile.name || req.body.resourceName || "Lecture Resource";
+    } else if (req.body.resourceUrl !== undefined) {
+      updatedResourceUrl = req.body.resourceUrl || null;
+      updatedResourceName = req.body.resourceName || null;
+    }
+
     // Update SubSection
     await db.$execute`
       UPDATE "SubSection"
@@ -120,7 +154,9 @@ exports.updateSubSection = async (req, res) => {
         title = ${updatedTitle},
         description = ${updatedDescription},
         "videoUrl" = ${updatedVideoUrl},
-        "timeDuration" = ${updatedTimeDuration}
+        "timeDuration" = ${updatedTimeDuration},
+        "resourceUrl" = ${updatedResourceUrl},
+        "resourceName" = ${updatedResourceName}
       WHERE id = ${subSectionId}
     `;
 

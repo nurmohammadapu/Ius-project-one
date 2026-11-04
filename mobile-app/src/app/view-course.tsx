@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Modal, TextInput } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Modal, TextInput, Linking } from "react-native";
 import { useLocalSearchParams, useRouter } from "../navigation/navigationShim";
 import { getFullDetailsOfCourse, fetchCourseDetails, markLectureAsComplete, createRating } from "../services/operations/courseDetailsAPI";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -398,6 +398,30 @@ export default function ViewCourseScreen() {
               </View>
             );
           })()}
+
+                    {/* Lecture Supplementary Material / Downloadable Resource */}
+          {activeSubSection?.resourceUrl ? (
+            <TouchableOpacity
+              onPress={() => Linking.openURL(activeSubSection.resourceUrl)}
+              className="mt-4 flex-row items-center justify-between p-3.5 bg-yellow-500/10 border border-yellow-50/30 rounded-xl"
+            >
+              <View className="flex-row items-center flex-1 mr-2">
+                <Ionicons name="document-attach-outline" size={20} color="#FFD60A" />
+                <View className="ml-2.5 flex-1">
+                  <Text className="text-xs font-bold text-yellow-50" numberOfLines={1}>
+                    {activeSubSection.resourceName || "Lecture Study Material & Slides"}
+                  </Text>
+                  <Text className="text-xxs text-richblack-300 mt-0.5">
+                    Tap to download or view supplementary material
+                  </Text>
+                </View>
+              </View>
+              <View className="bg-yellow-50 px-2.5 py-1.5 rounded-lg flex-row items-center">
+                <Ionicons name="download-outline" size={14} color="#000" />
+                <Text className="text-richblack-900 font-bold text-xxs ml-1">Download</Text>
+              </View>
+            </TouchableOpacity>
+          ) : null}
 
           {/* Simple Personal Lecture Notes */}
           <LectureNotesBox subSectionId={currentSubSectionId} />

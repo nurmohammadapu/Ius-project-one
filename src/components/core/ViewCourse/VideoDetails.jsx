@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import "video-react/dist/video-react.css"
 import { useLocation } from "react-router-dom"
 import { BigPlayButton, Player } from "video-react"
+import { FiDownload, FiFileText } from "react-icons/fi"
 
 import { markLectureAsComplete } from "../../../services/operations/courseDetailsAPI"
 import { updateCompletedLectures } from "../../../redux/Slices/viewCourseSlice"
@@ -233,6 +234,35 @@ const VideoDetails = () => {
 
       <h1 className="mt-4 text-3xl font-semibold">{videoData?.title}</h1>
       <p className="pt-2 pb-2 text-richblack-200">{videoData?.description}</p>
+
+      {/* Lecture Supplementary Material / Downloadable Resource */}
+      {videoData?.resourceUrl && (
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between rounded-xl border border-yellow-50/40 bg-richblack-800 p-4 shadow-md">
+          <div className="flex items-center space-x-3 mb-3 sm:mb-0">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-yellow-50/10 text-yellow-50 text-xl">
+              <FiFileText />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-richblack-5">
+                {videoData.resourceName || "Lecture Study Material & Slides"}
+              </p>
+              <p className="text-xs text-richblack-300">
+                Supplementary handout / reference code attached to this lecture
+              </p>
+            </div>
+          </div>
+          <a
+            href={videoData.resourceUrl}
+            target="_blank"
+            rel="noreferrer"
+            download
+            className="flex items-center space-x-2 rounded-lg bg-yellow-50 px-4 py-2 text-xs font-bold text-richblack-900 shadow hover:bg-yellow-100 transition-all"
+          >
+            <FiDownload />
+            <span>Download Resource</span>
+          </a>
+        </div>
+      )}
 
       {/* Personal Lecture Notes Text Area */}
       <LectureNotes subSectionId={subSectionId} />

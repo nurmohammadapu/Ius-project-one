@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { toast } from "react-hot-toast"
 import { RxCross2 } from "react-icons/rx"
+import { FiPaperclip, FiFileText, FiDownload } from "react-icons/fi"
 import { useDispatch, useSelector } from "react-redux"
 
 import {
@@ -27,18 +28,14 @@ export default function SubSectionModal({
     getValues,
   } = useForm()
 
-  // console.log("view", view)
-  // console.log("edit", edit)
-  // console.log("add", add)
-
   const dispatch = useDispatch()
   const [loading, setLoading] = useState(false)
+  const [resourceFile, setResourceFile] = useState(null)
   const { token } = useSelector((state) => state.auth)
   const { course } = useSelector((state) => state.course)
 
   useEffect(() => {
     if (view || edit) {
-      // console.log("modalData", modalData)
       setValue("lectureTitle", modalData.title)
       setValue("lectureDesc", modalData.description)
       setValue("lectureVideo", modalData.videoUrl)
@@ -48,11 +45,11 @@ export default function SubSectionModal({
   // detect whether form is updated or not
   const isFormUpdated = () => {
     const currentValues = getValues()
-    // console.log("changes after editing form values:", currentValues)
     if (
       currentValues.lectureTitle !== modalData.title ||
       currentValues.lectureDesc !== modalData.description ||
-      currentValues.lectureVideo !== modalData.videoUrl
+      currentValues.lectureVideo !== modalData.videoUrl ||
+      resourceFile !== null
     ) {
       return true
     }
@@ -62,9 +59,7 @@ export default function SubSectionModal({
   // handle the editing of subsection
   const handleEditSubsection = async () => {
     const currentValues = getValues()
-    // console.log("changes after editing form values:", currentValues)
     const formData = new FormData()
-    // console.log("Values After Editing form values:", currentValues)
     formData.append("sectionId", modalData.sectionId)
     formData.append("subSectionId", modalData?.id || modalData?._id)
     if (currentValues.lectureTitle !== modalData.title) {
@@ -76,11 +71,13 @@ export default function SubSectionModal({
     if (currentValues.lectureVideo !== modalData.videoUrl) {
       formData.append("video", currentValues.lectureVideo)
     }
+    if (resourceFile) {
+      formData.append("resource", resourceFile)
+      formData.append("resourceName", resourceFile.name)
+    }
     setLoading(true)
     const result = await updateSubSection(formData, token)
     if (result) {
-      // console.log("result", result)
-      // update the structure of course
       const updatedCourseContent = course.courseContent.map((section) =>
         (section?.id || section?._id) === modalData.sectionId ? result : section
       )
@@ -92,7 +89,6 @@ export default function SubSectionModal({
   }
 
   const onSubmit = async (data) => {
-    // console.log(data)
     if (view) return
 
     if (edit) {
@@ -109,10 +105,13 @@ export default function SubSectionModal({
     formData.append("title", data.lectureTitle)
     formData.append("description", data.lectureDesc)
     formData.append("video", data.lectureVideo)
+    if (resourceFile) {
+      formData.append("resource", resourceFile)
+      formData.append("resourceName", resourceFile.name)
+    }
     setLoading(true)
     const result = await createSubSection(formData, token)
     if (result) {
-      // update the structure of course
       const updatedCourseContent = course.courseContent.map((section) =>
         (section?.id || section?._id) === modalData ? result : section
       )
@@ -138,7 +137,7 @@ export default function SubSectionModal({
         {/* Modal Form */}
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="space-y-8 px-8 py-10"
+          className="space-y-6 px-8 py-8"
         >
           {/* Lecture Video Upload */}
           <Upload
@@ -180,7 +179,7 @@ export default function SubSectionModal({
               id="lectureDesc"
               placeholder="Enter Lecture Description"
               {...register("lectureDesc", { required: true })}
-              className="form-style resize-x-none min-h-[130px] w-full"
+              className="form-style resize-x-none min-h-[100px] w-full"
             />
             {errors.lectureDesc && (
               <span className="ml-2 text-xs tracking-wide text-pink-200">
@@ -188,8 +187,72 @@ export default function SubSectionModal({
               </span>
             )}
           </div>
+
+          {/* Lecture Resource / Supplementary Material */}
+          <div className="flex flex-col space-y-2 rounded-lg border border-richblack-700 bg-richblack-900 p-4">
+            <label className="flex items-center text-sm font-semibold text-richblack-5">
+              <FiPaperclip className="mr-1.5 text-yellow-50" />
+              Lecture Resource / Slides (PDF, ZIP, Code)
+              <span className="ml-2 text-xs text-richblack-400 font-normal">Optional</span>
+            </label>
+
+            {/* If viewing existing resource */}
+            {(view || edit) && modalData?.resourceUrl && (
+              <div className="flex items-center justify-between rounded-md bg-richblack-800 p-3 border border-richblack-700">
+                <div className="flex items-center space-x-2 text-xs text-yellow-50">
+                  <FiFileText className="text-base" />
+                  <span className="font-medium truncate max-w-[280px]">
+                    {modalData.resourceName || "Attached Resource Material"}
+                  </span>
+                </div>
+                <a
+                  href={modalData.resourceUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center text-xs font-semibold text-yellow-50 hover:underline bg-yellow-50/10 px-2.5 py-1 rounded border border-yellow-50/30"
+                >
+                  <FiDownload className="mr-1" /> View / Download
+                </a>
+              </div>
+            )}
+
+            {!view && (
+              <div className="mt-2">
+                <input
+                  type="file"
+                  id="resourceFileInput"
+                  disabled={loading}
+                  onChange={(e) => setResourceFile(e.target.files?.[0] || null)}
+                  className="hidden"
+                />
+                <label
+                  htmlFor="resourceFileInput"
+                  className="flex cursor-pointer items-center justify-center rounded-lg border border-dashed border-richblack-600 bg-richblack-800 p-3 text-xs text-richblack-300 hover:border-yellow-50 transition-colors"
+                >
+                  <FiPaperclip className="mr-1.5 text-yellow-50 text-sm" />
+                  {resourceFile ? (
+                    <span className="text-yellow-50 font-medium truncate max-w-[350px]">
+                      Selected: {resourceFile.name} ({(resourceFile.size / (1024 * 1024)).toFixed(2)} MB)
+                    </span>
+                  ) : (
+                    <span>Click to attach supplementary slide, PDF, or code archive</span>
+                  )}
+                </label>
+                {resourceFile && (
+                  <button
+                    type="button"
+                    onClick={() => setResourceFile(null)}
+                    className="mt-1 text-xxs text-pink-300 hover:underline"
+                  >
+                    Remove attachment
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
           {!view && (
-            <div className="flex justify-end">
+            <div className="flex justify-end pt-2">
               <IconBtn
                 disabled={loading}
                 text={loading ? "Loading.." : edit ? "Save Changes" : "Save"}

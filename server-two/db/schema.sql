@@ -70,6 +70,8 @@ CREATE TABLE "SubSection" (
   "timeDuration" TEXT,
   "description" TEXT,
   "videoUrl" TEXT,
+  "resourceUrl" TEXT,
+  "resourceName" TEXT,
   "sectionId" TEXT REFERENCES "Section"("id") ON DELETE CASCADE
 );
 
@@ -217,6 +219,7 @@ CREATE TABLE IF NOT EXISTS "DoubtPost" (
   "courseId" TEXT REFERENCES "Course"("id") ON DELETE SET NULL,
   "title" TEXT NOT NULL,
   "description" TEXT NOT NULL,
+  "mediaUrl" TEXT,
   "status" TEXT NOT NULL DEFAULT 'OPEN',
   "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -231,6 +234,7 @@ CREATE TABLE IF NOT EXISTS "DoubtComment" (
   "postId" TEXT NOT NULL REFERENCES "DoubtPost"("id") ON DELETE CASCADE,
   "userId" TEXT NOT NULL REFERENCES "User"("id") ON DELETE CASCADE,
   "commentText" TEXT NOT NULL,
+  "mediaUrl" TEXT,
   "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS "idx_doubtcomment_post" ON "DoubtComment"("postId");
