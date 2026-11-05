@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
@@ -57,6 +57,48 @@ export default function DoubtForumScreen() {
   // Fullscreen Image Lightbox
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
+  const commentsScrollRef = useRef<ScrollView>(null);
+  const currentUserId = user?.id || user?._id;
+  const isInstructorOrAdmin =
+    user?.accountType === "Instructor" || user?.accountType === "Admin";
+
+  // Helpers for Author Info
+  const getAuthorName = (item: any) => {
+    if (item?.author?.firstName) {
+      return `${item.author.firstName} ${item.author.lastName || ""}`.trim();
+    }
+    if (item?.firstName) {
+      return `${item.firstName} ${item.lastName || ""}`.trim();
+    }
+    return "User";
+  };
+
+  const getAuthorImage = (item: any) => {
+    return (
+      item?.author?.image ||
+      item?.image ||
+      `https://api.dicebear.com/5.x/initials/svg?seed=${getAuthorName(item)}`
+    );
+  };
+
+  const getAuthorAccountType = (item: any) => {
+    return item?.author?.accountType || item?.accountType || "";
+  };
+
+  const formatDate = (dateStr: string) => {
+    try {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return dateStr;
+    }
+  };
+
   // 1. Fetch Doubts List
   const fetchDoubts = async () => {
     setLoading(true);
@@ -81,13 +123,14 @@ export default function DoubtForumScreen() {
     fetchDoubts();
   };
 
-  // 2. Open Discussion Detail
+  // 2. Open Discussion Detail (Smooth Loading)
   const handleOpenDiscussion = async (doubt: any) => {
     setActiveDoubt(doubt);
+    setComments([]);
     setLoadingComments(true);
     const details = await getDoubtDetails(doubt.id, token);
     if (details) {
-      setActiveDoubt(details.post || details);
+      setActiveDoubt(details.post || doubt);
       setComments(details.comments || []);
     }
     setLoadingComments(false);
@@ -120,7 +163,7 @@ export default function DoubtForumScreen() {
     }
   };
 
-  // 4. Submit Comment / Solution
+  // 4. Submit Comment / Solution (Instant update like Web)
   const handleAddComment = async () => {
     if (!newComment.trim() || !activeDoubt) return;
 
@@ -135,12 +178,21 @@ export default function DoubtForumScreen() {
     );
     setSubmittingComment(false);
 
-    if (res?.success && res?.data) {
-      setComments((prev) => [...prev, res.data]);
+    if (res?.success) {
       setNewComment("");
       setCommentMediaUrl("");
       setShowAttachInput(false);
-      // Update local count in doubts list
+
+      // Refresh discussion from server
+      const details = await getDoubtDetails(activeDoubt.id, token);
+      if (details) {
+        setComments(details.comments || []);
+        setTimeout(() => {
+          commentsScrollRef.current?.scrollToEnd({ animated: true });
+        }, 100);
+      }
+
+      // Update feed count
       setDoubts((prev) =>
         prev.map((d) =>
           d.id === activeDoubt.id
@@ -188,30 +240,12 @@ export default function DoubtForumScreen() {
     );
   };
 
-  const currentUserId = user?.id || user?._id;
-  const isInstructorOrAdmin =
-    user?.accountType === "Instructor" || user?.accountType === "Admin";
-
-  const formatDate = (dateStr: string) => {
-    try {
-      const d = new Date(dateStr);
-      return d.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch {
-      return dateStr;
-    }
-  };
-
   return (
     <SafeAreaView className="flex-1 bg-pure-greys-5 dark:bg-richblack-900">
       {/* Header */}
       <View className="flex-row items-center justify-between px-4 py-3 border-b border-pure-greys-25 dark:border-richblack-800 bg-white dark:bg-richblack-900">
         <View className="flex-row items-center flex-1">
-          <TouchableOpacity onPress={() => router.back()} className="mr-3">
+          <TouchableOpacity onPress={() => router.back()} className="mr-3 p-1">
             <Ionicons name="arrow-back" size={24} color={isDark ? "#F1F2FF" : "#000814"} />
           </TouchableOpacity>
           <View>
@@ -226,7 +260,7 @@ export default function DoubtForumScreen() {
 
         <TouchableOpacity
           onPress={() => setIsAskModalVisible(true)}
-          className="bg-yellow-50 px-3 py-1.5 rounded-lg flex-row items-center shadow-sm"
+          className="bg-yellow-50 px-3.5 py-2 rounded-xl flex-row items-center shadow-sm"
         >
           <Ionicons name="add" size={16} color="#000814" />
           <Text className="text-richblack-900 font-bold text-xs ml-1">Ask Doubt</Text>
@@ -237,7 +271,7 @@ export default function DoubtForumScreen() {
       <View className="p-4 bg-white dark:bg-richblack-850 border-b border-pure-greys-25 dark:border-richblack-800">
         {/* Search input */}
         <View className="flex-row items-center bg-pure-greys-5 dark:bg-richblack-800 border border-pure-greys-50 dark:border-richblack-700 rounded-xl px-3 py-2 mb-3">
-          <Ionicons name="search" size={18} color="#838894" className="mr-2" />
+          <Ionicons name="search" size={18} color="#838894" />
           <TextInput
             placeholder="Search questions or keywords..."
             placeholderTextColor="#838894"
@@ -245,7 +279,7 @@ export default function DoubtForumScreen() {
             onChangeText={setSearchQuery}
             onSubmitEditing={handleSearchSubmit}
             returnKeyType="search"
-            className="flex-1 text-sm text-richblack-900 dark:text-richblack-5 ml-2"
+            className="flex-1 text-xs text-richblack-900 dark:text-richblack-5 ml-2"
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity
@@ -269,7 +303,7 @@ export default function DoubtForumScreen() {
               onPress={() => setStatusFilter(tab)}
               className={`px-3 py-1.5 rounded-lg mr-2 ${
                 statusFilter === tab
-                  ? "bg-yellow-50"
+                  ? "bg-yellow-50 shadow-sm"
                   : "bg-pure-greys-5 dark:bg-richblack-800 border border-pure-greys-25 dark:border-richblack-700"
               }`}
             >
@@ -319,6 +353,8 @@ export default function DoubtForumScreen() {
                 (doubt.author && String(doubt.author.id) === String(currentUserId)));
             const canManage = isAuthor || isInstructorOrAdmin;
             const isOpen = doubt.status === "OPEN";
+            const authorName = getAuthorName(doubt);
+            const role = getAuthorAccountType(doubt);
 
             return (
               <View
@@ -328,18 +364,29 @@ export default function DoubtForumScreen() {
                 {/* Header: Author + Status */}
                 <View className="flex-row items-center justify-between mb-2">
                   <View className="flex-row items-center flex-1 mr-2">
-                    <View className="w-8 h-8 rounded-full bg-yellow-50/20 border border-yellow-50/40 items-center justify-center mr-2">
-                      <Ionicons name="person" size={14} color="#FFD60A" />
-                    </View>
+                    <Image
+                      source={{ uri: getAuthorImage(doubt) }}
+                      className="w-8 h-8 rounded-full mr-2 bg-pure-greys-50 dark:bg-richblack-700"
+                    />
                     <View className="flex-1">
-                      <Text
-                        className="text-xs font-bold text-richblack-900 dark:text-richblack-5"
-                        numberOfLines={1}
-                      >
-                        {doubt.author
-                          ? `${doubt.author.firstName} ${doubt.author.lastName}`
-                          : "Anonymous"}
-                      </Text>
+                      <View className="flex-row items-center">
+                        <Text
+                          className="text-xs font-bold text-richblack-900 dark:text-richblack-5"
+                          numberOfLines={1}
+                        >
+                          {authorName}
+                        </Text>
+                        {isAuthor && (
+                          <Text className="text-[10px] text-yellow-50 font-bold ml-1 bg-yellow-50/10 px-1 rounded">
+                            (You)
+                          </Text>
+                        )}
+                        {role === "Instructor" && !isAuthor && (
+                          <Text className="text-[10px] text-yellow-50 font-semibold ml-1 bg-yellow-50/10 px-1 rounded">
+                            Instructor
+                          </Text>
+                        )}
+                      </View>
                       <Text className="text-xxs text-richblack-400">
                         {formatDate(doubt.createdAt)}
                       </Text>
@@ -369,10 +416,10 @@ export default function DoubtForumScreen() {
                 </View>
 
                 {/* Course Tag if exists */}
-                {doubt.course?.courseName && (
-                  <View className="bg-pure-greys-5 dark:bg-richblack-900 px-2 py-1 rounded-md self-start mb-2">
+                {doubt.courseName && (
+                  <View className="bg-pure-greys-5 dark:bg-richblack-900 px-2 py-1 rounded-md self-start mb-2 border border-pure-greys-25 dark:border-richblack-700">
                     <Text className="text-xxs text-yellow-100 font-semibold">
-                      📘 {doubt.course.courseName}
+                      📘 {doubt.courseName}
                     </Text>
                   </View>
                 )}
@@ -383,7 +430,7 @@ export default function DoubtForumScreen() {
                     {doubt.title}
                   </Text>
                   <Text
-                    className="text-xs text-richblack-600 dark:text-richblack-300 mb-2"
+                    className="text-xs text-richblack-600 dark:text-richblack-300 mb-2 leading-relaxed"
                     numberOfLines={3}
                   >
                     {doubt.description}
@@ -405,14 +452,14 @@ export default function DoubtForumScreen() {
                 ) : null}
 
                 {/* Actions Row */}
-                <View className="flex-row items-center justify-between pt-2 border-t border-pure-greys-25 dark:border-richblack-700/60">
+                <View className="flex-row items-center justify-between pt-2.5 border-t border-pure-greys-25 dark:border-richblack-700/60">
                   <TouchableOpacity
                     onPress={() => handleOpenDiscussion(doubt)}
-                    className="flex-row items-center"
+                    className="flex-row items-center py-1"
                   >
-                    <Ionicons name="chatbubble-ellipses-outline" size={14} color="#838894" />
-                    <Text className="text-xs text-richblack-400 font-semibold ml-1.5">
-                      {doubt.commentsCount || 0} solutions / replies
+                    <Ionicons name="chatbubble-ellipses-outline" size={15} color="#FFD60A" />
+                    <Text className="text-xs text-yellow-50 font-bold ml-1.5">
+                      {doubt.commentsCount || 0} Solutions / Comments
                     </Text>
                   </TouchableOpacity>
 
@@ -420,20 +467,28 @@ export default function DoubtForumScreen() {
                     {canManage && (
                       <TouchableOpacity
                         onPress={() => handleToggleResolve(doubt.id)}
-                        className="px-2 py-1 bg-pure-greys-5 dark:bg-richblack-900 border border-pure-greys-25 dark:border-richblack-700 rounded-md mr-1.5"
+                        className={`px-2.5 py-1 rounded-lg border mr-1.5 ${
+                          isOpen
+                            ? "bg-caribbeangreen-900/20 border-caribbeangreen-500/40"
+                            : "bg-pure-greys-5 dark:bg-richblack-900 border-pure-greys-25 dark:border-richblack-700"
+                        }`}
                       >
-                        <Text className="text-xxs font-semibold text-richblack-700 dark:text-richblack-300">
+                        <Text
+                          className={`text-xxs font-bold ${
+                            isOpen ? "text-caribbeangreen-200" : "text-richblack-300"
+                          }`}
+                        >
                           {isOpen ? "Mark Resolved ✅" : "Reopen 🔄"}
                         </Text>
                       </TouchableOpacity>
                     )}
 
-                    {canManage && (
+                    {(isAuthor || user?.accountType === "Admin") && (
                       <TouchableOpacity
                         onPress={() => handleDeleteDoubt(doubt.id)}
-                        className="p-1"
+                        className="p-1.5 bg-pink-900/10 border border-pink-500/30 rounded-lg"
                       >
-                        <Ionicons name="trash-outline" size={15} color="#EF476F" />
+                        <Ionicons name="trash-outline" size={14} color="#EF476F" />
                       </TouchableOpacity>
                     )}
                   </View>
@@ -455,7 +510,7 @@ export default function DoubtForumScreen() {
               <Text className="text-base font-bold text-richblack-900 dark:text-richblack-5">
                 Ask a Doubt ❓
               </Text>
-              <TouchableOpacity onPress={() => setIsAskModalVisible(false)}>
+              <TouchableOpacity onPress={() => setIsAskModalVisible(false)} className="p-1">
                 <Ionicons name="close" size={22} color={isDark ? "#F1F2FF" : "#000814"} />
               </TouchableOpacity>
             </View>
@@ -500,7 +555,7 @@ export default function DoubtForumScreen() {
               <TouchableOpacity
                 onPress={handlePostDoubt}
                 disabled={submittingDoubt}
-                className="bg-yellow-50 py-3 rounded-xl flex-row justify-center items-center"
+                className="bg-yellow-50 py-3 rounded-xl flex-row justify-center items-center shadow"
               >
                 {submittingDoubt ? (
                   <ActivityIndicator color="#000" />
@@ -518,57 +573,110 @@ export default function DoubtForumScreen() {
         </KeyboardAvoidingView>
       </Modal>
 
-      {/* Discussion Details Modal */}
-      <Modal visible={!!activeDoubt} transparent animationType="slide">
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-          className="flex-1 bg-black/85 justify-end"
-        >
-          <View className="w-full bg-white dark:bg-richblack-850 rounded-t-3xl border-t border-pure-greys-25 dark:border-richblack-700 max-h-[90%] flex-col">
-            {/* Modal Header */}
-            <View className="flex-row justify-between items-center px-4 py-3 border-b border-pure-greys-25 dark:border-richblack-700">
-              <View className="flex-row items-center flex-1 mr-2">
-                <Ionicons name="chatbubbles" size={18} color="#FFD60A" />
-                <Text
-                  className="text-sm font-bold text-richblack-900 dark:text-richblack-5 ml-2 flex-1"
-                  numberOfLines={1}
-                >
-                  Discussion & Solutions
-                </Text>
-              </View>
-              <TouchableOpacity onPress={() => setActiveDoubt(null)}>
-                <Ionicons name="close" size={24} color={isDark ? "#F1F2FF" : "#000814"} />
-              </TouchableOpacity>
+      {/* FULL-SCREEN DISCUSSION & COMMENTS MODAL (Smooth Native View) */}
+      <Modal
+        visible={!!activeDoubt}
+        animationType="slide"
+        onRequestClose={() => setActiveDoubt(null)}
+      >
+        <SafeAreaView className="flex-1 bg-white dark:bg-richblack-900">
+          {/* Top Header */}
+          <View className="flex-row items-center justify-between px-4 py-3 border-b border-pure-greys-25 dark:border-richblack-800 bg-white dark:bg-richblack-900">
+            <TouchableOpacity onPress={() => setActiveDoubt(null)} className="mr-3 p-1">
+              <Ionicons name="arrow-back" size={24} color={isDark ? "#F1F2FF" : "#000814"} />
+            </TouchableOpacity>
+            <View className="flex-1">
+              <Text className="text-base font-bold text-richblack-900 dark:text-richblack-5" numberOfLines={1}>
+                Discussion & Solutions
+              </Text>
+              <Text className="text-xxs text-richblack-400">
+                {comments.length} community replies
+              </Text>
             </View>
+            <TouchableOpacity onPress={() => setActiveDoubt(null)} className="p-1">
+              <Ionicons name="close" size={22} color={isDark ? "#838894" : "#000814"} />
+            </TouchableOpacity>
+          </View>
 
-            {/* Post details + comments */}
-            <ScrollView className="flex-1 px-4 py-3" showsVerticalScrollIndicator={false}>
-              {activeDoubt && (
-                <View className="mb-4 pb-3 border-b border-pure-greys-25 dark:border-richblack-700">
-                  <View className="flex-row justify-between items-center mb-1.5">
-                    <Text className="text-xxs font-bold text-yellow-100">
-                      Posted by{" "}
-                      {activeDoubt.author
-                        ? `${activeDoubt.author.firstName} ${activeDoubt.author.lastName}`
-                        : "Anonymous"}
-                    </Text>
-                    <Text className="text-xxs text-richblack-400">
-                      {formatDate(activeDoubt.createdAt)}
+          {/* Main Scroll Content */}
+          <ScrollView
+            ref={commentsScrollRef}
+            className="flex-1 px-4 py-3"
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            {activeDoubt && (() => {
+              const activeAuthorName = getAuthorName(activeDoubt);
+              const isActiveAuthor =
+                currentUserId &&
+                (String(activeDoubt.userId) === String(currentUserId) ||
+                  (activeDoubt.author && String(activeDoubt.author.id) === String(currentUserId)));
+              const canManageActive = isActiveAuthor || isInstructorOrAdmin;
+              const isOpen = activeDoubt.status === "OPEN";
+
+              return (
+                <View className="mb-4 pb-4 border-b border-pure-greys-25 dark:border-richblack-800">
+                  {/* Author Header */}
+                  <View className="flex-row items-center justify-between mb-3">
+                    <View className="flex-row items-center flex-1 mr-2">
+                      <Image
+                        source={{ uri: getAuthorImage(activeDoubt) }}
+                        className="w-10 h-10 rounded-full mr-2.5 bg-pure-greys-50 dark:bg-richblack-700"
+                      />
+                      <View className="flex-1">
+                        <View className="flex-row items-center">
+                          <Text className="text-sm font-bold text-richblack-900 dark:text-richblack-5">
+                            {activeAuthorName}
+                          </Text>
+                          {isActiveAuthor && (
+                            <Text className="text-[10px] text-yellow-50 font-bold ml-1.5 bg-yellow-50/10 px-1.5 py-0.5 rounded">
+                              Author
+                            </Text>
+                          )}
+                        </View>
+                        <Text className="text-xxs text-richblack-400">
+                          {formatDate(activeDoubt.createdAt)}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View
+                      className={`px-2.5 py-1 rounded-full flex-row items-center ${
+                        isOpen
+                          ? "bg-yellow-500/10 border border-yellow-50/30"
+                          : "bg-caribbeangreen-900/30 border border-caribbeangreen-500/30"
+                      }`}
+                    >
+                      <Ionicons
+                        name={isOpen ? "help-circle-outline" : "checkmark-circle"}
+                        size={12}
+                        color={isOpen ? "#FFD60A" : "#06D6A0"}
+                      />
+                      <Text
+                        className={`text-xxs font-bold ml-1 ${
+                          isOpen ? "text-yellow-50" : "text-caribbeangreen-200"
+                        }`}
+                      >
+                        {activeDoubt.status}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Title & Full Description */}
+                  <Text className="text-base font-bold text-richblack-900 dark:text-richblack-5 mb-2">
+                    {activeDoubt.title}
+                  </Text>
+                  <View className="p-3.5 bg-pure-greys-5 dark:bg-richblack-800 rounded-xl border border-pure-greys-25 dark:border-richblack-700/80 mb-3">
+                    <Text className="text-xs text-richblack-700 dark:text-richblack-200 leading-relaxed whitespace-pre-wrap">
+                      {activeDoubt.description}
                     </Text>
                   </View>
 
-                  <Text className="text-base font-bold text-richblack-900 dark:text-richblack-5 mb-1.5">
-                    {activeDoubt.title}
-                  </Text>
-                  <Text className="text-xs text-richblack-700 dark:text-richblack-200 mb-3">
-                    {activeDoubt.description}
-                  </Text>
-
-                  {/* Attached Post Media Image */}
+                  {/* Attached Media Image */}
                   {activeDoubt.mediaUrl ? (
                     <TouchableOpacity
                       onPress={() => setPreviewImage(activeDoubt.mediaUrl)}
-                      className="mb-3 rounded-xl overflow-hidden border border-pure-greys-25 dark:border-richblack-700"
+                      className="mb-3 rounded-xl overflow-hidden border border-pure-greys-25 dark:border-richblack-700 bg-pure-greys-5 dark:bg-richblack-900"
                     >
                       <Image
                         source={{ uri: activeDoubt.mediaUrl }}
@@ -578,106 +686,106 @@ export default function DoubtForumScreen() {
                     </TouchableOpacity>
                   ) : null}
 
-                  {/* Status & Resolve Button */}
-                  <View className="flex-row items-center justify-between">
-                    <View
-                      className={`px-2 py-0.5 rounded-full flex-row items-center ${
-                        activeDoubt.status === "OPEN"
-                          ? "bg-yellow-500/10 border border-yellow-50/30"
-                          : "bg-caribbeangreen-900/30 border border-caribbeangreen-500/30"
-                      }`}
-                    >
-                      <Text
-                        className={`text-xxs font-bold ${
-                          activeDoubt.status === "OPEN"
-                            ? "text-yellow-50"
-                            : "text-caribbeangreen-200"
+                  {/* Actions for Author/Instructor */}
+                  <View className="flex-row items-center justify-between pt-1">
+                    {canManageActive && (
+                      <TouchableOpacity
+                        onPress={() => handleToggleResolve(activeDoubt.id)}
+                        className={`flex-row items-center px-3 py-1.5 rounded-lg border ${
+                          isOpen
+                            ? "bg-caribbeangreen-900/20 border-caribbeangreen-500/40"
+                            : "bg-pure-greys-5 dark:bg-richblack-800 border-pure-greys-25 dark:border-richblack-700"
                         }`}
                       >
-                        Status: {activeDoubt.status}
-                      </Text>
-                    </View>
-
-                    <View className="flex-row items-center space-x-2">
-                      {((currentUserId &&
-                        (String(activeDoubt.userId) === String(currentUserId) ||
-                          (activeDoubt.author &&
-                            String(activeDoubt.author.id) === String(currentUserId)))) ||
-                        isInstructorOrAdmin) ? (
-                        <TouchableOpacity
-                          onPress={() => handleToggleResolve(activeDoubt.id)}
-                          className="px-2.5 py-1 bg-yellow-50/10 border border-yellow-50/30 rounded-lg mr-2"
+                        <Ionicons
+                          name={isOpen ? "checkmark-circle-outline" : "refresh-outline"}
+                          size={14}
+                          color={isOpen ? "#06D6A0" : "#838894"}
+                        />
+                        <Text
+                          className={`text-xs font-bold ml-1 ${
+                            isOpen ? "text-caribbeangreen-200" : "text-richblack-300"
+                          }`}
                         >
-                          <Text className="text-xxs font-bold text-yellow-50">
-                            {activeDoubt.status === "OPEN"
-                              ? "Mark Resolved ✅"
-                              : "Reopen Doubt 🔄"}
-                          </Text>
-                        </TouchableOpacity>
-                      ) : null}
+                          {isOpen ? "Mark Resolved ✅" : "Reopen Doubt 🔄"}
+                        </Text>
+                      </TouchableOpacity>
+                    )}
 
-                      {((currentUserId &&
-                        (String(activeDoubt.userId) === String(currentUserId) ||
-                          (activeDoubt.author &&
-                            String(activeDoubt.author.id) === String(currentUserId)))) ||
-                        user?.accountType === "Admin") ? (
-                        <TouchableOpacity
-                          onPress={() => handleDeleteDoubt(activeDoubt.id)}
-                          className="p-1.5 bg-pure-greys-5 dark:bg-richblack-900 border border-pure-greys-25 dark:border-richblack-700 rounded-lg"
-                        >
-                          <Ionicons name="trash-outline" size={15} color="#EF476F" />
-                        </TouchableOpacity>
-                      ) : null}
-                    </View>
+                    {(isActiveAuthor || user?.accountType === "Admin") && (
+                      <TouchableOpacity
+                        onPress={() => handleDeleteDoubt(activeDoubt.id)}
+                        className="flex-row items-center px-2.5 py-1.5 bg-pink-900/10 border border-pink-500/30 rounded-lg"
+                      >
+                        <Ionicons name="trash-outline" size={14} color="#EF476F" />
+                        <Text className="text-xs font-semibold text-pink-300 ml-1">Delete</Text>
+                      </TouchableOpacity>
+                    )}
                   </View>
                 </View>
-              )}
+              );
+            })()}
 
-              {/* Threaded Solutions / Comments */}
-              <Text className="text-xs font-bold text-richblack-900 dark:text-richblack-100 mb-2">
-                Replies & Solutions ({comments.length})
+            {/* Replies Header */}
+            <View className="flex-row items-center justify-between mb-3">
+              <Text className="text-xs font-bold text-richblack-900 dark:text-richblack-100 flex-row items-center">
+                💬 Solutions & Community Replies ({comments.length})
               </Text>
+            </View>
 
-              {loadingComments ? (
-                <View className="py-6 justify-center items-center">
-                  <ActivityIndicator size="small" color="#FFD60A" />
-                </View>
-              ) : comments.length === 0 ? (
-                <View className="py-6 items-center">
-                  <Text className="text-xs text-richblack-400">
-                    No solutions posted yet. Be the first to help!
-                  </Text>
-                </View>
-              ) : (
-                comments.map((item, idx) => (
+            {loadingComments ? (
+              <View className="py-8 justify-center items-center">
+                <ActivityIndicator size="small" color="#FFD60A" />
+                <Text className="text-richblack-400 text-xs mt-2">Loading discussion...</Text>
+              </View>
+            ) : comments.length === 0 ? (
+              <View className="py-8 px-4 bg-pure-greys-5 dark:bg-richblack-800/60 rounded-xl items-center border border-dashed border-pure-greys-25 dark:border-richblack-700">
+                <Ionicons name="chatbubble-outline" size={28} color="#838894" />
+                <Text className="text-xs text-richblack-400 mt-2 text-center">
+                  No solutions posted yet. Write the first reply below!
+                </Text>
+              </View>
+            ) : (
+              comments.map((item, idx) => {
+                const commentAuthorName = getAuthorName(item);
+                const role = getAuthorAccountType(item);
+
+                return (
                   <View
                     key={item.id || `c-${idx}`}
-                    className="p-3 bg-pure-greys-5 dark:bg-richblack-800 rounded-xl mb-2.5 border border-pure-greys-25 dark:border-richblack-700/60"
+                    className="p-3.5 bg-pure-greys-5 dark:bg-richblack-800 rounded-xl mb-3 border border-pure-greys-25 dark:border-richblack-700/60"
                   >
-                    <View className="flex-row justify-between items-center mb-1">
-                      <Text className="text-xs font-bold text-richblack-900 dark:text-richblack-5">
-                        {item.author
-                          ? `${item.author.firstName} ${item.author.lastName}`
-                          : "Student"}
-                        {item.author?.accountType && (
-                          <Text className="text-xxs text-yellow-100 font-normal">
-                            {" "}
-                            • {item.author.accountType}
+                    <View className="flex-row items-center justify-between mb-1.5">
+                      <View className="flex-row items-center flex-1 mr-2">
+                        <Image
+                          source={{ uri: getAuthorImage(item) }}
+                          className="w-6 h-6 rounded-full mr-2 bg-pure-greys-50 dark:bg-richblack-700"
+                        />
+                        <Text
+                          className="text-xs font-bold text-richblack-900 dark:text-richblack-5"
+                          numberOfLines={1}
+                        >
+                          {commentAuthorName}
+                        </Text>
+                        {role === "Instructor" && (
+                          <Text className="text-[9px] text-yellow-50 font-bold ml-1.5 bg-yellow-50/10 px-1 rounded">
+                            Instructor
                           </Text>
                         )}
-                      </Text>
+                      </View>
                       <Text className="text-xxs text-richblack-400">
                         {formatDate(item.createdAt)}
                       </Text>
                     </View>
-                    <Text className="text-xs text-richblack-700 dark:text-richblack-200">
+
+                    <Text className="text-xs text-richblack-700 dark:text-richblack-200 leading-relaxed pl-8">
                       {item.commentText}
                     </Text>
 
                     {item.mediaUrl ? (
                       <TouchableOpacity
                         onPress={() => setPreviewImage(item.mediaUrl)}
-                        className="mt-2 rounded-lg overflow-hidden border border-pure-greys-25 dark:border-richblack-700"
+                        className="mt-2.5 ml-8 rounded-lg overflow-hidden border border-pure-greys-25 dark:border-richblack-700"
                       >
                         <Image
                           source={{ uri: item.mediaUrl }}
@@ -687,19 +795,25 @@ export default function DoubtForumScreen() {
                       </TouchableOpacity>
                     ) : null}
                   </View>
-                ))
-              )}
-            </ScrollView>
+                );
+              })
+            )}
+            <View className="h-6" />
+          </ScrollView>
 
-            {/* Optional media attachment bar */}
+          {/* Bottom Fixed Comment Bar */}
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : undefined}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 0}
+          >
             {showAttachInput && (
-              <View className="px-3 pt-2 bg-white dark:bg-richblack-900 border-t border-pure-greys-25 dark:border-richblack-800 flex-row items-center">
+              <View className="px-4 py-2 bg-pure-greys-5 dark:bg-richblack-850 border-t border-pure-greys-25 dark:border-richblack-700 flex-row items-center">
                 <TextInput
                   placeholder="Paste image/screenshot URL..."
                   placeholderTextColor="#838894"
                   value={commentMediaUrl}
                   onChangeText={setCommentMediaUrl}
-                  className="flex-1 bg-pure-greys-5 text-richblack-900 px-3 py-1.5 rounded-lg border border-pure-greys-50 dark:bg-richblack-800 dark:text-richblack-5 dark:border-richblack-700 text-xxs mr-2"
+                  className="flex-1 bg-white dark:bg-richblack-800 text-richblack-900 dark:text-richblack-5 px-3 py-1.5 rounded-lg border border-pure-greys-50 dark:border-richblack-700 text-xxs mr-2"
                 />
                 <TouchableOpacity onPress={() => setShowAttachInput(false)}>
                   <Ionicons name="close-circle" size={18} color="#838894" />
@@ -707,25 +821,24 @@ export default function DoubtForumScreen() {
               </View>
             )}
 
-            {/* Comment Input Bar */}
-            <View className="p-3 border-t border-pure-greys-25 dark:border-richblack-700 flex-row items-center bg-white dark:bg-richblack-900">
+            <View className="p-3 border-t border-pure-greys-25 dark:border-richblack-800 flex-row items-center bg-white dark:bg-richblack-900">
               <TextInput
-                placeholder="Write a solution or reply..."
+                placeholder="Write your solution or reply..."
                 placeholderTextColor="#838894"
                 value={newComment}
                 onChangeText={setNewComment}
-                className="flex-1 bg-pure-greys-5 text-richblack-900 px-3 py-2 rounded-xl border border-pure-greys-50 dark:bg-richblack-800 dark:text-richblack-5 dark:border-richblack-700 text-xs mr-2"
+                className="flex-1 bg-pure-greys-5 text-richblack-900 px-3.5 py-2.5 rounded-xl border border-pure-greys-50 dark:bg-richblack-800 dark:text-richblack-5 dark:border-richblack-700 text-xs mr-2"
               />
 
               <TouchableOpacity
                 onPress={() => setShowAttachInput((prev) => !prev)}
-                className={`w-9 h-9 rounded-xl justify-center items-center mr-2 border border-pure-greys-50 dark:border-richblack-700 ${
+                className={`w-10 h-10 rounded-xl justify-center items-center mr-2 border border-pure-greys-50 dark:border-richblack-700 ${
                   commentMediaUrl ? "bg-yellow-50/20" : "bg-pure-greys-5 dark:bg-richblack-800"
                 }`}
               >
                 <Ionicons
                   name="image-outline"
-                  size={16}
+                  size={18}
                   color={commentMediaUrl ? "#FFD60A" : "#838894"}
                 />
               </TouchableOpacity>
@@ -733,8 +846,8 @@ export default function DoubtForumScreen() {
               <TouchableOpacity
                 onPress={handleAddComment}
                 disabled={submittingComment || !newComment.trim()}
-                className={`w-9 h-9 rounded-xl justify-center items-center ${
-                  newComment.trim() ? "bg-yellow-50" : "bg-pure-greys-50 dark:bg-richblack-700"
+                className={`w-10 h-10 rounded-xl justify-center items-center ${
+                  newComment.trim() ? "bg-yellow-50 shadow" : "bg-pure-greys-50 dark:bg-richblack-700"
                 }`}
               >
                 {submittingComment ? (
@@ -748,23 +861,23 @@ export default function DoubtForumScreen() {
                 )}
               </TouchableOpacity>
             </View>
-          </View>
-        </KeyboardAvoidingView>
+          </KeyboardAvoidingView>
+        </SafeAreaView>
       </Modal>
 
       {/* Lightbox Image Preview Modal */}
       <Modal visible={!!previewImage} transparent animationType="fade">
-        <View className="flex-1 bg-black/90 justify-center items-center p-4">
+        <View className="flex-1 bg-black/95 justify-center items-center p-4">
           <TouchableOpacity
             onPress={() => setPreviewImage(null)}
             className="absolute top-12 right-6 z-10 p-2"
           >
-            <Ionicons name="close" size={28} color="#FFF" />
+            <Ionicons name="close" size={30} color="#FFF" />
           </TouchableOpacity>
           {previewImage && (
             <Image
               source={{ uri: previewImage }}
-              className="w-full h-[70%]"
+              className="w-full h-[75%]"
               resizeMode="contain"
             />
           )}
