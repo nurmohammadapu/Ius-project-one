@@ -7,7 +7,7 @@ body {
   overflow-x: hidden;
 }
 
-/* ===== Scrollbar CSS ===== */
+/* Scrollbar CSS */
 /* Firefox */
 * {
   scrollbar-width: auto;

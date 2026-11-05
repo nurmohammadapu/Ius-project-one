@@ -94,9 +94,7 @@ export default function DashboardScreen() {
         </View>
 
         {user?.accountType === "Admin" ? (
-          /* =========================================================================
-             ADMIN DASHBOARD VIEW
-             ========================================================================= */
+          // Admin Dashboard
           <View className="mt-6 mb-8">
             <Text className="text-lg font-bold text-richblack-900 dark:text-richblack-5 mb-4">Platform Overview</Text>
             
@@ -161,9 +159,7 @@ export default function DashboardScreen() {
             </View>
           </View>
         ) : user?.accountType === "Instructor" ? (
-          /* =========================================================================
-             INSTRUCTOR DASHBOARD VIEW
-             ========================================================================= */
+          // Instructor Dashboard
           <View className="mt-6 mb-8">
             {/* Quick Actions */}
             <View className="mb-6">
@@ -349,9 +345,7 @@ export default function DashboardScreen() {
             </View>
           </View>
         ) : (
-          /* =========================================================================
-             STUDENT DASHBOARD VIEW
-             ========================================================================= */
+          // Student Dashboard
           <View className="mt-6 mb-8">
             {/* Quick Actions */}
             <View className="mb-6 space-y-3">

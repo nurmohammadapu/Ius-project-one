@@ -123,7 +123,7 @@ export default function DoubtForumScreen() {
     fetchDoubts();
   };
 
-  // 2. Open Discussion Detail (Smooth Loading)
+  // Open Discussion Detail
   const handleOpenDiscussion = async (doubt: any) => {
     setActiveDoubt(doubt);
     setComments([]);
@@ -163,7 +163,7 @@ export default function DoubtForumScreen() {
     }
   };
 
-  // 4. Submit Comment / Solution (Instant update like Web)
+  // Submit Comment
   const handleAddComment = async () => {
     if (!newComment.trim() || !activeDoubt) return;
 
@@ -573,7 +573,7 @@ export default function DoubtForumScreen() {
         </KeyboardAvoidingView>
       </Modal>
 
-      {/* FULL-SCREEN DISCUSSION & COMMENTS MODAL (Smooth Native View) */}
+      {/* Discussion & Comments Modal */}
       <Modal
         visible={!!activeDoubt}
         animationType="slide"

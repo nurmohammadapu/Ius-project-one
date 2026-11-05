@@ -383,9 +383,7 @@ export default function MyExamsScreen() {
               </View>
 
               {activeExam.examType === "MCQ" ? (
-                /* =========================================================================
-                   MCQ QUESTIONS LIST
-                   ========================================================================= */
+                // MCQ Questions
                 <View className="space-y-6 mb-10">
                   {activeExam.questions?.map((q: any, qIdx: number) => {
                     const selectedOpt = selectedAnswers[q.id];
@@ -438,9 +436,7 @@ export default function MyExamsScreen() {
                   })}
                 </View>
               ) : (
-                /* =========================================================================
-                   WRITTEN PHOTO UPLOADER
-                   ========================================================================= */
+                // Written Photo Uploader
                 <View className="bg-white dark:bg-richblack-850 p-5 border border-pure-greys-25 dark:border-richblack-800 rounded-xl mb-6">
                   <Text className="text-sm font-bold text-richblack-900 dark:text-richblack-5 mb-4 text-center">
                     Upload Your Answer Sheet

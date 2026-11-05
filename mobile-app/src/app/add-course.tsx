@@ -95,9 +95,7 @@ export default function AddCourseScreen() {
   );
 }
 
-/* =========================================================================
-   STEP 1: COURSE INFORMATION FORM
-   ========================================================================= */
+// Course Information
 function CourseInfoStep() {
   const dispatch = useDispatch();
   const { token } = useSelector((state: any) => state.auth);
@@ -430,9 +428,7 @@ function CourseInfoStep() {
   );
 }
 
-/* =========================================================================
-   STEP 2: COURSE BUILDER FORM & LECTURES LIST
-   ========================================================================= */
+/* STEP 2: COURSE BUILDER FORM & LECTURES LIST */
 function CourseBuilderStep() {
   const dispatch = useDispatch();
   const router = useRouter();
@@ -771,9 +767,7 @@ function CourseBuilderStep() {
   );
 }
 
-/* =========================================================================
-   SUB-SECTION LECTURE MODAL COMPONENT (LOCAL VIEW)
-   ========================================================================= */
+// SubSection Modal
 interface SubModalProps {
   visible: boolean;
   onClose: () => void;
@@ -962,9 +956,7 @@ function SubSectionModal({ visible, onClose, mode, sectionId, subsection, course
   );
 }
 
-/* =========================================================================
-   STEP 3: PUBLISH COURSE OPTIONS
-   ========================================================================= */
+// Publish Step
 function PublishStep() {
   const dispatch = useDispatch();
   const router = useRouter();

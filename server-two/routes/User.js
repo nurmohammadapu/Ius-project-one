@@ -29,9 +29,7 @@ const { auth , logout, isAdmin, isStudent  } = require("../middlewares/auth")
 
 // Routes for Login, Signup, and Authentication
 
-// ********************************************************************************************************
-//                                      Authentication routes
-// ********************************************************************************************************
+// Authentication routes
 
 router.post("/manageInstructor",auth, isAdmin, manageInstructor);
 
@@ -61,9 +59,7 @@ router.post("/changepassword", auth, changePassword)
 //logout
 router.post('/logout', logout);
 
-// ********************************************************************************************************
-//                                      Reset Password
-// ********************************************************************************************************
+// Reset Password routes
 
 // Route for generating a reset password token
 router.post("/reset-password-token", resetPasswordToken)
