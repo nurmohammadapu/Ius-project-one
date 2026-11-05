@@ -1,7 +1,7 @@
 const { db } = require("../config/database");
 const bcrypt = require("bcrypt");
 
-// 1. getAllStudents (Raw SQL with JOIN)
+// 1. getAllStudents 
 exports.getAllStudents = async (req, res) => {
   try {
     const students = await db.$query`
@@ -42,7 +42,7 @@ exports.getAllStudents = async (req, res) => {
   }
 };
 
-// 2. getAllInstructors (Raw SQL with JOIN)
+// 2. getAllInstructors 
 exports.getAllInstructors = async (req, res) => {
   try {
     const instructors = await db.$query`
@@ -83,7 +83,7 @@ exports.getAllInstructors = async (req, res) => {
   }
 };
 
-// 3. toggleUserStatus (Raw SQL UPDATE)
+// 3. toggleUserStatus
 exports.toggleUserStatus = async (req, res) => {
   try {
     const { userId, active } = req.body;
@@ -303,7 +303,7 @@ exports.toggleCoursePublish = async (req, res) => {
   }
 };
 
-// 8. getFinancialReport (Raw SQL Many-To-Many JOIN)
+// 8. getFinancialReport 
 exports.getFinancialReport = async (req, res) => {
   try {
     // Explicit Many-To-Many Table: "CourseEnrollment"

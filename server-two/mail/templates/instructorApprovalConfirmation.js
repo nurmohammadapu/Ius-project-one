@@ -54,7 +54,7 @@ exports.instructorApprovalConfirmation = (firstName, lastName) => {
     
     <body>
         <div class="container">
-            <a href="https://study-notion-hosting-rouge.vercel.app"><img class="logo" src="https://i.ibb.co/7Xyj3PC/logo.png" alt="StudyNotion Logo"></a>
+            <a href=""><img class="logo" src="https://i.ibb.co/7Xyj3PC/logo.png" alt="StudyNotion Logo"></a>
             <div class="message">Instructor Approval Confirmation</div>
             <div class="body">
                 <p>Dear ${firstName} ${lastName},</p>
@@ -62,7 +62,7 @@ exports.instructorApprovalConfirmation = (firstName, lastName) => {
                 <p>You can now log in and start creating and managing your courses.</p>
                 <p>Thank you for joining our platform. We look forward to your contributions!</p>
             </div>
-            <div class="support">If you have any questions or need further assistance, please feel free to reach out to us at <a href="mailto:info@studynotion.com">info@studynotion.com</a>. We are here to help!</div>
+            <div class="support">If you have any questions or need further assistance, please feel free to reach out to us at <a href=""></a>. We are here to help!</div>
         </div>
     </body>
     
@@ -125,15 +125,15 @@ exports.instructorDenial = (firstName, lastName) => {
     
     <body>
         <div class="container">
-            <a href="https://study-notion-hosting-rouge.vercel.app"><img class="logo" src="https://i.ibb.co/7Xyj3PC/logo.png" alt="StudyNotion Logo"></a>
+            <a href=""><img class="logo" src="https://i.ibb.co/7Xyj3PC/logo.png" alt="StudyNotion Logo"></a>
             <div class="message">Instructor Application Denied</div>
             <div class="body">
                 <p>Dear ${firstName} ${lastName},</p>
                 <p>We regret to inform you that your application to become an instructor has been denied.</p>
-                <p>If you believe this decision was made in error or if you have any questions regarding this decision, please contact us at <a href="mailto:info@studynotion.com">info@studynotion.com</a>.</p>
+                <p>If you believe this decision was made in error or if you have any questions regarding this decision, please contact us at <a href=""></a>.</p>
                 <p>Thank you for your interest in our platform.</p>
             </div>
-            <div class="support">If you have any questions or need further assistance, please feel free to reach out to us at <a href="mailto:info@studynotion.com">info@studynotion.com</a>. We are here to help!</div>
+            <div class="support">If you have any questions or need further assistance, please feel free to reach out to us at <a href=""></a>. We are here to help!</div>
         </div>
     </body>
     
@@ -196,7 +196,7 @@ exports.userCreationConfirmation = (firstName, lastName, accountType) => {
     
     <body>
         <div class="container">
-            <a href="https://study-notion-hosting-rouge.vercel.app"><img class="logo"
+            <a href=""><img class="logo"
                     src="https://i.ibb.co/7Xyj3PC/logo.png" alt="StudyNotion Logo"></a>
             <div class="message">Account Created Successfully</div>
             <div class="body">
@@ -206,7 +206,7 @@ exports.userCreationConfirmation = (firstName, lastName, accountType) => {
             </div>
             <div class="support">If you have any questions or need further assistance, please feel free to reach out to us
                 at
-                <a href="mailto:info@studynotion.com">info@studynotion.com</a>. We are here to help!
+                <a href=""></a>. We are here to help!
             </div>
         </div>
     </body>
@@ -270,7 +270,7 @@ exports.instructorApproval = (firstName, lastName, email) => {
       
       <body>
           <div class="container">
-              <a href="https://study-notion-hosting-rouge.vercel.app"><img class="logo"
+              <a href=""><img class="logo"
                       src="https://i.ibb.co/7Xyj3PC/logo.png" alt="StudyNotion Logo"></a>
               <div class="message">New Instructor Approval Request</div>
               <div class="body">
@@ -281,7 +281,7 @@ exports.instructorApproval = (firstName, lastName, email) => {
               </div>
               <div class="support">If you have any questions or need further assistance, please feel free to reach out to us
                   at
-                  <a href="mailto:info@studynotion.com">info@studynotion.com</a>. We are here to help!
+                  <a href=""></a>. We are here to help!
               </div>
           </div>
       </body>
