@@ -1,10 +1,8 @@
-const { instance } = require("../config/razorpay");
 const { db } = require("../config/database");
 const mailSender = require("../utils/mailSender");
 const { courseEnrollmentEmail } = require("../mail/templates/courseEnrollmentEmail");
 const { paymentSuccessEmail } = require("../mail/templates/paymentSuccessEmail");
 const { stripeInstance } = require("../config/stripe");
-const crypto = require("crypto");
 
 // Fixed enrollStudents helper function
 const enrollStudents = async (courses, userId) => {
@@ -78,105 +76,6 @@ const enrollStudents = async (courses, userId) => {
       });
     }
   }
-};
-
-// 1. Capture the payment and initiate the Razorpay order  
-exports.capturePayment = async (req, res) => {
-  const { courses } = req.body;
-  const userId = req.user?.id;
-
-  if (!courses || courses.length === 0) {
-    return res.json({ success: false, message: "Please Provide Course ID" });
-  }
-
-  let total_amount = 0;
-
-  for (const course_id of courses) {
-    try {
-      const courseResult = await db.$query`
-        SELECT c.id, c.price,
-          EXISTS(
-            SELECT 1 FROM "CourseEnrollment" es
-            WHERE es."courseId" = c.id AND es."userId" = ${userId}
-          ) AS "isEnrolled"
-        FROM "Course" c
-        WHERE c.id = ${course_id}
-      `;
-
-      const course = courseResult[0];
-
-      if (!course) {
-        return res
-          .status(200)
-          .json({ success: false, message: "Could not find the Course" });
-      }
-
-      if (course.isEnrolled) {
-        return res
-          .status(200)
-          .json({ success: false, message: "Student is already Enrolled" });
-      }
-
-      total_amount += Number(course.price) || 0;
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ success: false, message: error.message });
-    }
-  }
-
-  const options = {
-    amount: total_amount * 100,
-    currency: "INR",
-    receipt: Math.random(Date.now()).toString(),
-  };
-
-  try {
-    const paymentResponse = await instance.orders.create(options);
-    console.log(paymentResponse);
-    res.json({
-      success: true,
-      data: paymentResponse,
-    });
-  } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ success: false, message: "Could not initiate order." });
-  }
-};
-
-// 2. Verify Razorpay Payment
-exports.verifyPayment = async (req, res) => {
-  const razorpay_order_id = req.body?.razorpay_order_id;
-  const razorpay_payment_id = req.body?.razorpay_payment_id;
-  const razorpay_signature = req.body?.razorpay_signature;
-  const courses = req.body?.courses;
-
-  const userId = req.user?.id;
-
-  if (
-    !razorpay_order_id ||
-    !razorpay_payment_id ||
-    !razorpay_signature ||
-    !courses ||
-    !userId
-  ) {
-    return res.status(200).json({ success: false, message: "Payment Failed" });
-  }
-
-  let body = razorpay_order_id + "|" + razorpay_payment_id;
-
-  const expectedSignature = crypto
-    .createHmac("sha256", process.env.RAZORPAY_SECRET)
-    .update(body.toString())
-    .digest("hex");
-
-  if (expectedSignature === razorpay_signature) {
-    await enrollStudents(courses, userId, res);
-    return res.status(200).json({ success: true, message: "Payment Verified" });
-  }
-
-  return res.status(200).json({ success: false, message: "Payment Failed" });
 };
 
 // 3. Send Payment Success Email  

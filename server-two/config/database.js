@@ -16,9 +16,8 @@ exports.connect = async () => {
     }
 };
 
-/**
- * Converts ES6 tagged template literals into parameterized SQL queries compatible with pg driver ($1, $2, ...)
- * Example: buildSqlQuery`SELECT * FROM "User" WHERE email = ${email}`
+/** 
+ buildSqlQuery`SELECT * FROM "User" WHERE email = ${email}`
  */
 function buildSqlQuery(strings, ...values) {
     let text = "";

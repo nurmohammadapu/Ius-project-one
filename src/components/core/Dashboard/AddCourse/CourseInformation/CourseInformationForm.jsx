@@ -23,6 +23,7 @@ export default function CourseInformationForm() {
     handleSubmit,
     setValue,
     getValues,
+    watch,
     formState: { errors },
   } = useForm()
 
@@ -31,37 +32,78 @@ export default function CourseInformationForm() {
   const { course, editCourse } = useSelector((state) => state.course)
   const [loading, setLoading] = useState(false)
   const [courseCategories, setCourseCategories] = useState([])
+  const selectedCourseCategory = watch("courseCategory")
+
+  const getCourseCategoryId = () => {
+    if (!course) return ""
+    const target =
+      course?.category?.id ||
+      course?.category?._id ||
+      course?.categoryId ||
+      (typeof course?.category === "string" ? course?.category : "")
+    const targetName =
+      course?.category?.name ||
+      (typeof course?.category === "string" ? course?.category : "")
+
+    if (courseCategories && courseCategories.length > 0) {
+      const match = courseCategories.find(
+        (cat) =>
+          (target && (cat.id === target || cat._id === target)) ||
+          (targetName && cat.name?.toLowerCase() === targetName?.toLowerCase()) ||
+          (target && cat.name?.toLowerCase() === target?.toLowerCase())
+      )
+      if (match) {
+        return match.id || match._id
+      }
+    }
+    return target || ""
+  }
 
   useEffect(() => {
     const getCategories = async () => {
       setLoading(true)
       const categories = await fetchCourseCategories()
-      if (categories.length > 0) {
-        // console.log("categories", categories)
+      if (categories && categories.length > 0) {
         setCourseCategories(categories)
       }
       setLoading(false)
     }
-    // if form is in edit mode
-    if (editCourse) {
-      // console.log("data populated", editCourse)
+
+    if (editCourse && course) {
       setValue("courseTitle", course.courseName)
       setValue("courseShortDesc", course.courseDescription)
       setValue("coursePrice", course.price)
       setValue("courseTags", course.tag)
       setValue("courseBenefits", course.whatYouWillLearn)
-      setValue("courseCategory", course?.category?.id || course?.category?._id || course?.categoryId || course?.category)
+      const initialCatId =
+        course?.category?.id ||
+        course?.category?._id ||
+        course?.categoryId ||
+        (typeof course?.category === "string" ? course?.category : "")
+      if (initialCatId) {
+        setValue("courseCategory", initialCatId)
+      }
       setValue("courseRequirements", course.instructions)
       setValue("courseImage", course.thumbnail)
     }
     getCategories()
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [course, editCourse])
+
+  // Sync category once categories list is loaded from server
+  useEffect(() => {
+    if (editCourse && course && courseCategories.length > 0) {
+      const targetCatId = getCourseCategoryId()
+      if (targetCatId) {
+        setValue("courseCategory", targetCatId)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [courseCategories, course, editCourse])
 
   const isFormUpdated = () => {
     const currentValues = getValues()
-    const courseCatId = course?.category?.id || course?.category?._id || course?.categoryId || course?.category
+    const courseCatId = getCourseCategoryId()
     const currentCatId = typeof currentValues.courseCategory === "object"
       ? (currentValues.courseCategory?.id || currentValues.courseCategory?._id)
       : currentValues.courseCategory
@@ -111,7 +153,7 @@ export default function CourseInformationForm() {
         if (currentValues.courseBenefits !== course.whatYouWillLearn) {
           formData.append("whatYouWillLearn", data.courseBenefits)
         }
-        const courseCatId = course?.category?.id || course?.category?._id || course?.categoryId || course?.category
+        const courseCatId = getCourseCategoryId()
         const currentCatId = typeof data.courseCategory === "object" ? (data.courseCategory?.id || data.courseCategory?._id) : data.courseCategory
         if (currentCatId !== courseCatId) {
           formData.append("category", data.courseCategory)
@@ -231,7 +273,10 @@ export default function CourseInformationForm() {
         </label>
         <select
           {...register("courseCategory", { required: true })}
-          defaultValue=""
+          value={selectedCourseCategory || ""}
+          onChange={(e) => {
+            setValue("courseCategory", e.target.value, { shouldValidate: true, shouldDirty: true })
+          }}
           id="courseCategory"
           className="form-style w-full"
         >
