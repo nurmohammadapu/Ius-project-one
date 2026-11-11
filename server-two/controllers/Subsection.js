@@ -20,7 +20,7 @@ async function getSectionWithSubSections(sectionId) {
   return result[0] || null;
 }
 
-// 1. Create a new sub-section (Pure Raw Query)
+// 1. Create a new sub-section  
 exports.createSubSection = async (req, res) => {
   try {
     const { sectionId, title, description } = req.body;
@@ -86,7 +86,7 @@ exports.createSubSection = async (req, res) => {
   }
 };
 
-// 2. Update a sub-section (Pure Raw Query)
+// 2. Update a sub-section  
 exports.updateSubSection = async (req, res) => {
   try {
     const { sectionId, subSectionId, title, description } = req.body;
@@ -177,7 +177,7 @@ exports.updateSubSection = async (req, res) => {
   }
 };
 
-// 3. Delete a sub-section (Pure Raw Query)
+// 3. Delete a sub-section  
 exports.deleteSubSection = async (req, res) => {
   try {
     const { subSectionId, sectionId } = req.body;

@@ -1,7 +1,7 @@
 const { db } = require("../config/database");
 const crypto = require("crypto");
 
-// 1. updateCourseProgress (Pure Raw Query - Fixed Junction Table + Auto Certificate)
+// 1. updateCourseProgress 
 exports.updateCourseProgress = async (req, res) => {
   const { courseId, subsectionId, subSectionId } = req.body;
   const targetSubId = subsectionId || subSectionId;
@@ -98,8 +98,8 @@ exports.updateCourseProgress = async (req, res) => {
       }
     }
 
-    return res.status(200).json({ 
-      success: true, 
+    return res.status(200).json({
+      success: true,
       message: "Course progress updated",
       courseCompleted: totalLectures > 0 && completedCount >= totalLectures,
       certificateGenerated,
@@ -111,7 +111,7 @@ exports.updateCourseProgress = async (req, res) => {
   }
 };
 
-// 2. getProgressPercentage (Pure Raw Query - Fixed Junction Table)
+// 2. getProgressPercentage 
 exports.getProgressPercentage = async (req, res) => {
   const { courseId } = req.body;
   const userId = req.user?.id;

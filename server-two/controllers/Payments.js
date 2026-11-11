@@ -80,7 +80,7 @@ const enrollStudents = async (courses, userId) => {
   }
 };
 
-// 1. Capture the payment and initiate the Razorpay order (Pure Raw Query)
+// 1. Capture the payment and initiate the Razorpay order  
 exports.capturePayment = async (req, res) => {
   const { courses } = req.body;
   const userId = req.user?.id;
@@ -179,7 +179,7 @@ exports.verifyPayment = async (req, res) => {
   return res.status(200).json({ success: false, message: "Payment Failed" });
 };
 
-// 3. Send Payment Success Email (Pure Raw Query)
+// 3. Send Payment Success Email  
 exports.sendPaymentSuccessEmail = async (req, res) => {
   const { orderId, paymentId, amount } = req.body;
   const userId = req.user?.id;
@@ -217,7 +217,7 @@ exports.sendPaymentSuccessEmail = async (req, res) => {
   }
 };
 
-// 4. Capture the payment and initiate the Stripe checkout session (Pure Raw Query)
+// 4. Capture the payment and initiate the Stripe checkout session  
 exports.createStripeCheckoutSession = async (req, res) => {
   const { courses } = req.body;
   const userId = req.user?.id;
@@ -332,7 +332,7 @@ exports.mobileSuccessPage = async (req, res) => {
   `);
 };
 
-// 6. Verify Stripe Payment (Pure Raw Query)
+// 6. Verify Stripe Payment  
 exports.verifyStripePayment = async (req, res) => {
   const { sessionId } = req.body;
   const userId = req.user?.id;
@@ -384,7 +384,7 @@ exports.verifyStripePayment = async (req, res) => {
   }
 };
 
-// 7. Direct Mobile Payment Gateway Process (Pure Raw Query)
+// 7. Direct Mobile Payment Gateway Process  
 exports.directMobilePayment = async (req, res) => {
   try {
     const { courses } = req.body;

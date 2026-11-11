@@ -16,7 +16,7 @@ function getRandomInt(max) {
   return Math.floor(Math.random() * max);
 }
 
-// 1. createCategory (Pure Raw Query)
+// 1. createCategory  
 exports.createCategory = async (req, res) => {
   try {
     const { name, description } = req.body;
@@ -70,7 +70,7 @@ exports.createCategory = async (req, res) => {
   }
 };
 
-// 2. showAllCategories (Pure Raw Query with JSON Aggregation)
+// 2. showAllCategories
 exports.showAllCategories = async (req, res) => {
   try {
     const allCategories = await db.$query`
@@ -112,7 +112,7 @@ exports.showAllCategories = async (req, res) => {
   }
 };
 
-// 3. categoryPageDetails (Pure Raw Query with Subqueries & Aggregations)
+// 3. categoryPageDetails
 exports.categoryPageDetails = async (req, res) => {
   try {
     const { categoryId } = req.body;
@@ -233,7 +233,7 @@ exports.categoryPageDetails = async (req, res) => {
   }
 };
 
-// 4. updateCategory (Pure Raw Query)
+// 4. updateCategory  
 exports.updateCategory = async (req, res) => {
   try {
     const { categoryId, name, description } = req.body;
@@ -304,7 +304,7 @@ exports.updateCategory = async (req, res) => {
   }
 };
 
-// 5. deleteCategory (Pure Raw Query)
+// 5. deleteCategory  
 exports.deleteCategory = async (req, res) => {
   try {
     const { categoryId } = req.body;

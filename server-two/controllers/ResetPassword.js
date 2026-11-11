@@ -3,7 +3,7 @@ const mailSender = require("../utils/mailSender");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 
-// 1. resetPasswordToken (Pure Raw Query)
+// 1. resetPasswordToken  
 exports.resetPasswordToken = async (req, res) => {
   try {
     const email = req.body?.email;
@@ -66,7 +66,7 @@ exports.resetPasswordToken = async (req, res) => {
   }
 };
 
-// 2. resetPassword (Pure Raw Query)
+// 2. resetPassword  
 exports.resetPassword = async (req, res) => {
   try {
     const { password, confirmPassword, token } = req.body;

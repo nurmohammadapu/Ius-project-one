@@ -1,6 +1,6 @@
 const { db } = require("../config/database");
 
-// 1. Create a new rating and review (Pure Raw Query - Fixed Columns)
+// 1. Create a new rating and review 
 exports.createRating = async (req, res) => {
   try {
     const userId = req.user?.id;
@@ -69,7 +69,7 @@ exports.createRating = async (req, res) => {
   }
 };
 
-// 2. Get the average rating for a course (Pure Raw Query)
+// 2. Get the average rating for a course  
 exports.getAverageRating = async (req, res) => {
   try {
     const { courseId } = req.body;
@@ -103,7 +103,7 @@ exports.getAverageRating = async (req, res) => {
   }
 };
 
-// 3. Get all rating and reviews (Pure Raw Query)
+// 3. Get all rating and reviews  
 exports.getAllRatingReview = async (req, res) => {
   try {
     const allReviews = await db.$query`

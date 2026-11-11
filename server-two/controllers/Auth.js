@@ -245,7 +245,7 @@ exports.login = async (req, res) => {
 exports.sendotp = async (req, res) => {
   try {
     const { email } = req.body;
-    console.log("📩 [SEND_OTP] Request received for email:", email);
+    console.log("[SEND_OTP] Request received for email:", email);
 
     // Raw SQL Check User
     const users = await db.$query`
@@ -253,7 +253,7 @@ exports.sendotp = async (req, res) => {
     `;
 
     if (users && users.length > 0) {
-      console.log("⚠️ [SEND_OTP] User is already registered:", email);
+      console.log("[SEND_OTP] User is already registered:", email);
       return res.status(401).json({
         success: false,
         message: `User is Already Registered`,
@@ -279,7 +279,7 @@ exports.sendotp = async (req, res) => {
         SELECT id FROM "OTP" WHERE otp = ${otp} LIMIT 1
       `;
     }
-    console.log("🔑 [SEND_OTP] Generated unique OTP:", otp);
+    console.log("[SEND_OTP] Generated unique OTP:", otp);
 
     // Raw SQL Insert OTP
     const otpResult = await db.$query`
@@ -287,7 +287,7 @@ exports.sendotp = async (req, res) => {
       VALUES (gen_random_uuid()::text, ${email}, ${otp}, NOW())
       RETURNING id
     `;
-    console.log("💾 [SEND_OTP] OTP saved to Database successfully:", otpResult[0]?.id);
+    console.log("[SEND_OTP] OTP saved to Database successfully:", otpResult[0]?.id);
 
     // Send Mail
     const mailSenderUtil = require("../utils/mailSender");
@@ -296,7 +296,7 @@ exports.sendotp = async (req, res) => {
       await mailSenderUtil(email, "Verification Email from StudyNotion", emailTemplate(otp));
       console.log("✉️ [SEND_OTP] Verification Email triggered successfully.");
     } catch (mailErr) {
-      console.error("❌ [SEND_OTP MAIL ERROR] Failed to send Verification Mail:", mailErr.message);
+      console.error("[SEND_OTP MAIL ERROR] Failed to send Verification Mail:", mailErr.message);
     }
 
     res.status(200).json({
@@ -305,7 +305,7 @@ exports.sendotp = async (req, res) => {
       otp,
     });
   } catch (error) {
-    console.error("❌ [SEND_OTP FATAL ERROR]:", error);
+    console.error("[SEND_OTP FATAL ERROR]:", error);
     return res.status(500).json({ success: false, error: error.message });
   }
 };

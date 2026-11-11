@@ -33,7 +33,7 @@ async function getCourseWithContent(courseId) {
   return result[0] || null;
 }
 
-// 1. CREATE a new section (Pure Raw Query)
+// 1. CREATE a new section  
 exports.createSection = async (req, res) => {
   try {
     const { sectionName, courseId } = req.body;
@@ -73,7 +73,7 @@ exports.createSection = async (req, res) => {
   }
 };
 
-// 2. UPDATE a section (Pure Raw Query)
+// 2. UPDATE a section  
 exports.updateSection = async (req, res) => {
   try {
     const { sectionName, sectionId, courseId } = req.body;
@@ -113,7 +113,7 @@ exports.updateSection = async (req, res) => {
   }
 };
 
-// 3. DELETE a section (Pure Raw Query)
+// 3. DELETE a section  
 exports.deleteSection = async (req, res) => {
   try {
     const { sectionId, courseId } = req.body;

@@ -31,7 +31,7 @@ async function generateUniqueCourseId(categoryName) {
 }
 
 
-// 1. createCourse (Pure Raw Query)
+// 1. createCourse  
 exports.createCourse = async (req, res) => {
   try {
     const userId = req.user?.id;
@@ -185,7 +185,7 @@ exports.createCourse = async (req, res) => {
   }
 };
 
-// 2. getAllCourses (Pure Raw Query)
+// 2. getAllCourses  
 exports.getAllCourses = async (req, res) => {
   try {
     const allCourses = await db.$query`
@@ -233,7 +233,7 @@ exports.getAllCourses = async (req, res) => {
   }
 };
 
-// 3. getCourseDetails (Pure Raw Query with Nested Content & Duration Calculation)
+// 3. getCourseDetails 
 exports.getCourseDetails = async (req, res) => {
   try {
     const { courseId } = req.body;
@@ -416,7 +416,7 @@ exports.getCourseDetails = async (req, res) => {
   }
 };
 
-// 4. editCourse (Pure Raw Query Dynamic Update)
+// 4. editCourse
 exports.editCourse = async (req, res) => {
   try {
     const { courseId } = req.body;
@@ -557,7 +557,7 @@ exports.editCourse = async (req, res) => {
   }
 };
 
-// 5. getFullCourseDetails (Pure Raw Query)
+// 5. getFullCourseDetails  
 exports.getFullCourseDetails = async (req, res) => {
   try {
     const { courseId } = req.body;
@@ -754,7 +754,7 @@ exports.getFullCourseDetails = async (req, res) => {
   }
 };
 
-// 6. getInstructorCourses (Pure Raw Query)
+// 6. getInstructorCourses  
 exports.getInstructorCourses = async (req, res) => {
   try {
     const instructorId = req.user?.id;
@@ -905,7 +905,7 @@ exports.getInstructorCourses = async (req, res) => {
   }
 };
 
-// 7. deleteCourse (Pure Raw Query CASCADE Clean)
+// 7. deleteCourse 
 exports.deleteCourse = async (req, res) => {
   try {
     const { courseId } = req.body;
@@ -922,7 +922,7 @@ exports.deleteCourse = async (req, res) => {
     await db.$execute`DELETE FROM "RatingAndReview" WHERE "courseId" = ${courseId}`;
     await db.$execute`DELETE FROM "CourseProgress" WHERE "courseID" = ${courseId}`;
     await db.$execute`DELETE FROM "CourseEnrollment" WHERE "courseId" = ${courseId}`;
-    
+
     // Delete Subsections and Sections
     await db.$execute`
       DELETE FROM "SubSection" 

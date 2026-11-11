@@ -2,7 +2,7 @@ const { db } = require("../config/database");
 const { uploadImageToCloudinary } = require("../utils/imageUploader");
 const { convertSecondsToDuration } = require("../utils/secToDuration");
 
-// 1. updateProfile (Pure Raw Query)
+// 1. updateProfile  
 exports.updateProfile = async (req, res) => {
   try {
     const {
@@ -123,7 +123,7 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-// 2. deleteAccount (Pure Raw Query)
+// 2. deleteAccount  
 exports.deleteAccount = async (req, res) => {
   try {
     const id = req.user?.id;
@@ -143,7 +143,7 @@ exports.deleteAccount = async (req, res) => {
 
     // Delete associated Profile if present
     if (user.profileId) {
-      await db.$execute`DELETE FROM "Profile" WHERE id = ${user.profileId}`.catch(() => {});
+      await db.$execute`DELETE FROM "Profile" WHERE id = ${user.profileId}`.catch(() => { });
     }
 
     // Delete User
@@ -162,7 +162,7 @@ exports.deleteAccount = async (req, res) => {
   }
 };
 
-// 3. getAllUserDetails (Pure Raw Query)
+// 3. getAllUserDetails  
 exports.getAllUserDetails = async (req, res) => {
   try {
     const id = req.user?.id;
@@ -209,7 +209,7 @@ exports.getAllUserDetails = async (req, res) => {
   }
 };
 
-// 4. updateDisplayPicture (Pure Raw Query)
+// 4. updateDisplayPicture  
 exports.updateDisplayPicture = async (req, res) => {
   try {
     const displayPicture = req.files?.displayPicture;
@@ -266,7 +266,7 @@ exports.updateDisplayPicture = async (req, res) => {
   }
 };
 
-// 5. getEnrolledCourses (Pure Raw Query with Progress Calculation)
+// 5. getEnrolledCourses (  with Progress Calculation)
 exports.getEnrolledCourses = async (req, res) => {
   try {
     const userId = req.user?.id;
@@ -352,7 +352,7 @@ exports.getEnrolledCourses = async (req, res) => {
   }
 };
 
-// 6. instructorDashboard (Pure Raw Query)
+// 6. instructorDashboard  
 exports.instructorDashboard = async (req, res) => {
   try {
     const userId = req.user?.id;
